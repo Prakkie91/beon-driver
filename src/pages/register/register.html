@@ -1,0 +1,122 @@
+<!--
+  Generated template for the RegisterPage page.
+
+  See http://ionicframework.com/docs/v2/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+
+<ion-content class=" auth-bg">
+  <div class="auth-content">
+
+    <div class="light-bg">
+
+      <!-- Logo -->
+      <div padding text-center>
+        <div class="logo">
+          <img
+            src="https://res.cloudinary.com/dbwpvgyrn/image/upload/c_pad,h_200,q_auto:best,w_200/v1539865458/logo_black-style-2_z1aw7f_szaoom.png"/>
+        </div>
+        <h2 ion-text color="dark">
+          BEON DRIVER APP
+        </h2>
+        <p ion-text color="dark">If you’re driving anyway, why not make some easy extra cash?</p>
+      </div>
+
+      <section *ngIf="signupPage===1">
+        <!-- Login form -->
+        <ion-list class="list-form" padding>
+          <form [formGroup]="userBasicInfo">
+            <ion-item>
+              <ion-input formControlName="name" type="text" placeholder="Your name"></ion-input>
+            </ion-item>
+            <ion-item
+              *ngIf="!userBasicInfo.controls.name.valid  && (userBasicInfo.controls.name.dirty || submitAttempt)">
+              <p>Please enter a valid name.</p>
+            </ion-item>
+            <ion-item>
+              <ion-input formControlName="phone" type="text" placeholder="Phone number"></ion-input>
+            </ion-item>
+            <ion-item
+              *ngIf="!userBasicInfo.controls.phone.valid  && (userBasicInfo.controls.phone.dirty || submitAttempt)">
+              <p>Please enter a valid phone number.</p>
+            </ion-item>
+            <ion-item>
+              <ion-input formControlName="email" type="text" placeholder="Email"></ion-input>
+            </ion-item>
+            <ion-item
+              *ngIf="!userBasicInfo.controls.email.valid  && (userBasicInfo.controls.email.dirty || submitAttempt)">
+              <p>Please enter a valid email address.</p>
+            </ion-item>
+            <ion-item>
+              <ion-input formControlName="password" type="password" placeholder="Password"></ion-input>
+            </ion-item>
+            <ion-item
+              *ngIf="!userBasicInfo.controls.password.valid  && (userBasicInfo.controls.password.dirty || submitAttempt)">
+              <p>Please enter a valid password of at least 5 characters.</p>
+            </ion-item>
+          </form>
+        </ion-list>
+        <div padding>
+          <button ion-button color="secondary" block (click)="next()">
+            Next
+          </button>
+        </div>
+      </section>
+      <section *ngIf="signupPage===2">
+        <!-- Login form -->
+        <form [formGroup]="userVehicleInfo">
+          <ion-item>
+            <ion-input formControlName="type" type="text" placeholder="type"></ion-input>
+          </ion-item>
+          <ion-item
+            *ngIf="!userVehicleInfo.controls.type.valid  && (userVehicleInfo.controls.type.dirty || submitAttempt)">
+            <p>Please enter a valid name.</p>
+          </ion-item>
+          <ion-item>
+            <ion-input formControlName="brand" type="text" placeholder="brand"></ion-input>
+          </ion-item>
+          <ion-item
+            *ngIf="!userVehicleInfo.controls.brand.valid  && (userVehicleInfo.controls.brand.dirty || submitAttempt)">
+            <p>Please enter a valid email address.</p>
+          </ion-item>
+          <ion-item>
+            <ion-input formControlName="model" type="text" placeholder="model"></ion-input>
+          </ion-item>
+          <ion-item
+            *ngIf="!userVehicleInfo.controls.model.valid  && (userVehicleInfo.controls.model.dirty || submitAttempt)">
+            <p>Please enter a valid password of at least 5 characters.</p>
+          </ion-item>
+          <ion-item>
+            <ion-input formControlName="numberPlate" type="text" placeholder="Number Plate"></ion-input>
+          </ion-item>
+          <ion-item
+            *ngIf="!userVehicleInfo.controls.numberPlate.valid  && (userVehicleInfo.controls.numberPlate.dirty || submitAttempt)">
+            <p>Please enter a valid password of at least 5 characters.</p>
+          </ion-item>
+        </form>
+        <div padding>
+          <button ion-button color="secondary" block (click)="signup()">
+            Next
+          </button>
+        </div>
+      </section>
+    </div>
+    <div padding=""></div>
+
+    <!-- Other links -->
+    <ion-grid>
+      <ion-row>
+        <ion-col>
+          <span ion-text color="light">Forgot password?</span>
+        </ion-col>
+        <ion-col>
+          <span ion-text color="light">
+            Have account?
+            <span ion-text color="secondary" (click)="login()">Login</span>
+          </span>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+  </div>
+</ion-content>
