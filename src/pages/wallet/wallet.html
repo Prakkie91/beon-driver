@@ -31,11 +31,11 @@
         <span ion-text color="light" >{{ record.date }}</span>
       </div>
       <div color="light" >
-        <span ion-text color="gray" >ID</span>
-        <span ion-text color="light" >{{ record.unique_id }}</span>
+        <span ion-text color="gray" >Status</span>
+        <span ion-text color="light" >{{ record.status }}</span>
       </div>
       <div>
-        <span class="bold" ion-text color="light" >${{ record.amount }}</span>
+        <span class="bold" ion-text color="light" >{{ record.amount }} {{ record.currency }}</span>
       </div>
       <ion-badge color="secondary"  item-right>{{ record.action }}</ion-badge>
     </ion-item>

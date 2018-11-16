@@ -4,6 +4,9 @@ import {MyApp} from './app.component';
 import {BrowserModule} from '@angular/platform-browser';
 import {StatusBar} from '@ionic-native/status-bar';
 import {SplashScreen} from '@ionic-native/splash-screen';
+import { Pro } from '@ionic/pro';
+import { ErrorHandler, Injectable, Injector } from '@angular/core';
+import { IonicErrorHandler } from 'ionic-angular';
 
 import { LocationTrackingService } from '../services/location-tracking';
 import { BackgroundGeolocation } from '@ionic-native/background-geolocation';
@@ -30,6 +33,30 @@ import {SettingPage} from '../pages/setting/setting';
 import {SupportPage} from '../pages/support/support';
 import {WalletPage} from '../pages/wallet/wallet';
 // end import pages
+
+Pro.init('b4069d91', {
+  appVersion: '1.0.1'
+});
+
+export class MyErrorHandler implements ErrorHandler {
+  ionicErrorHandler: IonicErrorHandler;
+
+  constructor(injector: Injector) {
+    try {
+      this.ionicErrorHandler = injector.get(IonicErrorHandler);
+    } catch(e) {
+      // Unable to get the IonicErrorHandler provider, ensure
+      // IonicErrorHandler has been added to the providers list below
+    }
+  }
+
+  handleError(err: any): void {
+    Pro.monitoring.handleNewError(err);
+    // Remove this if you want to disable Ionic's auto exception handling
+    // in development mode.
+    this.ionicErrorHandler && this.ionicErrorHandler.handleError(err);
+  }
+}
 
 @NgModule({
   declarations: [
@@ -74,7 +101,9 @@ import {WalletPage} from '../pages/wallet/wallet';
     TransactionService,
     BackgroundGeolocation,
     Geolocation,
-    LocationTrackingService
+    LocationTrackingService,
+    IonicErrorHandler,
+    [{ provide: ErrorHandler, useClass: MyErrorHandler }]
     /* import services */
   ]
 })

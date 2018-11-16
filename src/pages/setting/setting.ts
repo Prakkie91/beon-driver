@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { NavController } from 'ionic-angular';
+import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 
 /*
   Generated class for the SettingPage page.
@@ -12,9 +13,12 @@ import { NavController } from 'ionic-angular';
   templateUrl: 'setting.html'
 })
 export class SettingPage {
-
-  constructor(public nav: NavController) {
-
+  userBasicInfo: FormGroup;
+  constructor(public nav: NavController, public formBuilder: FormBuilder) {
+    this.userBasicInfo = formBuilder.group({
+      name: ['', Validators.compose([Validators.required, Validators.minLength(4)])],
+      phone: ['', Validators.compose([Validators.required, Validators.minLength(10)])],
+      email: ['', Validators.compose([Validators.required, Validators.email])]
+    });
   }
-
 }
