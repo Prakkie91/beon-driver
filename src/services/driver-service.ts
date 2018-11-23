@@ -1,15 +1,17 @@
 import {Injectable} from '@angular/core';
-import {DRIVER} from './mock-driver';
+import {Client} from './beon-api';
 
 @Injectable()
 export class DriverService {
-  private driver:any;
+  private apiClient: any;
 
   constructor() {
-    this.driver = DRIVER;
+    this.apiClient = new Client("http://beonadvertising.com");
   }
 
   getCurrentDriver() {
-    return this.driver;
+    let info =this.apiClient.getDriverInfo("ENRICOWILLEMSE.WAS@GMAIL.COM", true);
+
+    return info;
   }
 }

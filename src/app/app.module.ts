@@ -11,7 +11,7 @@ import { IonicErrorHandler } from 'ionic-angular';
 import { LocationTrackingService } from '../services/location-tracking';
 import { BackgroundGeolocation } from '@ionic-native/background-geolocation';
 import { Geolocation } from '@ionic-native/geolocation';
-
+import { HttpClientModule } from '@angular/common/http';
 
 // import services
 import {DriverService} from '../services/driver-service';
@@ -76,6 +76,7 @@ export class MyErrorHandler implements ErrorHandler {
   ],
   imports: [
     BrowserModule,
+    HttpClientModule,
     IonicModule.forRoot(MyApp)
   ],
   bootstrap: [IonicApp],
