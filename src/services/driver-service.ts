@@ -1,17 +1,19 @@
 import {Injectable} from '@angular/core';
 import {Client} from './beon-api';
+import {HttpClient} from "@angular/common/http";
+import {Storage} from "@ionic/storage";
 
 @Injectable()
 export class DriverService {
   private apiClient: any;
+  private driverId: string;
 
-  constructor() {
-    this.apiClient = new Client("http://beonadvertising.com");
+  constructor(private http: HttpClient, private storage: Storage) {
+    this.apiClient = new Client(http, "http://beonadvertising.com");
   }
 
   getCurrentDriver() {
-    let info =this.apiClient.getDriverInfo("ENRICOWILLEMSE.WAS@GMAIL.COM", true);
-
-    return info;
+    return this.storage.get("DriverId").then(a => this.driverId = a)
+        .then(()=>this.apiClient.getDriverInfo(this.driverId, true));
   }
 }

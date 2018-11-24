@@ -12,6 +12,7 @@ import {SettingPage} from '../pages/setting/setting';
 import {SupportPage} from '../pages/support/support';
 import {LoginPage} from '../pages/login/login';
 import {RegisterPage} from "../pages/register/register";
+import {Storage} from "@ionic/storage";
 
 
 @Component({
@@ -56,18 +57,11 @@ export class MyApp {
       icon: 'ios-help-circle-outline',
       count: 0,
       component: SupportPage
-    },
-    {
-      title: 'Logout',
-      icon: 'md-exit',
-      count: 0,
-      component: LoginPage
     }
   ];
 
-  constructor(platform: Platform, statusBar: StatusBar, splashScreen: SplashScreen) {
+  constructor(platform: Platform, statusBar: StatusBar, splashScreen: SplashScreen,private storage: Storage) {
     this.rootPage = RegisterPage;
-
     platform.ready().then(() => {
       // Okay, so the platform is ready and our plugins are available.
       // Here you can do any higher level native things you might need.
@@ -80,6 +74,11 @@ export class MyApp {
     // Reset the content nav to have just this page
     // we wouldn't want the back button to show in this scenario
     this.nav.setRoot(page.component);
+  }
+
+  logout(){
+    this.storage.remove("DriverId");
+    this.nav.setRoot(LoginPage);
   }
 }
 

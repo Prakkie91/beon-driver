@@ -34,8 +34,11 @@ import {SupportPage} from '../pages/support/support';
 import {WalletPage} from '../pages/wallet/wallet';
 // end import pages
 
+import { IonicStorageModule } from '@ionic/storage';
+import {VehicleService} from "../services/vehicle-service";
+
 Pro.init('b4069d91', {
-  appVersion: '1.0.1'
+  appVersion: '1.0.2'
 });
 
 @Injectable()
@@ -77,7 +80,11 @@ export class MyErrorHandler implements ErrorHandler {
   imports: [
     BrowserModule,
     HttpClientModule,
-    IonicModule.forRoot(MyApp)
+    IonicModule.forRoot(MyApp),
+    IonicStorageModule.forRoot({
+      name: '__mydb',
+      driverOrder: ['indexeddb', 'sqlite', 'websql']
+    })
   ],
   bootstrap: [IonicApp],
   entryComponents: [
@@ -98,6 +105,7 @@ export class MyErrorHandler implements ErrorHandler {
     StatusBar,
     SplashScreen,
     DriverService,
+    VehicleService,
     JobService,
     ReportService,
     TransactionService,

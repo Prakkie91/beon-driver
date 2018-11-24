@@ -79,34 +79,28 @@
             <!-- Login form -->
             <ion-item>
               <ion-label>Vehicle Type</ion-label>
-              <ion-select class="item-input"  formControlName="type" type="text">
-                <ion-option value="1">Car</ion-option>
-                <ion-option value="2">Van</ion-option>
-                <ion-option value="3">Truck</ion-option>
+              <ion-select class="item-input"  formControlName="type" type="text" >
+                <ion-option *ngFor="let key of (vehicleCategories| async)" value="{{key.id}}">{{key.name}}</ion-option>
               </ion-select>
             </ion-item>
             <ion-item
               *ngIf="!userVehicleInfo.controls.type.valid  && (userVehicleInfo.controls.type.dirty || submitAttempt)">
               <p>Please select vehicle type.</p>
             </ion-item>
-            <ion-item *ngIf="userVehicleInfo.controls.type.valid">
+            <ion-item *ngIf="userVehicleInfo.controls.type.valid" >
               <ion-label>Brand</ion-label>
               <ion-select class="item-input" formControlName="brand" type="text">
-                <ion-option value="1">Toyota</ion-option>
-                <ion-option value="2">BMW</ion-option>
-                <ion-option value="3">Mercedes</ion-option>
+                <ion-option *ngFor="let key of (vehicleBrands| async)" value="{{key.id}}">{{key.name}}</ion-option>
               </ion-select>
             </ion-item>
             <ion-item
               *ngIf="!userVehicleInfo.controls.brand.valid  && (userVehicleInfo.controls.brand.dirty || submitAttempt)">
               <p>Please select vehicle brand.</p>
             </ion-item>
-            <ion-item *ngIf="userVehicleInfo.controls.brand.valid">
+            <ion-item *ngIf="userVehicleInfo.controls.brand.valid" >
               <ion-label>Model</ion-label>
-              <ion-select formControlName="model" type="text" >
-                <ion-option value="1">Yaris 2017</ion-option>
-                <ion-option value="2">Corolla 2018</ion-option>
-              </ion-select>
+              <ion-input formControlName="model" type="text" >
+              </ion-input>
             </ion-item>
             <ion-item
               *ngIf="!userVehicleInfo.controls.model.valid  && (userVehicleInfo.controls.model.dirty || submitAttempt)">

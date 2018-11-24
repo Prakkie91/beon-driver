@@ -3,6 +3,9 @@ import {NavController} from 'ionic-angular';
 import {LoginPage} from '../login/login';
 import {HomePage} from "../home/home";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
+import {VehicleService} from "../../services/vehicle-service";
+import {Observable} from "rxjs";
+import {VehicleBrand, VehicleCategory} from "../../services/beon-api";
 
 /*
   Generated class for the RegisterPage page.
@@ -21,7 +24,10 @@ export class RegisterPage {
   userVehicleInfo: FormGroup;
   submitAttempt: boolean = false;
 
-  constructor(public nav: NavController, public formBuilder: FormBuilder) {
+  vehicleCategories : Observable<VehicleCategory>;
+  vehicleBrands : Observable<VehicleBrand>;
+
+  constructor(public nav: NavController, public formBuilder: FormBuilder, public vehicleService: VehicleService) {
     this.userBasicInfo = formBuilder.group({
       name: ['', Validators.compose([Validators.required, Validators.minLength(4)])],
       phone: ['', Validators.compose([Validators.required, Validators.minLength(10)])],
@@ -35,6 +41,8 @@ export class RegisterPage {
       model: ['', Validators.compose([Validators.required])],
       numberPlate: ['', Validators.compose([Validators.required, Validators.minLength(5)])]
     });
+    this.vehicleCategories = vehicleService.getVehicleCategories();
+    this.vehicleBrands = vehicleService.getVehicleBrands();
   }
 
   next() {

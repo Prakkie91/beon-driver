@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
-import { NavController } from 'ionic-angular';
+import {Component} from '@angular/core';
+import {NavController} from 'ionic-angular';
 import {RegisterPage} from '../register/register';
 import {HomePage} from '../home/home'
+import {Storage} from '@ionic/storage';
 
 /*
   Generated class for the LoginPage page.
@@ -15,8 +16,18 @@ import {HomePage} from '../home/home'
 })
 export class LoginPage {
 
-  constructor(public nav: NavController) {
+  constructor(public nav: NavController, private storage: Storage) {
+    this.checkIfLoggedIn();
+  }
 
+  checkIfLoggedIn() {
+    let self = this;
+    this.storage.get("DriverId")
+      .then(function (driverId) {
+        if (driverId) {
+          self.nav.setRoot(HomePage)
+        }
+      });
   }
 
   signup() {
@@ -24,6 +35,7 @@ export class LoginPage {
   }
 
   login() {
-    this.nav.setRoot(HomePage);
+    this.storage.set('DriverId', 'ENRICOWILLEMSE.WAS@GMAIL.COM').then(a =>
+      this.nav.setRoot(HomePage));
   }
 }

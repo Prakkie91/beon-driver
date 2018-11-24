@@ -15,6 +15,10 @@
         {{ page.title }}
         <ion-badge danger item-right *ngIf="page.count">{{ page.count }}</ion-badge>
       </button>
+      <button ion-item menuClose (click)="logout()">
+        <ion-icon item-left name="md-exit"></ion-icon>
+        Logout
+      </button>
     </ion-list>
   </ion-content>
 

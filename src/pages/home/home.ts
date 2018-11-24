@@ -6,6 +6,7 @@ import {PickUpPage} from "../pick-up/pick-up";
 import {LocationTrackingService} from '../../services/location-tracking';
 import {DriverInfoResponse} from "../../services/beon-api";
 import {Observable} from "rxjs";
+import {from} from "rxjs/observable/from";
 
 declare var google;
 
@@ -16,7 +17,7 @@ declare var google;
 
 export class HomePage {
   // driver info
-  public driver: DriverInfoResponse;
+  public driver: Observable<DriverInfoResponse>;
   public x: number;
   public y: number;
   public marker: any;
@@ -30,13 +31,8 @@ export class HomePage {
   constructor(public nav: NavController, public driverService: DriverService, public modalCtrl: ModalController,
               public alertCtrl: AlertController, public locationTrackingService: LocationTrackingService) {
 
-    let info = driverService.getCurrentDriver();
+    driverService.getCurrentDriver().then(a => this.driver = a);
 
-    info.then(function (data) {
-      this.driver =data;
-    }).catch(function (data) {
-      alert(data)
-    });
     // show modal
     let modal = this.modalCtrl.create(ModalJobPage);
 
@@ -104,7 +100,6 @@ export class HomePage {
 
 
   start() {
-
     this.isTracking = true;
     this.locationTrackingService.startTracking();
 

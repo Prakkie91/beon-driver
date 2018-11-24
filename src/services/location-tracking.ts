@@ -2,6 +2,8 @@ import {Injectable, NgZone} from '@angular/core';
 import {BackgroundGeolocation} from '@ionic-native/background-geolocation';
 import {Geolocation, Geoposition} from '@ionic-native/geolocation';
 import 'rxjs/add/operator/filter';
+import {HttpClient} from "@angular/common/http";
+import {Client, CreateTrackingEventRequest} from "./beon-api";
 
 @Injectable()
 export class LocationTrackingService {
@@ -9,9 +11,10 @@ export class LocationTrackingService {
   public watch: any;
   public lat: number = 0;
   public lng: number = 0;
+  private apiClient: any;
 
-  constructor(public zone: NgZone, public backgroundGeolocation: BackgroundGeolocation, public geolocation: Geolocation) {
-
+  constructor(public zone: NgZone, public backgroundGeolocation: BackgroundGeolocation, public geolocation: Geolocation, private http: HttpClient) {
+    this.apiClient = new Client(http, "http://beonadvertising.com");
   }
 
   startTracking() {
@@ -29,7 +32,13 @@ export class LocationTrackingService {
     this.backgroundGeolocation.configure(config).subscribe((location) => {
 
       console.log('BackgroundGeolocation:  ' + location.latitude + ',' + location.longitude);
+      let request = new CreateTrackingEventRequest();
+      request.latitude = location.latitude;
+      request.altitude = location.altitude;
+      request.longitude = location.longitude;
+      request.driverVehicleId = 1;
 
+      this.apiClient.driverVehicleTrackingEvent(request);
       // Run update inside of Angular's zone
       this.zone.run(() => {
         this.lat = location.latitude;

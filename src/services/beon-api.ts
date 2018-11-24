@@ -6,14 +6,93 @@
 //----------------------
 // ReSharper disable InconsistentNaming
 
+import 'rxjs/add/observable/fromPromise';
+import 'rxjs/add/observable/of';
+import 'rxjs/add/observable/throw';
+import 'rxjs/add/operator/map';
+import 'rxjs/add/operator/toPromise';
+import 'rxjs/add/operator/mergeMap';
+import 'rxjs/add/operator/catch';
+
+import { Observable } from 'rxjs/Observable';
+import { Injectable, Inject, Optional, InjectionToken } from '@angular/core';
+import { HttpClient, HttpHeaders, HttpResponse, HttpResponseBase } from '@angular/common/http';
+
+export const API_BASE_URL = new InjectionToken<string>('API_BASE_URL');
+
+@Injectable()
 export class Client {
-  private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+  private http: HttpClient;
   private baseUrl: string;
   protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
 
-  constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
-    this.http = http ? http : <any>window;
+  constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+    this.http = http;
     this.baseUrl = baseUrl ? baseUrl : "";
+  }
+
+  /**
+   * @param userName (optional)
+   * @param password (optional)
+   * @return Success
+   */
+  login(userName: string | null | undefined, password: string | null | undefined): Observable<DriverInfoUpdateRequest> {
+    let url_ = this.baseUrl + "/api/Driver/Login?";
+    if (userName !== undefined)
+      url_ += "userName=" + encodeURIComponent("" + userName) + "&";
+    if (password !== undefined)
+      url_ += "password=" + encodeURIComponent("" + password) + "&";
+    url_ = url_.replace(/[?&]$/, "");
+
+    let options_ : any = {
+      observe: "response",
+      responseType: "blob",
+      headers: new HttpHeaders({
+        "Accept": "application/json"
+      })
+    };
+
+    return this.http.request("post", url_, options_).flatMap((response_ : any) => {
+      return this.processLogin(response_);
+    }).catch((response_: any) => {
+      if (response_ instanceof HttpResponseBase) {
+        try {
+          return this.processLogin(<any>response_);
+        } catch (e) {
+          return <Observable<DriverInfoUpdateRequest>><any>Observable.throw(e);
+        }
+      } else
+        return <Observable<DriverInfoUpdateRequest>><any>Observable.throw(response_);
+    });
+  }
+
+  protected processLogin(response: HttpResponseBase): Observable<DriverInfoUpdateRequest> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse ? response.body :
+        (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
+    if (status === 200) {
+      return blobToText(responseBlob).flatMap(_responseText => {
+        let result200: any = null;
+        let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+        result200 = resultData200 ? DriverInfoUpdateRequest.fromJS(resultData200) : new DriverInfoUpdateRequest();
+        return Observable.of(result200);
+      });
+    } else if (status === 500) {
+      return blobToText(responseBlob).flatMap(_responseText => {
+        let result500: any = null;
+        let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+        result500 = resultData500 ? ErrorModel.fromJS(resultData500) : new ErrorModel();
+        return throwException("A server error occurred.", status, _responseText, _headers, result500);
+      });
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).flatMap(_responseText => {
+        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+      });
+    }
+    return Observable.of<DriverInfoUpdateRequest>(<any>null);
   }
 
   /**
@@ -21,7 +100,7 @@ export class Client {
    * @param isFull (optional)
    * @return Success
    */
-  getDriverInfo(userName: string | null | undefined, isFull: boolean | null | undefined): Promise<DriverInfoResponse> {
+  getDriverInfo(userName: string | null | undefined, isFull: boolean | null | undefined): Observable<DriverInfoResponse> {
     let url_ = this.baseUrl + "/api/Driver/GetDriverInfo?";
     if (userName !== undefined)
       url_ += "userName=" + encodeURIComponent("" + userName) + "&";
@@ -29,217 +108,287 @@ export class Client {
       url_ += "isFull=" + encodeURIComponent("" + isFull) + "&";
     url_ = url_.replace(/[?&]$/, "");
 
-    let options_ = <RequestInit>{
-      method: "GET",
-      headers: {
+    let options_ : any = {
+      observe: "response",
+      responseType: "blob",
+      headers: new HttpHeaders({
         "Accept": "application/json"
-      }
+      })
     };
-    return this.http.fetch(url_, options_).then((_response: Response) => {
-      alert(_response);
-      return this.processGetDriverInfo(_response);
+
+    return this.http.request("get", url_, options_).flatMap((response_ : any) => {
+      return this.processGetDriverInfo(response_);
+    }).catch((response_: any) => {
+      if (response_ instanceof HttpResponseBase) {
+        try {
+          return this.processGetDriverInfo(<any>response_);
+        } catch (e) {
+          return <Observable<DriverInfoResponse>><any>Observable.throw(e);
+        }
+      } else
+        return <Observable<DriverInfoResponse>><any>Observable.throw(response_);
     });
   }
 
-  protected processGetDriverInfo(response: Response): Promise<DriverInfoResponse> {
+  protected processGetDriverInfo(response: HttpResponseBase): Observable<DriverInfoResponse> {
     const status = response.status;
-    let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+    const responseBlob =
+      response instanceof HttpResponse ? response.body :
+        (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
     if (status === 200) {
-      return response.text().then((_responseText) => {
+      return blobToText(responseBlob).flatMap(_responseText => {
         let result200: any = null;
         let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
         result200 = resultData200 ? DriverInfoResponse.fromJS(resultData200) : new DriverInfoResponse();
-        return result200;
+        return Observable.of(result200);
       });
     } else if (status === 500) {
-      return response.text().then((_responseText) => {
+      return blobToText(responseBlob).flatMap(_responseText => {
         let result500: any = null;
         let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
         result500 = resultData500 ? ErrorModel.fromJS(resultData500) : new ErrorModel();
         return throwException("A server error occurred.", status, _responseText, _headers, result500);
       });
     } else if (status !== 200 && status !== 204) {
-      return response.text().then((_responseText) => {
+      return blobToText(responseBlob).flatMap(_responseText => {
         return throwException("An unexpected server error occurred.", status, _responseText, _headers);
       });
     }
-    return Promise.resolve<DriverInfoResponse>(<any>null);
+    return Observable.of<DriverInfoResponse>(<any>null);
   }
 
   /**
    * @param data (optional)
    * @return Success
    */
-  updateSettings(data: DriverInfoUpdateRequest | null | undefined): Promise<DriverInfoUpdateRequest> {
+  updateSettings(data: DriverInfoUpdateRequest | null | undefined): Observable<DriverInfoUpdateRequest> {
     let url_ = this.baseUrl + "/api/Driver/UpdateSetting";
     url_ = url_.replace(/[?&]$/, "");
 
     const content_ = JSON.stringify(data);
 
-    let options_ = <RequestInit>{
+    let options_ : any = {
       body: content_,
-      method: "POST",
-      headers: {
+      observe: "response",
+      responseType: "blob",
+      headers: new HttpHeaders({
         "Content-Type": "application/json",
         "Accept": "application/json"
-      }
+      })
     };
 
-    return this.http.fetch(url_, options_).then((_response: Response) => {
-      return this.processUpdateSettings(_response);
+    return this.http.request("post", url_, options_).flatMap((response_ : any) => {
+      return this.processUpdateSettings(response_);
+    }).catch((response_: any) => {
+      if (response_ instanceof HttpResponseBase) {
+        try {
+          return this.processUpdateSettings(<any>response_);
+        } catch (e) {
+          return <Observable<DriverInfoUpdateRequest>><any>Observable.throw(e);
+        }
+      } else
+        return <Observable<DriverInfoUpdateRequest>><any>Observable.throw(response_);
     });
   }
 
-  protected processUpdateSettings(response: Response): Promise<DriverInfoUpdateRequest> {
+  protected processUpdateSettings(response: HttpResponseBase): Observable<DriverInfoUpdateRequest> {
     const status = response.status;
-    let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+    const responseBlob =
+      response instanceof HttpResponse ? response.body :
+        (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
     if (status === 200) {
-      return response.text().then((_responseText) => {
+      return blobToText(responseBlob).flatMap(_responseText => {
         let result200: any = null;
         let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
         result200 = resultData200 ? DriverInfoUpdateRequest.fromJS(resultData200) : new DriverInfoUpdateRequest();
-        return result200;
+        return Observable.of(result200);
       });
     } else if (status === 500) {
-      return response.text().then((_responseText) => {
+      return blobToText(responseBlob).flatMap(_responseText => {
         let result500: any = null;
         let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
         result500 = resultData500 ? ErrorModel.fromJS(resultData500) : new ErrorModel();
         return throwException("A server error occurred.", status, _responseText, _headers, result500);
       });
     } else if (status !== 200 && status !== 204) {
-      return response.text().then((_responseText) => {
+      return blobToText(responseBlob).flatMap(_responseText => {
         return throwException("An unexpected server error occurred.", status, _responseText, _headers);
       });
     }
-    return Promise.resolve<DriverInfoUpdateRequest>(<any>null);
+    return Observable.of<DriverInfoUpdateRequest>(<any>null);
   }
 
   /**
    * @param data (optional)
    * @return Success
    */
-  signUp(data: DriverSignUpRequest | null | undefined): Promise<DriverSignUpRequest> {
+  signUp(data: DriverSignUpRequest | null | undefined): Observable<DriverSignUpRequest> {
     let url_ = this.baseUrl + "/api/Driver/SignUp";
     url_ = url_.replace(/[?&]$/, "");
 
     const content_ = JSON.stringify(data);
 
-    let options_ = <RequestInit>{
+    let options_ : any = {
       body: content_,
-      method: "POST",
-      headers: {
+      observe: "response",
+      responseType: "blob",
+      headers: new HttpHeaders({
         "Content-Type": "application/json",
         "Accept": "application/json"
-      }
+      })
     };
 
-    return this.http.fetch(url_, options_).then((_response: Response) => {
-      return this.processSignUp(_response);
+    return this.http.request("post", url_, options_).flatMap((response_ : any) => {
+      return this.processSignUp(response_);
+    }).catch((response_: any) => {
+      if (response_ instanceof HttpResponseBase) {
+        try {
+          return this.processSignUp(<any>response_);
+        } catch (e) {
+          return <Observable<DriverSignUpRequest>><any>Observable.throw(e);
+        }
+      } else
+        return <Observable<DriverSignUpRequest>><any>Observable.throw(response_);
     });
   }
 
-  protected processSignUp(response: Response): Promise<DriverSignUpRequest> {
+  protected processSignUp(response: HttpResponseBase): Observable<DriverSignUpRequest> {
     const status = response.status;
-    let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+    const responseBlob =
+      response instanceof HttpResponse ? response.body :
+        (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
     if (status === 200) {
-      return response.text().then((_responseText) => {
+      return blobToText(responseBlob).flatMap(_responseText => {
         let result200: any = null;
         let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
         result200 = resultData200 ? DriverSignUpRequest.fromJS(resultData200) : new DriverSignUpRequest();
-        return result200;
+        return Observable.of(result200);
       });
     } else if (status === 500) {
-      return response.text().then((_responseText) => {
+      return blobToText(responseBlob).flatMap(_responseText => {
         let result500: any = null;
         let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
         result500 = resultData500 ? ErrorModel.fromJS(resultData500) : new ErrorModel();
         return throwException("A server error occurred.", status, _responseText, _headers, result500);
       });
     } else if (status !== 200 && status !== 204) {
-      return response.text().then((_responseText) => {
+      return blobToText(responseBlob).flatMap(_responseText => {
         return throwException("An unexpected server error occurred.", status, _responseText, _headers);
       });
     }
-    return Promise.resolve<DriverSignUpRequest>(<any>null);
+    return Observable.of<DriverSignUpRequest>(<any>null);
   }
 
   /**
    * @param data (optional)
    * @return Success
    */
-  driverVehicleTrackingEvent(data: CreateTrackingEventRequest | null | undefined): Promise<DriverVehicleTrackingEvent> {
+  driverVehicleTrackingEvent(data: CreateTrackingEventRequest | null | undefined): Observable<DriverVehicleTrackingEvent> {
     let url_ = this.baseUrl + "/api/DriverVehicleTrackingEvents/DriverVehicleTrackingEvent";
     url_ = url_.replace(/[?&]$/, "");
 
     const content_ = JSON.stringify(data);
 
-    let options_ = <RequestInit>{
+    let options_ : any = {
       body: content_,
-      method: "POST",
-      headers: {
+      observe: "response",
+      responseType: "blob",
+      headers: new HttpHeaders({
         "Content-Type": "application/json",
         "Accept": "application/json"
-      }
+      })
     };
 
-    return this.http.fetch(url_, options_).then((_response: Response) => {
-      return this.processDriverVehicleTrackingEvent(_response);
+    return this.http.request("post", url_, options_).flatMap((response_ : any) => {
+      return this.processDriverVehicleTrackingEvent(response_);
+    }).catch((response_: any) => {
+      if (response_ instanceof HttpResponseBase) {
+        try {
+          return this.processDriverVehicleTrackingEvent(<any>response_);
+        } catch (e) {
+          return <Observable<DriverVehicleTrackingEvent>><any>Observable.throw(e);
+        }
+      } else
+        return <Observable<DriverVehicleTrackingEvent>><any>Observable.throw(response_);
     });
   }
 
-  protected processDriverVehicleTrackingEvent(response: Response): Promise<DriverVehicleTrackingEvent> {
+  protected processDriverVehicleTrackingEvent(response: HttpResponseBase): Observable<DriverVehicleTrackingEvent> {
     const status = response.status;
-    let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+    const responseBlob =
+      response instanceof HttpResponse ? response.body :
+        (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
     if (status === 200) {
-      return response.text().then((_responseText) => {
+      return blobToText(responseBlob).flatMap(_responseText => {
         let result200: any = null;
         let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
         result200 = resultData200 ? DriverVehicleTrackingEvent.fromJS(resultData200) : new DriverVehicleTrackingEvent();
-        return result200;
+        return Observable.of(result200);
       });
     } else if (status === 500) {
-      return response.text().then((_responseText) => {
+      return blobToText(responseBlob).flatMap(_responseText => {
         let result500: any = null;
         let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
         result500 = resultData500 ? ErrorModel.fromJS(resultData500) : new ErrorModel();
         return throwException("A server error occurred.", status, _responseText, _headers, result500);
       });
     } else if (status !== 200 && status !== 204) {
-      return response.text().then((_responseText) => {
+      return blobToText(responseBlob).flatMap(_responseText => {
         return throwException("An unexpected server error occurred.", status, _responseText, _headers);
       });
     }
-    return Promise.resolve<DriverVehicleTrackingEvent>(<any>null);
+    return Observable.of<DriverVehicleTrackingEvent>(<any>null);
   }
 
   /**
    * @param id (optional)
    * @return Success
    */
-  getJobOffers(id: string | null | undefined): Promise<JobOffer[]> {
+  getJobOffers(id: string | null | undefined): Observable<JobOffer[]> {
     let url_ = this.baseUrl + "/api/JobOffers/GetJobOffers?";
     if (id !== undefined)
       url_ += "Id=" + encodeURIComponent("" + id) + "&";
     url_ = url_.replace(/[?&]$/, "");
 
-    let options_ = <RequestInit>{
-      method: "GET",
-      headers: {
+    let options_ : any = {
+      observe: "response",
+      responseType: "blob",
+      headers: new HttpHeaders({
         "Accept": "application/json"
-      }
+      })
     };
 
-    return this.http.fetch(url_, options_).then((_response: Response) => {
-      return this.processGetJobOffers(_response);
+    return this.http.request("get", url_, options_).flatMap((response_ : any) => {
+      return this.processGetJobOffers(response_);
+    }).catch((response_: any) => {
+      if (response_ instanceof HttpResponseBase) {
+        try {
+          return this.processGetJobOffers(<any>response_);
+        } catch (e) {
+          return <Observable<JobOffer[]>><any>Observable.throw(e);
+        }
+      } else
+        return <Observable<JobOffer[]>><any>Observable.throw(response_);
     });
   }
 
-  protected processGetJobOffers(response: Response): Promise<JobOffer[]> {
+  protected processGetJobOffers(response: HttpResponseBase): Observable<JobOffer[]> {
     const status = response.status;
-    let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+    const responseBlob =
+      response instanceof HttpResponse ? response.body :
+        (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
     if (status === 200) {
-      return response.text().then((_responseText) => {
+      return blobToText(responseBlob).flatMap(_responseText => {
         let result200: any = null;
         let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
         if (resultData200 && resultData200.constructor === Array) {
@@ -247,97 +396,125 @@ export class Client {
           for (let item of resultData200)
             result200.push(JobOffer.fromJS(item));
         }
-        return result200;
+        return Observable.of(result200);
       });
     } else if (status === 500) {
-      return response.text().then((_responseText) => {
+      return blobToText(responseBlob).flatMap(_responseText => {
         let result500: any = null;
         let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
         result500 = resultData500 ? ErrorModel.fromJS(resultData500) : new ErrorModel();
         return throwException("A server error occurred.", status, _responseText, _headers, result500);
       });
     } else if (status !== 200 && status !== 204) {
-      return response.text().then((_responseText) => {
+      return blobToText(responseBlob).flatMap(_responseText => {
         return throwException("An unexpected server error occurred.", status, _responseText, _headers);
       });
     }
-    return Promise.resolve<JobOffer[]>(<any>null);
+    return Observable.of<JobOffer[]>(<any>null);
   }
 
   /**
    * @return Success
    */
-  getJobOffer(id: number): Promise<JobOffer> {
+  getJobOffer(id: number): Observable<JobOffer> {
     let url_ = this.baseUrl + "/api/JobOffers/GetJobOffer/{id}";
     if (id === undefined || id === null)
       throw new Error("The parameter 'id' must be defined.");
     url_ = url_.replace("{id}", encodeURIComponent("" + id));
     url_ = url_.replace(/[?&]$/, "");
 
-    let options_ = <RequestInit>{
-      method: "GET",
-      headers: {
+    let options_ : any = {
+      observe: "response",
+      responseType: "blob",
+      headers: new HttpHeaders({
         "Accept": "application/json"
-      }
+      })
     };
 
-    return this.http.fetch(url_, options_).then((_response: Response) => {
-      return this.processGetJobOffer(_response);
+    return this.http.request("get", url_, options_).flatMap((response_ : any) => {
+      return this.processGetJobOffer(response_);
+    }).catch((response_: any) => {
+      if (response_ instanceof HttpResponseBase) {
+        try {
+          return this.processGetJobOffer(<any>response_);
+        } catch (e) {
+          return <Observable<JobOffer>><any>Observable.throw(e);
+        }
+      } else
+        return <Observable<JobOffer>><any>Observable.throw(response_);
     });
   }
 
-  protected processGetJobOffer(response: Response): Promise<JobOffer> {
+  protected processGetJobOffer(response: HttpResponseBase): Observable<JobOffer> {
     const status = response.status;
-    let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+    const responseBlob =
+      response instanceof HttpResponse ? response.body :
+        (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
     if (status === 200) {
-      return response.text().then((_responseText) => {
+      return blobToText(responseBlob).flatMap(_responseText => {
         let result200: any = null;
         let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
         result200 = resultData200 ? JobOffer.fromJS(resultData200) : new JobOffer();
-        return result200;
+        return Observable.of(result200);
       });
     } else if (status === 500) {
-      return response.text().then((_responseText) => {
+      return blobToText(responseBlob).flatMap(_responseText => {
         let result500: any = null;
         let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
         result500 = resultData500 ? ErrorModel.fromJS(resultData500) : new ErrorModel();
         return throwException("A server error occurred.", status, _responseText, _headers, result500);
       });
     } else if (status !== 200 && status !== 204) {
-      return response.text().then((_responseText) => {
+      return blobToText(responseBlob).flatMap(_responseText => {
         return throwException("An unexpected server error occurred.", status, _responseText, _headers);
       });
     }
-    return Promise.resolve<JobOffer>(<any>null);
+    return Observable.of<JobOffer>(<any>null);
   }
 
   /**
    * @param vehicleCategoryId (optional)
    * @return Success
    */
-  getVehicleBrands(vehicleCategoryId: number | null | undefined): Promise<VehicleBrand[]> {
+  getVehicleBrands(vehicleCategoryId: number | null | undefined): Observable<VehicleBrand[]> {
     let url_ = this.baseUrl + "/api/Vehicles/GetVehicleBrands?";
     if (vehicleCategoryId !== undefined)
-      url_ += "VehicleCategoryId=" + encodeURIComponent("" + vehicleCategoryId) + "&";
+      url_ += "vehicleCategoryId=" + encodeURIComponent("" + vehicleCategoryId) + "&";
     url_ = url_.replace(/[?&]$/, "");
 
-    let options_ = <RequestInit>{
-      method: "GET",
-      headers: {
+    let options_ : any = {
+      observe: "response",
+      responseType: "blob",
+      headers: new HttpHeaders({
         "Accept": "application/json"
-      }
+      })
     };
 
-    return this.http.fetch(url_, options_).then((_response: Response) => {
-      return this.processGetVehicleBrands(_response);
+    return this.http.request("get", url_, options_).flatMap((response_ : any) => {
+      return this.processGetVehicleBrands(response_);
+    }).catch((response_: any) => {
+      if (response_ instanceof HttpResponseBase) {
+        try {
+          return this.processGetVehicleBrands(<any>response_);
+        } catch (e) {
+          return <Observable<VehicleBrand[]>><any>Observable.throw(e);
+        }
+      } else
+        return <Observable<VehicleBrand[]>><any>Observable.throw(response_);
     });
   }
 
-  protected processGetVehicleBrands(response: Response): Promise<VehicleBrand[]> {
+  protected processGetVehicleBrands(response: HttpResponseBase): Observable<VehicleBrand[]> {
     const status = response.status;
-    let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+    const responseBlob =
+      response instanceof HttpResponse ? response.body :
+        (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
     if (status === 200) {
-      return response.text().then((_responseText) => {
+      return blobToText(responseBlob).flatMap(_responseText => {
         let result200: any = null;
         let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
         if (resultData200 && resultData200.constructor === Array) {
@@ -345,47 +522,61 @@ export class Client {
           for (let item of resultData200)
             result200.push(VehicleBrand.fromJS(item));
         }
-        return result200;
+        return Observable.of(result200);
       });
     } else if (status === 500) {
-      return response.text().then((_responseText) => {
+      return blobToText(responseBlob).flatMap(_responseText => {
         let result500: any = null;
         let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
         result500 = resultData500 ? ErrorModel.fromJS(resultData500) : new ErrorModel();
         return throwException("A server error occurred.", status, _responseText, _headers, result500);
       });
     } else if (status !== 200 && status !== 204) {
-      return response.text().then((_responseText) => {
+      return blobToText(responseBlob).flatMap(_responseText => {
         return throwException("An unexpected server error occurred.", status, _responseText, _headers);
       });
     }
-    return Promise.resolve<VehicleBrand[]>(<any>null);
+    return Observable.of<VehicleBrand[]>(<any>null);
   }
 
   /**
    * @return Success
    */
-  getVehicleCategories(): Promise<VehicleCategory[]> {
+  getVehicleCategories(): Observable<VehicleCategory[]> {
     let url_ = this.baseUrl + "/api/Vehicles/GetVehicleCategories";
     url_ = url_.replace(/[?&]$/, "");
 
-    let options_ = <RequestInit>{
-      method: "GET",
-      headers: {
+    let options_ : any = {
+      observe: "response",
+      responseType: "blob",
+      headers: new HttpHeaders({
         "Accept": "application/json"
-      }
+      })
     };
 
-    return this.http.fetch(url_, options_).then((_response: Response) => {
-      return this.processGetVehicleCategories(_response);
+    return this.http.request("get", url_, options_).flatMap((response_ : any) => {
+      return this.processGetVehicleCategories(response_);
+    }).catch((response_: any) => {
+      if (response_ instanceof HttpResponseBase) {
+        try {
+          return this.processGetVehicleCategories(<any>response_);
+        } catch (e) {
+          return <Observable<VehicleCategory[]>><any>Observable.throw(e);
+        }
+      } else
+        return <Observable<VehicleCategory[]>><any>Observable.throw(response_);
     });
   }
 
-  protected processGetVehicleCategories(response: Response): Promise<VehicleCategory[]> {
+  protected processGetVehicleCategories(response: HttpResponseBase): Observable<VehicleCategory[]> {
     const status = response.status;
-    let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+    const responseBlob =
+      response instanceof HttpResponse ? response.body :
+        (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
     if (status === 200) {
-      return response.text().then((_responseText) => {
+      return blobToText(responseBlob).flatMap(_responseText => {
         let result200: any = null;
         let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
         if (resultData200 && resultData200.constructor === Array) {
@@ -393,50 +584,64 @@ export class Client {
           for (let item of resultData200)
             result200.push(VehicleCategory.fromJS(item));
         }
-        return result200;
+        return Observable.of(result200);
       });
     } else if (status === 500) {
-      return response.text().then((_responseText) => {
+      return blobToText(responseBlob).flatMap(_responseText => {
         let result500: any = null;
         let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
         result500 = resultData500 ? ErrorModel.fromJS(resultData500) : new ErrorModel();
         return throwException("A server error occurred.", status, _responseText, _headers, result500);
       });
     } else if (status !== 200 && status !== 204) {
-      return response.text().then((_responseText) => {
+      return blobToText(responseBlob).flatMap(_responseText => {
         return throwException("An unexpected server error occurred.", status, _responseText, _headers);
       });
     }
-    return Promise.resolve<VehicleCategory[]>(<any>null);
+    return Observable.of<VehicleCategory[]>(<any>null);
   }
 
   /**
    * @param id (optional)
    * @return Success
    */
-  getWalletEntries(id: string | null | undefined): Promise<WalletEntry[]> {
+  getWalletEntries(id: string | null | undefined): Observable<WalletEntry[]> {
     let url_ = this.baseUrl + "/api/Wallet/GetWalletEntries?";
     if (id !== undefined)
       url_ += "Id=" + encodeURIComponent("" + id) + "&";
     url_ = url_.replace(/[?&]$/, "");
 
-    let options_ = <RequestInit>{
-      method: "GET",
-      headers: {
+    let options_ : any = {
+      observe: "response",
+      responseType: "blob",
+      headers: new HttpHeaders({
         "Accept": "application/json"
-      }
+      })
     };
 
-    return this.http.fetch(url_, options_).then((_response: Response) => {
-      return this.processGetWalletEntries(_response);
+    return this.http.request("get", url_, options_).flatMap((response_ : any) => {
+      return this.processGetWalletEntries(response_);
+    }).catch((response_: any) => {
+      if (response_ instanceof HttpResponseBase) {
+        try {
+          return this.processGetWalletEntries(<any>response_);
+        } catch (e) {
+          return <Observable<WalletEntry[]>><any>Observable.throw(e);
+        }
+      } else
+        return <Observable<WalletEntry[]>><any>Observable.throw(response_);
     });
   }
 
-  protected processGetWalletEntries(response: Response): Promise<WalletEntry[]> {
+  protected processGetWalletEntries(response: HttpResponseBase): Observable<WalletEntry[]> {
     const status = response.status;
-    let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+    const responseBlob =
+      response instanceof HttpResponse ? response.body :
+        (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
     if (status === 200) {
-      return response.text().then((_responseText) => {
+      return blobToText(responseBlob).flatMap(_responseText => {
         let result200: any = null;
         let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
         if (resultData200 && resultData200.constructor === Array) {
@@ -444,22 +649,130 @@ export class Client {
           for (let item of resultData200)
             result200.push(WalletEntry.fromJS(item));
         }
-        return result200;
+        return Observable.of(result200);
       });
     } else if (status === 500) {
-      return response.text().then((_responseText) => {
+      return blobToText(responseBlob).flatMap(_responseText => {
         let result500: any = null;
         let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
         result500 = resultData500 ? ErrorModel.fromJS(resultData500) : new ErrorModel();
         return throwException("A server error occurred.", status, _responseText, _headers, result500);
       });
     } else if (status !== 200 && status !== 204) {
-      return response.text().then((_responseText) => {
+      return blobToText(responseBlob).flatMap(_responseText => {
         return throwException("An unexpected server error occurred.", status, _responseText, _headers);
       });
     }
-    return Promise.resolve<WalletEntry[]>(<any>null);
+    return Observable.of<WalletEntry[]>(<any>null);
   }
+}
+
+export class DriverInfoUpdateRequest implements IDriverInfoUpdateRequest {
+  userName?: string | undefined;
+  fullName?: string | undefined;
+  phoneNumber?: string | undefined;
+  email?: string | undefined;
+  address?: string | undefined;
+  state?: string | undefined;
+  countryId?: number | undefined;
+  zipCode?: string | undefined;
+
+  constructor(data?: IDriverInfoUpdateRequest) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property))
+          (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(data?: any) {
+    if (data) {
+      this.userName = data["userName"];
+      this.fullName = data["fullName"];
+      this.phoneNumber = data["phoneNumber"];
+      this.email = data["email"];
+      this.address = data["address"];
+      this.state = data["state"];
+      this.countryId = data["countryId"];
+      this.zipCode = data["zipCode"];
+    }
+  }
+
+  static fromJS(data: any): DriverInfoUpdateRequest {
+    data = typeof data === 'object' ? data : {};
+    let result = new DriverInfoUpdateRequest();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data["userName"] = this.userName;
+    data["fullName"] = this.fullName;
+    data["phoneNumber"] = this.phoneNumber;
+    data["email"] = this.email;
+    data["address"] = this.address;
+    data["state"] = this.state;
+    data["countryId"] = this.countryId;
+    data["zipCode"] = this.zipCode;
+    return data;
+  }
+}
+
+export interface IDriverInfoUpdateRequest {
+  userName?: string | undefined;
+  fullName?: string | undefined;
+  phoneNumber?: string | undefined;
+  email?: string | undefined;
+  address?: string | undefined;
+  state?: string | undefined;
+  countryId?: number | undefined;
+  zipCode?: string | undefined;
+}
+
+export class ErrorModel implements IErrorModel {
+  messages?: string[] | undefined;
+
+  constructor(data?: IErrorModel) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property))
+          (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(data?: any) {
+    if (data) {
+      if (data["messages"] && data["messages"].constructor === Array) {
+        this.messages = [];
+        for (let item of data["messages"])
+          this.messages.push(item);
+      }
+    }
+  }
+
+  static fromJS(data: any): ErrorModel {
+    data = typeof data === 'object' ? data : {};
+    let result = new ErrorModel();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    if (this.messages && this.messages.constructor === Array) {
+      data["messages"] = [];
+      for (let item of this.messages)
+        data["messages"].push(item);
+    }
+    return data;
+  }
+}
+
+export interface IErrorModel {
+  messages?: string[] | undefined;
 }
 
 export class DriverInfoResponse implements IDriverInfoResponse {
@@ -607,7 +920,8 @@ export interface IEarnings {
 }
 
 export class VehicleModel implements IVehicleModel {
-  vehicleId?: number | undefined;
+  id?: number | undefined;
+  name?: string | undefined;
   registrationNumber?: string | undefined;
   brand?: VehicleBrand | undefined;
   categoryClass?: VehicleCategoryClass | undefined;
@@ -624,7 +938,8 @@ export class VehicleModel implements IVehicleModel {
 
   init(data?: any) {
     if (data) {
-      this.vehicleId = data["vehicleId"];
+      this.id = data["id"];
+      this.name = data["name"];
       this.registrationNumber = data["registrationNumber"];
       this.brand = data["brand"] ? VehicleBrand.fromJS(data["brand"]) : <any>undefined;
       this.categoryClass = data["categoryClass"] ? VehicleCategoryClass.fromJS(data["categoryClass"]) : <any>undefined;
@@ -641,7 +956,8 @@ export class VehicleModel implements IVehicleModel {
 
   toJSON(data?: any) {
     data = typeof data === 'object' ? data : {};
-    data["vehicleId"] = this.vehicleId;
+    data["id"] = this.id;
+    data["name"] = this.name;
     data["registrationNumber"] = this.registrationNumber;
     data["brand"] = this.brand ? this.brand.toJSON() : <any>undefined;
     data["categoryClass"] = this.categoryClass ? this.categoryClass.toJSON() : <any>undefined;
@@ -651,7 +967,8 @@ export class VehicleModel implements IVehicleModel {
 }
 
 export interface IVehicleModel {
-  vehicleId?: number | undefined;
+  id?: number | undefined;
+  name?: string | undefined;
   registrationNumber?: string | undefined;
   brand?: VehicleBrand | undefined;
   categoryClass?: VehicleCategoryClass | undefined;
@@ -741,8 +1058,8 @@ export interface IVehicleBrand {
 export class VehicleCategoryClass implements IVehicleCategoryClass {
   id?: number | undefined;
   name: string;
+  categoryName?: string | undefined;
   vehicleCategoryId?: number | undefined;
-  vehicleCategory?: VehicleCategory | undefined;
 
   constructor(data?: IVehicleCategoryClass) {
     if (data) {
@@ -757,8 +1074,8 @@ export class VehicleCategoryClass implements IVehicleCategoryClass {
     if (data) {
       this.id = data["id"];
       this.name = data["name"];
+      this.categoryName = data["categoryName"];
       this.vehicleCategoryId = data["vehicleCategoryId"];
-      this.vehicleCategory = data["vehicleCategory"] ? VehicleCategory.fromJS(data["vehicleCategory"]) : <any>undefined;
     }
   }
 
@@ -773,8 +1090,8 @@ export class VehicleCategoryClass implements IVehicleCategoryClass {
     data = typeof data === 'object' ? data : {};
     data["id"] = this.id;
     data["name"] = this.name;
+    data["categoryName"] = this.categoryName;
     data["vehicleCategoryId"] = this.vehicleCategoryId;
-    data["vehicleCategory"] = this.vehicleCategory ? this.vehicleCategory.toJSON() : <any>undefined;
     return data;
   }
 }
@@ -782,168 +1099,8 @@ export class VehicleCategoryClass implements IVehicleCategoryClass {
 export interface IVehicleCategoryClass {
   id?: number | undefined;
   name: string;
+  categoryName?: string | undefined;
   vehicleCategoryId?: number | undefined;
-  vehicleCategory?: VehicleCategory | undefined;
-}
-
-export class VehicleCategory implements IVehicleCategory {
-  id?: number | undefined;
-  name: string;
-  vehicleClasses?: VehicleCategoryClass[] | undefined;
-
-  constructor(data?: IVehicleCategory) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(data?: any) {
-    if (data) {
-      this.id = data["id"];
-      this.name = data["name"];
-      if (data["vehicleClasses"] && data["vehicleClasses"].constructor === Array) {
-        this.vehicleClasses = [];
-        for (let item of data["vehicleClasses"])
-          this.vehicleClasses.push(VehicleCategoryClass.fromJS(item));
-      }
-    }
-  }
-
-  static fromJS(data: any): VehicleCategory {
-    data = typeof data === 'object' ? data : {};
-    let result = new VehicleCategory();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["id"] = this.id;
-    data["name"] = this.name;
-    if (this.vehicleClasses && this.vehicleClasses.constructor === Array) {
-      data["vehicleClasses"] = [];
-      for (let item of this.vehicleClasses)
-        data["vehicleClasses"].push(item.toJSON());
-    }
-    return data;
-  }
-}
-
-export interface IVehicleCategory {
-  id?: number | undefined;
-  name: string;
-  vehicleClasses?: VehicleCategoryClass[] | undefined;
-}
-
-export class ErrorModel implements IErrorModel {
-  messages?: string[] | undefined;
-
-  constructor(data?: IErrorModel) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(data?: any) {
-    if (data) {
-      if (data["messages"] && data["messages"].constructor === Array) {
-        this.messages = [];
-        for (let item of data["messages"])
-          this.messages.push(item);
-      }
-    }
-  }
-
-  static fromJS(data: any): ErrorModel {
-    data = typeof data === 'object' ? data : {};
-    let result = new ErrorModel();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    if (this.messages && this.messages.constructor === Array) {
-      data["messages"] = [];
-      for (let item of this.messages)
-        data["messages"].push(item);
-    }
-    return data;
-  }
-}
-
-export interface IErrorModel {
-  messages?: string[] | undefined;
-}
-
-export class DriverInfoUpdateRequest implements IDriverInfoUpdateRequest {
-  userName?: string | undefined;
-  fullName?: string | undefined;
-  phoneNumber?: string | undefined;
-  email?: string | undefined;
-  address?: string | undefined;
-  state?: string | undefined;
-  countryId?: number | undefined;
-  zipCode?: string | undefined;
-
-  constructor(data?: IDriverInfoUpdateRequest) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(data?: any) {
-    if (data) {
-      this.userName = data["userName"];
-      this.fullName = data["fullName"];
-      this.phoneNumber = data["phoneNumber"];
-      this.email = data["email"];
-      this.address = data["address"];
-      this.state = data["state"];
-      this.countryId = data["countryId"];
-      this.zipCode = data["zipCode"];
-    }
-  }
-
-  static fromJS(data: any): DriverInfoUpdateRequest {
-    data = typeof data === 'object' ? data : {};
-    let result = new DriverInfoUpdateRequest();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["userName"] = this.userName;
-    data["fullName"] = this.fullName;
-    data["phoneNumber"] = this.phoneNumber;
-    data["email"] = this.email;
-    data["address"] = this.address;
-    data["state"] = this.state;
-    data["countryId"] = this.countryId;
-    data["zipCode"] = this.zipCode;
-    return data;
-  }
-}
-
-export interface IDriverInfoUpdateRequest {
-  userName?: string | undefined;
-  fullName?: string | undefined;
-  phoneNumber?: string | undefined;
-  email?: string | undefined;
-  address?: string | undefined;
-  state?: string | undefined;
-  countryId?: number | undefined;
-  zipCode?: string | undefined;
 }
 
 export class DriverSignUpRequest implements IDriverSignUpRequest {
@@ -1142,6 +1299,8 @@ export class DriverVehicle implements IDriverVehicle {
   id?: number | undefined;
   driverId?: number | undefined;
   driver?: Driver | undefined;
+  trackingDeviceUID?: string | undefined;
+  model: string;
   registrationNumber: string;
   vehicleBrandId: number;
   vehicleBrand?: VehicleBrand | undefined;
@@ -1167,6 +1326,8 @@ export class DriverVehicle implements IDriverVehicle {
       this.id = data["id"];
       this.driverId = data["driverId"];
       this.driver = data["driver"] ? Driver.fromJS(data["driver"]) : <any>undefined;
+      this.trackingDeviceUID = data["trackingDeviceUID"];
+      this.model = data["model"];
       this.registrationNumber = data["registrationNumber"];
       this.vehicleBrandId = data["vehicleBrandId"];
       this.vehicleBrand = data["vehicleBrand"] ? VehicleBrand.fromJS(data["vehicleBrand"]) : <any>undefined;
@@ -1200,6 +1361,8 @@ export class DriverVehicle implements IDriverVehicle {
     data["id"] = this.id;
     data["driverId"] = this.driverId;
     data["driver"] = this.driver ? this.driver.toJSON() : <any>undefined;
+    data["trackingDeviceUID"] = this.trackingDeviceUID;
+    data["model"] = this.model;
     data["registrationNumber"] = this.registrationNumber;
     data["vehicleBrandId"] = this.vehicleBrandId;
     data["vehicleBrand"] = this.vehicleBrand ? this.vehicleBrand.toJSON() : <any>undefined;
@@ -1226,6 +1389,8 @@ export interface IDriverVehicle {
   id?: number | undefined;
   driverId?: number | undefined;
   driver?: Driver | undefined;
+  trackingDeviceUID?: string | undefined;
+  model: string;
   registrationNumber: string;
   vehicleBrandId: number;
   vehicleBrand?: VehicleBrand | undefined;
@@ -1240,7 +1405,6 @@ export interface IDriverVehicle {
 
 export class Driver implements IDriver {
   applicationUserId?: string | undefined;
-  applicationUser?: ApplicationUser | undefined;
   id?: number | undefined;
   driverAddressId?: number | undefined;
   driverAddress?: DriverAddress | undefined;
@@ -1263,7 +1427,6 @@ export class Driver implements IDriver {
   init(data?: any) {
     if (data) {
       this.applicationUserId = data["applicationUserId"];
-      this.applicationUser = data["applicationUser"] ? ApplicationUser.fromJS(data["applicationUser"]) : <any>undefined;
       this.id = data["id"];
       this.driverAddressId = data["driverAddressId"];
       this.driverAddress = data["driverAddress"] ? DriverAddress.fromJS(data["driverAddress"]) : <any>undefined;
@@ -1290,7 +1453,6 @@ export class Driver implements IDriver {
   toJSON(data?: any) {
     data = typeof data === 'object' ? data : {};
     data["applicationUserId"] = this.applicationUserId;
-    data["applicationUser"] = this.applicationUser ? this.applicationUser.toJSON() : <any>undefined;
     data["id"] = this.id;
     data["driverAddressId"] = this.driverAddressId;
     data["driverAddress"] = this.driverAddress ? this.driverAddress.toJSON() : <any>undefined;
@@ -1310,7 +1472,6 @@ export class Driver implements IDriver {
 
 export interface IDriver {
   applicationUserId?: string | undefined;
-  applicationUser?: ApplicationUser | undefined;
   id?: number | undefined;
   driverAddressId?: number | undefined;
   driverAddress?: DriverAddress | undefined;
@@ -1388,114 +1549,6 @@ export interface IDriverVehiclePlacementArea {
   placementArea?: PlacementArea | undefined;
   status?: DriverVehiclePlacementAreaStatus | undefined;
   jobOffers?: JobOffer[] | undefined;
-}
-
-export class ApplicationUser implements IApplicationUser {
-  userType?: ApplicationUserUserType | undefined;
-  countryId: number;
-  country?: Country | undefined;
-  driver?: Driver | undefined;
-  id?: string | undefined;
-  userName?: string | undefined;
-  normalizedUserName?: string | undefined;
-  email?: string | undefined;
-  normalizedEmail?: string | undefined;
-  emailConfirmed?: boolean | undefined;
-  passwordHash?: string | undefined;
-  securityStamp?: string | undefined;
-  concurrencyStamp?: string | undefined;
-  phoneNumber?: string | undefined;
-  phoneNumberConfirmed?: boolean | undefined;
-  twoFactorEnabled?: boolean | undefined;
-  lockoutEnd?: Date | undefined;
-  lockoutEnabled?: boolean | undefined;
-  accessFailedCount?: number | undefined;
-
-  constructor(data?: IApplicationUser) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(data?: any) {
-    if (data) {
-      this.userType = data["userType"];
-      this.countryId = data["countryId"];
-      this.country = data["country"] ? Country.fromJS(data["country"]) : <any>undefined;
-      this.driver = data["driver"] ? Driver.fromJS(data["driver"]) : <any>undefined;
-      this.id = data["id"];
-      this.userName = data["userName"];
-      this.normalizedUserName = data["normalizedUserName"];
-      this.email = data["email"];
-      this.normalizedEmail = data["normalizedEmail"];
-      this.emailConfirmed = data["emailConfirmed"];
-      this.passwordHash = data["passwordHash"];
-      this.securityStamp = data["securityStamp"];
-      this.concurrencyStamp = data["concurrencyStamp"];
-      this.phoneNumber = data["phoneNumber"];
-      this.phoneNumberConfirmed = data["phoneNumberConfirmed"];
-      this.twoFactorEnabled = data["twoFactorEnabled"];
-      this.lockoutEnd = data["lockoutEnd"] ? new Date(data["lockoutEnd"].toString()) : <any>undefined;
-      this.lockoutEnabled = data["lockoutEnabled"];
-      this.accessFailedCount = data["accessFailedCount"];
-    }
-  }
-
-  static fromJS(data: any): ApplicationUser {
-    data = typeof data === 'object' ? data : {};
-    let result = new ApplicationUser();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["userType"] = this.userType;
-    data["countryId"] = this.countryId;
-    data["country"] = this.country ? this.country.toJSON() : <any>undefined;
-    data["driver"] = this.driver ? this.driver.toJSON() : <any>undefined;
-    data["id"] = this.id;
-    data["userName"] = this.userName;
-    data["normalizedUserName"] = this.normalizedUserName;
-    data["email"] = this.email;
-    data["normalizedEmail"] = this.normalizedEmail;
-    data["emailConfirmed"] = this.emailConfirmed;
-    data["passwordHash"] = this.passwordHash;
-    data["securityStamp"] = this.securityStamp;
-    data["concurrencyStamp"] = this.concurrencyStamp;
-    data["phoneNumber"] = this.phoneNumber;
-    data["phoneNumberConfirmed"] = this.phoneNumberConfirmed;
-    data["twoFactorEnabled"] = this.twoFactorEnabled;
-    data["lockoutEnd"] = this.lockoutEnd ? this.lockoutEnd.toISOString() : <any>undefined;
-    data["lockoutEnabled"] = this.lockoutEnabled;
-    data["accessFailedCount"] = this.accessFailedCount;
-    return data;
-  }
-}
-
-export interface IApplicationUser {
-  userType?: ApplicationUserUserType | undefined;
-  countryId: number;
-  country?: Country | undefined;
-  driver?: Driver | undefined;
-  id?: string | undefined;
-  userName?: string | undefined;
-  normalizedUserName?: string | undefined;
-  email?: string | undefined;
-  normalizedEmail?: string | undefined;
-  emailConfirmed?: boolean | undefined;
-  passwordHash?: string | undefined;
-  securityStamp?: string | undefined;
-  concurrencyStamp?: string | undefined;
-  phoneNumber?: string | undefined;
-  phoneNumberConfirmed?: boolean | undefined;
-  twoFactorEnabled?: boolean | undefined;
-  lockoutEnd?: Date | undefined;
-  lockoutEnabled?: boolean | undefined;
-  accessFailedCount?: number | undefined;
 }
 
 export class DriverAddress implements IDriverAddress {
@@ -1866,6 +1919,58 @@ export interface ICreativeTargetArea {
   latitude: number;
 }
 
+export class VehicleCategory implements IVehicleCategory {
+  id?: number | undefined;
+  name: string;
+  vehicleClasses?: VehicleCategoryClass[] | undefined;
+
+  constructor(data?: IVehicleCategory) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property))
+          (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(data?: any) {
+    if (data) {
+      this.id = data["id"];
+      this.name = data["name"];
+      if (data["vehicleClasses"] && data["vehicleClasses"].constructor === Array) {
+        this.vehicleClasses = [];
+        for (let item of data["vehicleClasses"])
+          this.vehicleClasses.push(VehicleCategoryClass.fromJS(item));
+      }
+    }
+  }
+
+  static fromJS(data: any): VehicleCategory {
+    data = typeof data === 'object' ? data : {};
+    let result = new VehicleCategory();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data["id"] = this.id;
+    data["name"] = this.name;
+    if (this.vehicleClasses && this.vehicleClasses.constructor === Array) {
+      data["vehicleClasses"] = [];
+      for (let item of this.vehicleClasses)
+        data["vehicleClasses"].push(item.toJSON());
+    }
+    return data;
+  }
+}
+
+export interface IVehicleCategory {
+  id?: number | undefined;
+  name: string;
+  vehicleClasses?: VehicleCategoryClass[] | undefined;
+}
+
 export enum DriverInfoResponseStatus {
   _1 = 1,
   _2 = 2,
@@ -1914,12 +2019,6 @@ export enum DriverVehiclePlacementAreaStatus {
   _2 = 2,
 }
 
-export enum ApplicationUserUserType {
-  _1 = 1,
-  _2 = 2,
-  _3 = 3,
-}
-
 export enum WalletEntryStatus {
   _1 = 1,
   _2 = 2,
@@ -1961,9 +2060,25 @@ export class SwaggerException extends Error {
   }
 }
 
-function throwException(message: string, status: number, response: string, headers: { [key: string]: any; }, result?: any): any {
+function throwException(message: string, status: number, response: string, headers: { [key: string]: any; }, result?: any): Observable<any> {
   if(result !== null && result !== undefined)
-    throw result;
+    return Observable.throw(result);
   else
-    throw new SwaggerException(message, status, response, headers, null);
+    return Observable.throw(new SwaggerException(message, status, response, headers, null));
+}
+
+function blobToText(blob: any): Observable<string> {
+  return new Observable<string>((observer: any) => {
+    if (!blob) {
+      observer.next("");
+      observer.complete();
+    } else {
+      let reader = new FileReader();
+      reader.onload = event => {
+        observer.next((<any>event.target).result);
+        observer.complete();
+      };
+      reader.readAsText(blob);
+    }
+  });
 }

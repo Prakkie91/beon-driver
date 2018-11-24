@@ -22,14 +22,14 @@
         <div #map id="map"></div>
       </ion-row>
       <div padding=""></div>
-      <ion-row>
+      <ion-row ng-hide="driver == null">
         <ion-col>
           <span ion-text color="gray">Model</span>
-          <h4 ion-text color="dark">{{ driver }}</h4>
+          <h4 ion-text color="dark"> {{ (driver | async)?.vehicleModel.brand?.name }} - {{ (driver | async)?.vehicleModel.name }}</h4>
         </ion-col>
         <ion-col>
           <span ion-text color="gray">Plate</span>
-          <h4 ion-text color="dark">{{ driver }}</h4>
+          <h4 ion-text color="dark">{{ (driver | async)?.vehicleModel.registrationNumber }}</h4>
         </ion-col>
 
       </ion-row>
@@ -45,8 +45,9 @@
       </ion-row>
     </ion-grid>
 
-    <button ion-button block padding color="gray">
-      {{ driver.userName }} HKD
+    <button ng-hide="driver == null" ion-button block padding color="gray">
+      {{ (driver | async)?.earnings?.totalEarnings }} HKD
+      {{ (driver | async)?.earnings?.driveHours }} H
     </button>
 
   </div>
