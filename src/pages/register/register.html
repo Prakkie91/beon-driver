@@ -57,7 +57,7 @@
           </ion-list>
         </form>
         <div padding>
-          <button ion-button color="secondary" block (click)="next()">
+          <button ion-button color="secondary" block (click)="next(2)">
             Next
           </button>
         </div>
@@ -113,6 +113,65 @@
             <ion-item
               *ngIf="!userVehicleInfo.controls.numberPlate.valid  && (userVehicleInfo.controls.numberPlate.dirty || submitAttempt)">
               <p>Please enter a valid password of at least 5 characters.</p>
+            </ion-item>
+
+          </ion-list>
+        </form>
+        <div padding>
+          <button ion-button color="secondary" block (click)="next(3)">
+            Next
+          </button>
+        </div>
+      </section>
+      <section *ngIf="signupPage===3">
+        <div padding text-center>
+          <div class="logo">
+            <img
+              src="https://res.cloudinary.com/dbwpvgyrn/image/upload/c_pad,h_200,q_auto:best,w_200/v1539865458/logo_black-style-2_z1aw7f_szaoom.png"/>
+          </div>
+          <h2 ion-text color="dark">
+            Sign Up - Address
+          </h2>
+          <p ion-text color="dark">Your address information</p>
+        </div>
+
+        <form [formGroup]="userAddressInfo" padding>
+          <ion-list class="list-form">
+            <!-- Login form -->
+            <ion-item>
+              <ion-label>Address</ion-label>
+              <ion-input formControlName="address" type="address"></ion-input>
+            </ion-item>
+            <ion-item
+              *ngIf="!userAddressInfo.controls.address.valid  && (userAddressInfo.controls.address.dirty || submitAttempt)">
+              <p>Please enter address.</p>
+            </ion-item>
+            <ion-item >
+              <ion-label>Country</ion-label>
+              <ion-select class="item-input" formControlName="country" type="text">
+                <ion-option *ngFor="let key of (countries| async)" value="{{key.id}}">{{key.name}}</ion-option>
+              </ion-select>
+            </ion-item>
+            <ion-item
+              *ngIf="!userAddressInfo.controls.country.valid  && (userAddressInfo.controls.country.dirty || submitAttempt)">
+              <p>Please select your country.</p>
+            </ion-item>
+            <ion-item>
+              <ion-label>State</ion-label>
+              <ion-input formControlName="state" type="text" >
+              </ion-input>
+            </ion-item>
+            <ion-item
+              *ngIf="!userAddressInfo.controls.state.valid  && (userAddressInfo.controls.state.dirty || submitAttempt)">
+              <p>Please select vehicle model.</p>
+            </ion-item>
+            <ion-item>
+              <ion-label>Zip Code</ion-label>
+              <ion-input formControlName="zipCode" type="text" ></ion-input>
+            </ion-item>
+            <ion-item
+              *ngIf="!userAddressInfo.controls.zipCode.valid  && (userAddressInfo.controls.zipCode.dirty || submitAttempt)">
+              <p>Please enter a valid zip-code.</p>
             </ion-item>
 
           </ion-list>

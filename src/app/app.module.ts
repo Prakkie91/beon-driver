@@ -36,6 +36,7 @@ import {WalletPage} from '../pages/wallet/wallet';
 
 import { IonicStorageModule } from '@ionic/storage';
 import {VehicleService} from "../services/vehicle-service";
+import {UserService} from "../services/user-service";
 
 Pro.init('b4069d91', {
   appVersion: '1.0.2'
@@ -105,6 +106,7 @@ export class MyErrorHandler implements ErrorHandler {
     StatusBar,
     SplashScreen,
     DriverService,
+    UserService,
     VehicleService,
     JobService,
     ReportService,

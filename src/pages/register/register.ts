@@ -5,7 +5,8 @@ import {HomePage} from "../home/home";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {VehicleService} from "../../services/vehicle-service";
 import {Observable} from "rxjs";
-import {VehicleBrand, VehicleCategory} from "../../services/beon-api";
+import {Country, VehicleBrand, VehicleCategory} from "../../services/beon-api";
+import {UserService} from "../../services/user-service";
 
 /*
   Generated class for the RegisterPage page.
@@ -22,12 +23,15 @@ export class RegisterPage {
   signupPage: number = 1;
   userBasicInfo: FormGroup;
   userVehicleInfo: FormGroup;
+  userAddressInfo: FormGroup;
   submitAttempt: boolean = false;
 
-  vehicleCategories : Observable<VehicleCategory>;
-  vehicleBrands : Observable<VehicleBrand>;
+  vehicleCategories: Observable<VehicleCategory>;
+  vehicleBrands: Observable<VehicleBrand>;
+  countries: Observable<Country>;
 
-  constructor(public nav: NavController, public formBuilder: FormBuilder, public vehicleService: VehicleService) {
+  constructor(public nav: NavController, public formBuilder: FormBuilder, public vehicleService: VehicleService, public userService: UserService) {
+
     this.userBasicInfo = formBuilder.group({
       name: ['', Validators.compose([Validators.required, Validators.minLength(4)])],
       phone: ['', Validators.compose([Validators.required, Validators.minLength(10)])],
@@ -41,14 +45,24 @@ export class RegisterPage {
       model: ['', Validators.compose([Validators.required])],
       numberPlate: ['', Validators.compose([Validators.required, Validators.minLength(5)])]
     });
+
+    this.userAddressInfo = formBuilder.group({
+      address: ['', Validators.compose([Validators.required])],
+      country: ['', Validators.compose([Validators.required])],
+      state: ['', Validators.compose([Validators.required])],
+      zipCode: ['', Validators.compose([Validators.required, Validators.minLength(5)])]
+    });
+
     this.vehicleCategories = vehicleService.getVehicleCategories();
     this.vehicleBrands = vehicleService.getVehicleBrands();
+    this.countries = userService.getCountries();
   }
 
-  next() {
+  next(page: number) {
     this.submitAttempt = true;
-    if (this.userBasicInfo.valid) {
-      this.signupPage = 2;
+
+    if (this.userBasicInfo.valid || this.userVehicleInfo.valid) {
+      this.signupPage = page;
       this.submitAttempt = false;
     }
   }

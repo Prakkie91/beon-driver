@@ -602,13 +602,74 @@ export class Client {
   }
 
   /**
-   * @param id (optional)
+   * @param userId (optional)
    * @return Success
    */
-  getWalletEntries(id: string | null | undefined): Observable<WalletEntry[]> {
+  withdraw(userId: string | null | undefined): Observable<WalletEntry> {
+    let url_ = this.baseUrl + "/api/Wallet/Withdraw?";
+    if (userId !== undefined)
+      url_ += "userId=" + encodeURIComponent("" + userId) + "&";
+    url_ = url_.replace(/[?&]$/, "");
+
+    let options_ : any = {
+      observe: "response",
+      responseType: "blob",
+      headers: new HttpHeaders({
+        "Accept": "application/json"
+      })
+    };
+
+    return this.http.request("post", url_, options_).flatMap((response_ : any) => {
+      return this.processWithdraw(response_);
+    }).catch((response_: any) => {
+      if (response_ instanceof HttpResponseBase) {
+        try {
+          return this.processWithdraw(<any>response_);
+        } catch (e) {
+          return <Observable<WalletEntry>><any>Observable.throw(e);
+        }
+      } else
+        return <Observable<WalletEntry>><any>Observable.throw(response_);
+    });
+  }
+
+  protected processWithdraw(response: HttpResponseBase): Observable<WalletEntry> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse ? response.body :
+        (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
+    if (status === 200) {
+      return blobToText(responseBlob).flatMap(_responseText => {
+        let result200: any = null;
+        let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+        result200 = resultData200 ? WalletEntry.fromJS(resultData200) : new WalletEntry();
+        return Observable.of(result200);
+      });
+    } else if (status === 500) {
+      return blobToText(responseBlob).flatMap(_responseText => {
+        let result500: any = null;
+        let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+        result500 = resultData500 ? ErrorModel.fromJS(resultData500) : new ErrorModel();
+        return throwException("A server error occurred.", status, _responseText, _headers, result500);
+      });
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).flatMap(_responseText => {
+        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+      });
+    }
+    return Observable.of<WalletEntry>(<any>null);
+  }
+
+  /**
+   * @param userId (optional)
+   * @return Success
+   */
+  getWallet(userId: string | null | undefined): Observable<WalletEntry[]> {
     let url_ = this.baseUrl + "/api/Wallet/GetWalletEntries?";
-    if (id !== undefined)
-      url_ += "Id=" + encodeURIComponent("" + id) + "&";
+    if (userId !== undefined)
+      url_ += "userId=" + encodeURIComponent("" + userId) + "&";
     url_ = url_.replace(/[?&]$/, "");
 
     let options_ : any = {
@@ -620,11 +681,11 @@ export class Client {
     };
 
     return this.http.request("get", url_, options_).flatMap((response_ : any) => {
-      return this.processGetWalletEntries(response_);
+      return this.processGetWallet(response_);
     }).catch((response_: any) => {
       if (response_ instanceof HttpResponseBase) {
         try {
-          return this.processGetWalletEntries(<any>response_);
+          return this.processGetWallet(<any>response_);
         } catch (e) {
           return <Observable<WalletEntry[]>><any>Observable.throw(e);
         }
@@ -633,7 +694,7 @@ export class Client {
     });
   }
 
-  protected processGetWalletEntries(response: HttpResponseBase): Observable<WalletEntry[]> {
+  protected processGetWallet(response: HttpResponseBase): Observable<WalletEntry[]> {
     const status = response.status;
     const responseBlob =
       response instanceof HttpResponse ? response.body :
@@ -1406,13 +1467,11 @@ export interface IDriverVehicle {
 export class Driver implements IDriver {
   applicationUserId?: string | undefined;
   id?: number | undefined;
-  driverAddressId?: number | undefined;
-  driverAddress?: DriverAddress | undefined;
   identityNumber: string;
   identityDocumentType: DriverIdentityDocumentType;
   identityDocument: string;
   status?: DriverStatus | undefined;
-  vehicle?: DriverVehicle | undefined;
+  vehicles?: DriverVehicle[] | undefined;
   walletEntries?: WalletEntry[] | undefined;
 
   constructor(data?: IDriver) {
@@ -1428,13 +1487,15 @@ export class Driver implements IDriver {
     if (data) {
       this.applicationUserId = data["applicationUserId"];
       this.id = data["id"];
-      this.driverAddressId = data["driverAddressId"];
-      this.driverAddress = data["driverAddress"] ? DriverAddress.fromJS(data["driverAddress"]) : <any>undefined;
       this.identityNumber = data["identityNumber"];
       this.identityDocumentType = data["identityDocumentType"];
       this.identityDocument = data["identityDocument"];
       this.status = data["status"];
-      this.vehicle = data["vehicle"] ? DriverVehicle.fromJS(data["vehicle"]) : <any>undefined;
+      if (data["vehicles"] && data["vehicles"].constructor === Array) {
+        this.vehicles = [];
+        for (let item of data["vehicles"])
+          this.vehicles.push(DriverVehicle.fromJS(item));
+      }
       if (data["walletEntries"] && data["walletEntries"].constructor === Array) {
         this.walletEntries = [];
         for (let item of data["walletEntries"])
@@ -1454,13 +1515,15 @@ export class Driver implements IDriver {
     data = typeof data === 'object' ? data : {};
     data["applicationUserId"] = this.applicationUserId;
     data["id"] = this.id;
-    data["driverAddressId"] = this.driverAddressId;
-    data["driverAddress"] = this.driverAddress ? this.driverAddress.toJSON() : <any>undefined;
     data["identityNumber"] = this.identityNumber;
     data["identityDocumentType"] = this.identityDocumentType;
     data["identityDocument"] = this.identityDocument;
     data["status"] = this.status;
-    data["vehicle"] = this.vehicle ? this.vehicle.toJSON() : <any>undefined;
+    if (this.vehicles && this.vehicles.constructor === Array) {
+      data["vehicles"] = [];
+      for (let item of this.vehicles)
+        data["vehicles"].push(item.toJSON());
+    }
     if (this.walletEntries && this.walletEntries.constructor === Array) {
       data["walletEntries"] = [];
       for (let item of this.walletEntries)
@@ -1473,13 +1536,11 @@ export class Driver implements IDriver {
 export interface IDriver {
   applicationUserId?: string | undefined;
   id?: number | undefined;
-  driverAddressId?: number | undefined;
-  driverAddress?: DriverAddress | undefined;
   identityNumber: string;
   identityDocumentType: DriverIdentityDocumentType;
   identityDocument: string;
   status?: DriverStatus | undefined;
-  vehicle?: DriverVehicle | undefined;
+  vehicles?: DriverVehicle[] | undefined;
   walletEntries?: WalletEntry[] | undefined;
 }
 
@@ -1549,66 +1610,6 @@ export interface IDriverVehiclePlacementArea {
   placementArea?: PlacementArea | undefined;
   status?: DriverVehiclePlacementAreaStatus | undefined;
   jobOffers?: JobOffer[] | undefined;
-}
-
-export class DriverAddress implements IDriverAddress {
-  id?: number | undefined;
-  address: string;
-  state: string;
-  countryId: number;
-  country?: Country | undefined;
-  zipCode: string;
-  phoneNumber: string;
-
-  constructor(data?: IDriverAddress) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(data?: any) {
-    if (data) {
-      this.id = data["id"];
-      this.address = data["address"];
-      this.state = data["state"];
-      this.countryId = data["countryId"];
-      this.country = data["country"] ? Country.fromJS(data["country"]) : <any>undefined;
-      this.zipCode = data["zipCode"];
-      this.phoneNumber = data["phoneNumber"];
-    }
-  }
-
-  static fromJS(data: any): DriverAddress {
-    data = typeof data === 'object' ? data : {};
-    let result = new DriverAddress();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["id"] = this.id;
-    data["address"] = this.address;
-    data["state"] = this.state;
-    data["countryId"] = this.countryId;
-    data["country"] = this.country ? this.country.toJSON() : <any>undefined;
-    data["zipCode"] = this.zipCode;
-    data["phoneNumber"] = this.phoneNumber;
-    return data;
-  }
-}
-
-export interface IDriverAddress {
-  id?: number | undefined;
-  address: string;
-  state: string;
-  countryId: number;
-  country?: Country | undefined;
-  zipCode: string;
-  phoneNumber: string;
 }
 
 export class WalletEntry implements IWalletEntry {
