@@ -23,19 +23,26 @@
       </div>
 
       <!-- Login form -->
-
+      <form [formGroup]="userBasicInfo" padding>
       <ion-list class="list-form" padding>
 
         <ion-item>
-          <ion-input type="text" placeholder="Email or username"></ion-input>
+          <ion-input formControlName="email" type="text" placeholder="Email"></ion-input>
         </ion-item>
-
+        <ion-item
+          *ngIf="!userBasicInfo.controls.email.valid  && (userBasicInfo.controls.email.dirty || submitAttempt)">
+          <p>Please enter a valid email address.</p>
+        </ion-item>
         <ion-item>
-          <ion-input type="password" placeholder="Password"></ion-input>
+          <ion-input formControlName="password" type="password" placeholder="Password"></ion-input>
+        </ion-item>
+        <ion-item
+          *ngIf="!userBasicInfo.controls.password.valid  && (userBasicInfo.controls.password.dirty || submitAttempt)">
+          <p>Please enter a valid password of at least 5 characters.</p>
         </ion-item>
 
       </ion-list>
-
+      </form>
       <div padding>
         <button  ion-button color="secondary"  block (click)="login()">
           Login

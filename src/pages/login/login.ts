@@ -3,6 +3,9 @@ import {NavController} from 'ionic-angular';
 import {RegisterPage} from '../register/register';
 import {HomePage} from '../home/home'
 import {Storage} from '@ionic/storage';
+import {FormBuilder, FormGroup, Validators} from "@angular/forms";
+import {UserService} from "../../services/user-service";
+import {SwaggerException} from "../../services/beon-api";
 
 /*
   Generated class for the LoginPage page.
@@ -16,8 +19,16 @@ import {Storage} from '@ionic/storage';
 })
 export class LoginPage {
 
-  constructor(public nav: NavController, private storage: Storage) {
+  userBasicInfo: FormGroup;
+
+  constructor(public nav: NavController, private storage: Storage, public formBuilder: FormBuilder, public userService: UserService) {
     this.checkIfLoggedIn();
+
+    this.userBasicInfo = formBuilder.group({
+      email: ['', Validators.compose([Validators.required, Validators.email])],
+      password: ['', Validators.compose([Validators.required, Validators.minLength(5)])]
+    });
+
   }
 
   checkIfLoggedIn() {
@@ -35,7 +46,11 @@ export class LoginPage {
   }
 
   login() {
-    this.storage.set('DriverId', 'ENRICOWILLEMSE.WAS@GMAIL.COM').then(a =>
-      this.nav.setRoot(HomePage));
+    this.userService.login(this.userBasicInfo.value.email,
+      this.userBasicInfo.value.password).subscribe(
+      (value) => this.storage.set('DriverId', this.userBasicInfo.value.email).then(a =>
+        this.nav.setRoot(HomePage)),
+      (err:SwaggerException) => alert(err.response)
+    );
   }
 }

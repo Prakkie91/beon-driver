@@ -537,13 +537,62 @@ export class Client {
   }
 
   /**
-   * @param vehicleCategoryId (optional)
+   * @param data (optional)
    * @return Success
    */
-  getVehicleBrands(vehicleCategoryId: number | null | undefined): Observable<VehicleBrand[]> {
-    let url_ = this.baseUrl + "/api/Vehicles/GetVehicleBrands?";
-    if (vehicleCategoryId !== undefined)
-      url_ += "vehicleCategoryId=" + encodeURIComponent("" + vehicleCategoryId) + "&";
+  calculate(data: PricingRequest | null | undefined): Observable<void> {
+    let url_ = this.baseUrl + "/api/Pricing";
+    url_ = url_.replace(/[?&]$/, "");
+
+    const content_ = JSON.stringify(data);
+
+    let options_ : any = {
+      body: content_,
+      observe: "response",
+      responseType: "blob",
+      headers: new HttpHeaders({
+        "Content-Type": "application/json",
+      })
+    };
+
+    return this.http.request("post", url_, options_).flatMap((response_ : any) => {
+      return this.processCalculate(response_);
+    }).catch((response_: any) => {
+      if (response_ instanceof HttpResponseBase) {
+        try {
+          return this.processCalculate(<any>response_);
+        } catch (e) {
+          return <Observable<void>><any>Observable.throw(e);
+        }
+      } else
+        return <Observable<void>><any>Observable.throw(response_);
+    });
+  }
+
+  protected processCalculate(response: HttpResponseBase): Observable<void> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse ? response.body :
+        (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
+    if (status === 200) {
+      return blobToText(responseBlob).flatMap(_responseText => {
+        return Observable.of<void>(<any>null);
+      });
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).flatMap(_responseText => {
+        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+      });
+    }
+    return Observable.of<void>(<any>null);
+  }
+
+  /**
+   * @return Success
+   */
+  getVehicleBrands(): Observable<VehicleBrand[]> {
+    let url_ = this.baseUrl + "/api/Vehicles/GetVehicleBrands";
     url_ = url_.replace(/[?&]$/, "");
 
     let options_ : any = {
@@ -1434,6 +1483,7 @@ export class DriverVehicle implements IDriverVehicle {
   driverVehiclePlacementAreas?: DriverVehiclePlacementArea[] | undefined;
   status: DriverVehicleStatus;
   driverVehicleTrackingEvents?: DriverVehicleTrackingEvent[] | undefined;
+  impressionMetrics?: ImpressionMetric[] | undefined;
 
   constructor(data?: IDriverVehicle) {
     if (data) {
@@ -1468,6 +1518,11 @@ export class DriverVehicle implements IDriverVehicle {
         this.driverVehicleTrackingEvents = [];
         for (let item of data["driverVehicleTrackingEvents"])
           this.driverVehicleTrackingEvents.push(DriverVehicleTrackingEvent.fromJS(item));
+      }
+      if (data["impressionMetrics"] && data["impressionMetrics"].constructor === Array) {
+        this.impressionMetrics = [];
+        for (let item of data["impressionMetrics"])
+          this.impressionMetrics.push(ImpressionMetric.fromJS(item));
       }
     }
   }
@@ -1504,6 +1559,11 @@ export class DriverVehicle implements IDriverVehicle {
       for (let item of this.driverVehicleTrackingEvents)
         data["driverVehicleTrackingEvents"].push(item.toJSON());
     }
+    if (this.impressionMetrics && this.impressionMetrics.constructor === Array) {
+      data["impressionMetrics"] = [];
+      for (let item of this.impressionMetrics)
+        data["impressionMetrics"].push(item.toJSON());
+    }
     return data;
   }
 }
@@ -1524,6 +1584,7 @@ export interface IDriverVehicle {
   driverVehiclePlacementAreas?: DriverVehiclePlacementArea[] | undefined;
   status: DriverVehicleStatus;
   driverVehicleTrackingEvents?: DriverVehicleTrackingEvent[] | undefined;
+  impressionMetrics?: ImpressionMetric[] | undefined;
 }
 
 export class Driver implements IDriver {
@@ -1672,6 +1733,110 @@ export interface IDriverVehiclePlacementArea {
   placementArea?: PlacementArea | undefined;
   status?: DriverVehiclePlacementAreaStatus | undefined;
   jobOffers?: JobOffer[] | undefined;
+}
+
+export class ImpressionMetric implements IImpressionMetric {
+  id?: number | undefined;
+  driverVehicleId?: number | undefined;
+  driverVehicle?: DriverVehicle | undefined;
+  dateTime?: Date | undefined;
+  impressions?: number | undefined;
+  ageMetrics?: AgeMetric[] | undefined;
+  ethnicityMetrics?: EthnicityMetric[] | undefined;
+  incomeMetrics?: IncomeMetric[] | undefined;
+  maleToFemaleRatio?: number | undefined;
+  degreeRatio?: number | undefined;
+  longitude?: number | undefined;
+  latitude?: number | undefined;
+
+  constructor(data?: IImpressionMetric) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property))
+          (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(data?: any) {
+    if (data) {
+      this.id = data["id"];
+      this.driverVehicleId = data["driverVehicleId"];
+      this.driverVehicle = data["driverVehicle"] ? DriverVehicle.fromJS(data["driverVehicle"]) : <any>undefined;
+      this.dateTime = data["dateTime"] ? new Date(data["dateTime"].toString()) : <any>undefined;
+      this.impressions = data["impressions"];
+      if (data["ageMetrics"] && data["ageMetrics"].constructor === Array) {
+        this.ageMetrics = [];
+        for (let item of data["ageMetrics"])
+          this.ageMetrics.push(AgeMetric.fromJS(item));
+      }
+      if (data["ethnicityMetrics"] && data["ethnicityMetrics"].constructor === Array) {
+        this.ethnicityMetrics = [];
+        for (let item of data["ethnicityMetrics"])
+          this.ethnicityMetrics.push(EthnicityMetric.fromJS(item));
+      }
+      if (data["incomeMetrics"] && data["incomeMetrics"].constructor === Array) {
+        this.incomeMetrics = [];
+        for (let item of data["incomeMetrics"])
+          this.incomeMetrics.push(IncomeMetric.fromJS(item));
+      }
+      this.maleToFemaleRatio = data["maleToFemaleRatio"];
+      this.degreeRatio = data["degreeRatio"];
+      this.longitude = data["longitude"];
+      this.latitude = data["latitude"];
+    }
+  }
+
+  static fromJS(data: any): ImpressionMetric {
+    data = typeof data === 'object' ? data : {};
+    let result = new ImpressionMetric();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data["id"] = this.id;
+    data["driverVehicleId"] = this.driverVehicleId;
+    data["driverVehicle"] = this.driverVehicle ? this.driverVehicle.toJSON() : <any>undefined;
+    data["dateTime"] = this.dateTime ? this.dateTime.toISOString() : <any>undefined;
+    data["impressions"] = this.impressions;
+    if (this.ageMetrics && this.ageMetrics.constructor === Array) {
+      data["ageMetrics"] = [];
+      for (let item of this.ageMetrics)
+        data["ageMetrics"].push(item.toJSON());
+    }
+    if (this.ethnicityMetrics && this.ethnicityMetrics.constructor === Array) {
+      data["ethnicityMetrics"] = [];
+      for (let item of this.ethnicityMetrics)
+        data["ethnicityMetrics"].push(item.toJSON());
+    }
+    if (this.incomeMetrics && this.incomeMetrics.constructor === Array) {
+      data["incomeMetrics"] = [];
+      for (let item of this.incomeMetrics)
+        data["incomeMetrics"].push(item.toJSON());
+    }
+    data["maleToFemaleRatio"] = this.maleToFemaleRatio;
+    data["degreeRatio"] = this.degreeRatio;
+    data["longitude"] = this.longitude;
+    data["latitude"] = this.latitude;
+    return data;
+  }
+}
+
+export interface IImpressionMetric {
+  id?: number | undefined;
+  driverVehicleId?: number | undefined;
+  driverVehicle?: DriverVehicle | undefined;
+  dateTime?: Date | undefined;
+  impressions?: number | undefined;
+  ageMetrics?: AgeMetric[] | undefined;
+  ethnicityMetrics?: EthnicityMetric[] | undefined;
+  incomeMetrics?: IncomeMetric[] | undefined;
+  maleToFemaleRatio?: number | undefined;
+  degreeRatio?: number | undefined;
+  longitude?: number | undefined;
+  latitude?: number | undefined;
 }
 
 export class WalletEntry implements IWalletEntry {
@@ -1850,15 +2015,159 @@ export interface IJobOffer {
   driverVehiclePlacementArea?: DriverVehiclePlacementArea | undefined;
 }
 
+export class AgeMetric implements IAgeMetric {
+  id?: number | undefined;
+  lower?: number | undefined;
+  upper?: number | undefined;
+  fraction?: number | undefined;
+
+  constructor(data?: IAgeMetric) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property))
+          (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(data?: any) {
+    if (data) {
+      this.id = data["id"];
+      this.lower = data["lower"];
+      this.upper = data["upper"];
+      this.fraction = data["fraction"];
+    }
+  }
+
+  static fromJS(data: any): AgeMetric {
+    data = typeof data === 'object' ? data : {};
+    let result = new AgeMetric();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data["id"] = this.id;
+    data["lower"] = this.lower;
+    data["upper"] = this.upper;
+    data["fraction"] = this.fraction;
+    return data;
+  }
+}
+
+export interface IAgeMetric {
+  id?: number | undefined;
+  lower?: number | undefined;
+  upper?: number | undefined;
+  fraction?: number | undefined;
+}
+
+export class EthnicityMetric implements IEthnicityMetric {
+  id?: number | undefined;
+  class?: string | undefined;
+  fraction?: number | undefined;
+
+  constructor(data?: IEthnicityMetric) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property))
+          (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(data?: any) {
+    if (data) {
+      this.id = data["id"];
+      this.class = data["class"];
+      this.fraction = data["fraction"];
+    }
+  }
+
+  static fromJS(data: any): EthnicityMetric {
+    data = typeof data === 'object' ? data : {};
+    let result = new EthnicityMetric();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data["id"] = this.id;
+    data["class"] = this.class;
+    data["fraction"] = this.fraction;
+    return data;
+  }
+}
+
+export interface IEthnicityMetric {
+  id?: number | undefined;
+  class?: string | undefined;
+  fraction?: number | undefined;
+}
+
+export class IncomeMetric implements IIncomeMetric {
+  id?: number | undefined;
+  incomeLower?: number | undefined;
+  incomeUpper?: number | undefined;
+  fraction?: number | undefined;
+
+  constructor(data?: IIncomeMetric) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property))
+          (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(data?: any) {
+    if (data) {
+      this.id = data["id"];
+      this.incomeLower = data["incomeLower"];
+      this.incomeUpper = data["incomeUpper"];
+      this.fraction = data["fraction"];
+    }
+  }
+
+  static fromJS(data: any): IncomeMetric {
+    data = typeof data === 'object' ? data : {};
+    let result = new IncomeMetric();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data["id"] = this.id;
+    data["incomeLower"] = this.incomeLower;
+    data["incomeUpper"] = this.incomeUpper;
+    data["fraction"] = this.fraction;
+    return data;
+  }
+}
+
+export interface IIncomeMetric {
+  id?: number | undefined;
+  incomeLower?: number | undefined;
+  incomeUpper?: number | undefined;
+  fraction?: number | undefined;
+}
+
 export class Creative implements ICreative {
   id?: number | undefined;
   name: string;
+  campaignId?: number | undefined;
+  campaign?: Campaign | undefined;
   numberOfVehicles: number;
   vehicleCategoryClassId: number;
   vehicleCategoryClass?: VehicleCategoryClass | undefined;
   createDateTime?: Date | undefined;
   startDate?: Date | undefined;
-  endDate?: Date | undefined;
+  jobOffers?: JobOffer[] | undefined;
+  status?: string | undefined;
+  campaignLength?: number | undefined;
   creativeTargetAreas?: CreativeTargetArea[] | undefined;
 
   constructor(data?: ICreative) {
@@ -1874,12 +2183,20 @@ export class Creative implements ICreative {
     if (data) {
       this.id = data["id"];
       this.name = data["name"];
+      this.campaignId = data["campaignId"];
+      this.campaign = data["campaign"] ? Campaign.fromJS(data["campaign"]) : <any>undefined;
       this.numberOfVehicles = data["numberOfVehicles"];
       this.vehicleCategoryClassId = data["vehicleCategoryClassId"];
       this.vehicleCategoryClass = data["vehicleCategoryClass"] ? VehicleCategoryClass.fromJS(data["vehicleCategoryClass"]) : <any>undefined;
       this.createDateTime = data["createDateTime"] ? new Date(data["createDateTime"].toString()) : <any>undefined;
       this.startDate = data["startDate"] ? new Date(data["startDate"].toString()) : <any>undefined;
-      this.endDate = data["endDate"] ? new Date(data["endDate"].toString()) : <any>undefined;
+      if (data["jobOffers"] && data["jobOffers"].constructor === Array) {
+        this.jobOffers = [];
+        for (let item of data["jobOffers"])
+          this.jobOffers.push(JobOffer.fromJS(item));
+      }
+      this.status = data["status"];
+      this.campaignLength = data["campaignLength"];
       if (data["creativeTargetAreas"] && data["creativeTargetAreas"].constructor === Array) {
         this.creativeTargetAreas = [];
         for (let item of data["creativeTargetAreas"])
@@ -1899,12 +2216,20 @@ export class Creative implements ICreative {
     data = typeof data === 'object' ? data : {};
     data["id"] = this.id;
     data["name"] = this.name;
+    data["campaignId"] = this.campaignId;
+    data["campaign"] = this.campaign ? this.campaign.toJSON() : <any>undefined;
     data["numberOfVehicles"] = this.numberOfVehicles;
     data["vehicleCategoryClassId"] = this.vehicleCategoryClassId;
     data["vehicleCategoryClass"] = this.vehicleCategoryClass ? this.vehicleCategoryClass.toJSON() : <any>undefined;
     data["createDateTime"] = this.createDateTime ? this.createDateTime.toISOString() : <any>undefined;
     data["startDate"] = this.startDate ? this.startDate.toISOString() : <any>undefined;
-    data["endDate"] = this.endDate ? this.endDate.toISOString() : <any>undefined;
+    if (this.jobOffers && this.jobOffers.constructor === Array) {
+      data["jobOffers"] = [];
+      for (let item of this.jobOffers)
+        data["jobOffers"].push(item.toJSON());
+    }
+    data["status"] = this.status;
+    data["campaignLength"] = this.campaignLength;
     if (this.creativeTargetAreas && this.creativeTargetAreas.constructor === Array) {
       data["creativeTargetAreas"] = [];
       for (let item of this.creativeTargetAreas)
@@ -1917,22 +2242,85 @@ export class Creative implements ICreative {
 export interface ICreative {
   id?: number | undefined;
   name: string;
+  campaignId?: number | undefined;
+  campaign?: Campaign | undefined;
   numberOfVehicles: number;
   vehicleCategoryClassId: number;
   vehicleCategoryClass?: VehicleCategoryClass | undefined;
   createDateTime?: Date | undefined;
   startDate?: Date | undefined;
-  endDate?: Date | undefined;
+  jobOffers?: JobOffer[] | undefined;
+  status?: string | undefined;
+  campaignLength?: number | undefined;
   creativeTargetAreas?: CreativeTargetArea[] | undefined;
+}
+
+export class Campaign implements ICampaign {
+  id?: number | undefined;
+  name: string;
+  accountId?: number | undefined;
+  account?: Account | undefined;
+  creatives?: Creative[] | undefined;
+
+  constructor(data?: ICampaign) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property))
+          (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(data?: any) {
+    if (data) {
+      this.id = data["id"];
+      this.name = data["name"];
+      this.accountId = data["accountId"];
+      this.account = data["account"] ? Account.fromJS(data["account"]) : <any>undefined;
+      if (data["creatives"] && data["creatives"].constructor === Array) {
+        this.creatives = [];
+        for (let item of data["creatives"])
+          this.creatives.push(Creative.fromJS(item));
+      }
+    }
+  }
+
+  static fromJS(data: any): Campaign {
+    data = typeof data === 'object' ? data : {};
+    let result = new Campaign();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data["id"] = this.id;
+    data["name"] = this.name;
+    data["accountId"] = this.accountId;
+    data["account"] = this.account ? this.account.toJSON() : <any>undefined;
+    if (this.creatives && this.creatives.constructor === Array) {
+      data["creatives"] = [];
+      for (let item of this.creatives)
+        data["creatives"].push(item.toJSON());
+    }
+    return data;
+  }
+}
+
+export interface ICampaign {
+  id?: number | undefined;
+  name: string;
+  accountId?: number | undefined;
+  account?: Account | undefined;
+  creatives?: Creative[] | undefined;
 }
 
 export class CreativeTargetArea implements ICreativeTargetArea {
   id?: number | undefined;
   creativeId?: number | undefined;
   creative?: Creative | undefined;
-  radius: number;
-  longitude: number;
-  latitude: number;
+  hkDistrictsId?: number | undefined;
+  hkDistricts?: HKDistricts | undefined;
 
   constructor(data?: ICreativeTargetArea) {
     if (data) {
@@ -1948,9 +2336,8 @@ export class CreativeTargetArea implements ICreativeTargetArea {
       this.id = data["id"];
       this.creativeId = data["creativeId"];
       this.creative = data["creative"] ? Creative.fromJS(data["creative"]) : <any>undefined;
-      this.radius = data["radius"];
-      this.longitude = data["longitude"];
-      this.latitude = data["latitude"];
+      this.hkDistrictsId = data["hkDistrictsId"];
+      this.hkDistricts = data["hkDistricts"] ? HKDistricts.fromJS(data["hkDistricts"]) : <any>undefined;
     }
   }
 
@@ -1966,9 +2353,8 @@ export class CreativeTargetArea implements ICreativeTargetArea {
     data["id"] = this.id;
     data["creativeId"] = this.creativeId;
     data["creative"] = this.creative ? this.creative.toJSON() : <any>undefined;
-    data["radius"] = this.radius;
-    data["longitude"] = this.longitude;
-    data["latitude"] = this.latitude;
+    data["hkDistrictsId"] = this.hkDistrictsId;
+    data["hkDistricts"] = this.hkDistricts ? this.hkDistricts.toJSON() : <any>undefined;
     return data;
   }
 }
@@ -1977,9 +2363,420 @@ export interface ICreativeTargetArea {
   id?: number | undefined;
   creativeId?: number | undefined;
   creative?: Creative | undefined;
-  radius: number;
-  longitude: number;
-  latitude: number;
+  hkDistrictsId?: number | undefined;
+  hkDistricts?: HKDistricts | undefined;
+}
+
+export class Account implements IAccount {
+  id?: number | undefined;
+  companyName: string;
+  users?: UserAccount[] | undefined;
+
+  constructor(data?: IAccount) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property))
+          (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(data?: any) {
+    if (data) {
+      this.id = data["id"];
+      this.companyName = data["companyName"];
+      if (data["users"] && data["users"].constructor === Array) {
+        this.users = [];
+        for (let item of data["users"])
+          this.users.push(UserAccount.fromJS(item));
+      }
+    }
+  }
+
+  static fromJS(data: any): Account {
+    data = typeof data === 'object' ? data : {};
+    let result = new Account();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data["id"] = this.id;
+    data["companyName"] = this.companyName;
+    if (this.users && this.users.constructor === Array) {
+      data["users"] = [];
+      for (let item of this.users)
+        data["users"].push(item.toJSON());
+    }
+    return data;
+  }
+}
+
+export interface IAccount {
+  id?: number | undefined;
+  companyName: string;
+  users?: UserAccount[] | undefined;
+}
+
+export class HKDistricts implements IHKDistricts {
+  id?: number | undefined;
+  name?: string | undefined;
+  populationDensity?: number | undefined;
+  averageGDP?: number | undefined;
+  maleToFemaleRatio?: number | undefined;
+  age_0_14?: number | undefined;
+  age_15_24?: number | undefined;
+  age_25_44?: number | undefined;
+  age_45_64?: number | undefined;
+  age_65_?: number | undefined;
+  degree?: number | undefined;
+  non_Degree?: number | undefined;
+
+  constructor(data?: IHKDistricts) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property))
+          (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(data?: any) {
+    if (data) {
+      this.id = data["id"];
+      this.name = data["name"];
+      this.populationDensity = data["populationDensity"];
+      this.averageGDP = data["averageGDP"];
+      this.maleToFemaleRatio = data["maleToFemaleRatio"];
+      this.age_0_14 = data["age_0_14"];
+      this.age_15_24 = data["age_15_24"];
+      this.age_25_44 = data["age_25_44"];
+      this.age_45_64 = data["age_45_64"];
+      this.age_65_ = data["age_65_"];
+      this.degree = data["degree"];
+      this.non_Degree = data["non_Degree"];
+    }
+  }
+
+  static fromJS(data: any): HKDistricts {
+    data = typeof data === 'object' ? data : {};
+    let result = new HKDistricts();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data["id"] = this.id;
+    data["name"] = this.name;
+    data["populationDensity"] = this.populationDensity;
+    data["averageGDP"] = this.averageGDP;
+    data["maleToFemaleRatio"] = this.maleToFemaleRatio;
+    data["age_0_14"] = this.age_0_14;
+    data["age_15_24"] = this.age_15_24;
+    data["age_25_44"] = this.age_25_44;
+    data["age_45_64"] = this.age_45_64;
+    data["age_65_"] = this.age_65_;
+    data["degree"] = this.degree;
+    data["non_Degree"] = this.non_Degree;
+    return data;
+  }
+}
+
+export interface IHKDistricts {
+  id?: number | undefined;
+  name?: string | undefined;
+  populationDensity?: number | undefined;
+  averageGDP?: number | undefined;
+  maleToFemaleRatio?: number | undefined;
+  age_0_14?: number | undefined;
+  age_15_24?: number | undefined;
+  age_25_44?: number | undefined;
+  age_45_64?: number | undefined;
+  age_65_?: number | undefined;
+  degree?: number | undefined;
+  non_Degree?: number | undefined;
+}
+
+export class UserAccount implements IUserAccount {
+  id?: number | undefined;
+  applicationUserId?: string | undefined;
+  applicationUser?: ApplicationUser | undefined;
+  accountId?: number | undefined;
+  account?: Account | undefined;
+
+  constructor(data?: IUserAccount) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property))
+          (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(data?: any) {
+    if (data) {
+      this.id = data["id"];
+      this.applicationUserId = data["applicationUserId"];
+      this.applicationUser = data["applicationUser"] ? ApplicationUser.fromJS(data["applicationUser"]) : <any>undefined;
+      this.accountId = data["accountId"];
+      this.account = data["account"] ? Account.fromJS(data["account"]) : <any>undefined;
+    }
+  }
+
+  static fromJS(data: any): UserAccount {
+    data = typeof data === 'object' ? data : {};
+    let result = new UserAccount();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data["id"] = this.id;
+    data["applicationUserId"] = this.applicationUserId;
+    data["applicationUser"] = this.applicationUser ? this.applicationUser.toJSON() : <any>undefined;
+    data["accountId"] = this.accountId;
+    data["account"] = this.account ? this.account.toJSON() : <any>undefined;
+    return data;
+  }
+}
+
+export interface IUserAccount {
+  id?: number | undefined;
+  applicationUserId?: string | undefined;
+  applicationUser?: ApplicationUser | undefined;
+  accountId?: number | undefined;
+  account?: Account | undefined;
+}
+
+export class ApplicationUser implements IApplicationUser {
+  userType?: ApplicationUserUserType | undefined;
+  userAddressId?: number | undefined;
+  userAddress?: UserAddress | undefined;
+  driver?: Driver | undefined;
+  id?: string | undefined;
+  userName?: string | undefined;
+  normalizedUserName?: string | undefined;
+  email?: string | undefined;
+  normalizedEmail?: string | undefined;
+  emailConfirmed?: boolean | undefined;
+  passwordHash?: string | undefined;
+  securityStamp?: string | undefined;
+  concurrencyStamp?: string | undefined;
+  phoneNumber?: string | undefined;
+  phoneNumberConfirmed?: boolean | undefined;
+  twoFactorEnabled?: boolean | undefined;
+  lockoutEnd?: Date | undefined;
+  lockoutEnabled?: boolean | undefined;
+  accessFailedCount?: number | undefined;
+
+  constructor(data?: IApplicationUser) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property))
+          (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(data?: any) {
+    if (data) {
+      this.userType = data["userType"];
+      this.userAddressId = data["userAddressId"];
+      this.userAddress = data["userAddress"] ? UserAddress.fromJS(data["userAddress"]) : <any>undefined;
+      this.driver = data["driver"] ? Driver.fromJS(data["driver"]) : <any>undefined;
+      this.id = data["id"];
+      this.userName = data["userName"];
+      this.normalizedUserName = data["normalizedUserName"];
+      this.email = data["email"];
+      this.normalizedEmail = data["normalizedEmail"];
+      this.emailConfirmed = data["emailConfirmed"];
+      this.passwordHash = data["passwordHash"];
+      this.securityStamp = data["securityStamp"];
+      this.concurrencyStamp = data["concurrencyStamp"];
+      this.phoneNumber = data["phoneNumber"];
+      this.phoneNumberConfirmed = data["phoneNumberConfirmed"];
+      this.twoFactorEnabled = data["twoFactorEnabled"];
+      this.lockoutEnd = data["lockoutEnd"] ? new Date(data["lockoutEnd"].toString()) : <any>undefined;
+      this.lockoutEnabled = data["lockoutEnabled"];
+      this.accessFailedCount = data["accessFailedCount"];
+    }
+  }
+
+  static fromJS(data: any): ApplicationUser {
+    data = typeof data === 'object' ? data : {};
+    let result = new ApplicationUser();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data["userType"] = this.userType;
+    data["userAddressId"] = this.userAddressId;
+    data["userAddress"] = this.userAddress ? this.userAddress.toJSON() : <any>undefined;
+    data["driver"] = this.driver ? this.driver.toJSON() : <any>undefined;
+    data["id"] = this.id;
+    data["userName"] = this.userName;
+    data["normalizedUserName"] = this.normalizedUserName;
+    data["email"] = this.email;
+    data["normalizedEmail"] = this.normalizedEmail;
+    data["emailConfirmed"] = this.emailConfirmed;
+    data["passwordHash"] = this.passwordHash;
+    data["securityStamp"] = this.securityStamp;
+    data["concurrencyStamp"] = this.concurrencyStamp;
+    data["phoneNumber"] = this.phoneNumber;
+    data["phoneNumberConfirmed"] = this.phoneNumberConfirmed;
+    data["twoFactorEnabled"] = this.twoFactorEnabled;
+    data["lockoutEnd"] = this.lockoutEnd ? this.lockoutEnd.toISOString() : <any>undefined;
+    data["lockoutEnabled"] = this.lockoutEnabled;
+    data["accessFailedCount"] = this.accessFailedCount;
+    return data;
+  }
+}
+
+export interface IApplicationUser {
+  userType?: ApplicationUserUserType | undefined;
+  userAddressId?: number | undefined;
+  userAddress?: UserAddress | undefined;
+  driver?: Driver | undefined;
+  id?: string | undefined;
+  userName?: string | undefined;
+  normalizedUserName?: string | undefined;
+  email?: string | undefined;
+  normalizedEmail?: string | undefined;
+  emailConfirmed?: boolean | undefined;
+  passwordHash?: string | undefined;
+  securityStamp?: string | undefined;
+  concurrencyStamp?: string | undefined;
+  phoneNumber?: string | undefined;
+  phoneNumberConfirmed?: boolean | undefined;
+  twoFactorEnabled?: boolean | undefined;
+  lockoutEnd?: Date | undefined;
+  lockoutEnabled?: boolean | undefined;
+  accessFailedCount?: number | undefined;
+}
+
+export class UserAddress implements IUserAddress {
+  id?: number | undefined;
+  applicationUserId?: string | undefined;
+  address: string;
+  state: string;
+  countryId: number;
+  country?: Country | undefined;
+  zipCode: string;
+  phoneNumber: string;
+
+  constructor(data?: IUserAddress) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property))
+          (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(data?: any) {
+    if (data) {
+      this.id = data["id"];
+      this.applicationUserId = data["applicationUserId"];
+      this.address = data["address"];
+      this.state = data["state"];
+      this.countryId = data["countryId"];
+      this.country = data["country"] ? Country.fromJS(data["country"]) : <any>undefined;
+      this.zipCode = data["zipCode"];
+      this.phoneNumber = data["phoneNumber"];
+    }
+  }
+
+  static fromJS(data: any): UserAddress {
+    data = typeof data === 'object' ? data : {};
+    let result = new UserAddress();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data["id"] = this.id;
+    data["applicationUserId"] = this.applicationUserId;
+    data["address"] = this.address;
+    data["state"] = this.state;
+    data["countryId"] = this.countryId;
+    data["country"] = this.country ? this.country.toJSON() : <any>undefined;
+    data["zipCode"] = this.zipCode;
+    data["phoneNumber"] = this.phoneNumber;
+    return data;
+  }
+}
+
+export interface IUserAddress {
+  id?: number | undefined;
+  applicationUserId?: string | undefined;
+  address: string;
+  state: string;
+  countryId: number;
+  country?: Country | undefined;
+  zipCode: string;
+  phoneNumber: string;
+}
+
+export class PricingRequest implements IPricingRequest {
+  locations?: number[] | undefined;
+  categoryClassId?: number | undefined;
+  numberOfVehicles?: number | undefined;
+  campaignLength?: number | undefined;
+
+  constructor(data?: IPricingRequest) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property))
+          (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(data?: any) {
+    if (data) {
+      if (data["locations"] && data["locations"].constructor === Array) {
+        this.locations = [];
+        for (let item of data["locations"])
+          this.locations.push(item);
+      }
+      this.categoryClassId = data["categoryClassId"];
+      this.numberOfVehicles = data["numberOfVehicles"];
+      this.campaignLength = data["campaignLength"];
+    }
+  }
+
+  static fromJS(data: any): PricingRequest {
+    data = typeof data === 'object' ? data : {};
+    let result = new PricingRequest();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    if (this.locations && this.locations.constructor === Array) {
+      data["locations"] = [];
+      for (let item of this.locations)
+        data["locations"].push(item);
+    }
+    data["categoryClassId"] = this.categoryClassId;
+    data["numberOfVehicles"] = this.numberOfVehicles;
+    data["campaignLength"] = this.campaignLength;
+    return data;
+  }
+}
+
+export interface IPricingRequest {
+  locations?: number[] | undefined;
+  categoryClassId?: number | undefined;
+  numberOfVehicles?: number | undefined;
+  campaignLength?: number | undefined;
 }
 
 export class VehicleCategory implements IVehicleCategory {
@@ -2099,6 +2896,12 @@ export enum JobOfferStatus {
   _4 = 4,
 }
 
+export enum ApplicationUserUserType {
+  _1 = 1,
+  _2 = 2,
+  _3 = 3,
+}
+
 export class SwaggerException extends Error {
   message: string;
   status: number;
@@ -2124,10 +2927,7 @@ export class SwaggerException extends Error {
 }
 
 function throwException(message: string, status: number, response: string, headers: { [key: string]: any; }, result?: any): Observable<any> {
-  if(result !== null && result !== undefined)
-    return Observable.throw(result);
-  else
-    return Observable.throw(new SwaggerException(message, status, response, headers, null));
+  return Observable.throw(new SwaggerException(message, status, response, headers, result));
 }
 
 function blobToText(blob: any): Observable<string> {

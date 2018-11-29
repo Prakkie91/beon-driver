@@ -5,7 +5,14 @@ import {HomePage} from "../home/home";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {VehicleService} from "../../services/vehicle-service";
 import {Observable} from "rxjs";
-import {Country, DriverSignUpRequest, VehicleBrand, VehicleCategory} from "../../services/beon-api";
+import {
+  Country,
+  DriverSignUpRequest,
+  ErrorModel,
+  SwaggerException,
+  VehicleBrand,
+  VehicleCategory
+} from "../../services/beon-api";
 import {UserService} from "../../services/user-service";
 import {Storage} from "@ionic/storage";
 
@@ -89,7 +96,7 @@ export class RegisterPage {
 
       let request = this.userService.signUp(signUpRequest);
       request.subscribe((value) => this.loginUser(this.userBasicInfo.value.email),
-        (err) => alert(err));
+        (err:SwaggerException) => alert(err.response));
     }
   }
 
