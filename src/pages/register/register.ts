@@ -92,7 +92,7 @@ export class RegisterPage {
       signUpRequest.vehicleBrandId = this.userVehicleInfo.value.brand;
       signUpRequest.vehicleModel = this.userVehicleInfo.value.model;
       signUpRequest.vehicleCategoryClassId = this.userVehicleInfo.value.type;
-      signUpRequest.vehiclePlateNumber = this.userVehicleInfo.value.vehiclePlateNumber;
+      signUpRequest.vehiclePlateNumber = this.userVehicleInfo.value.numberPlate;
 
       let request = this.userService.signUp(signUpRequest);
       request.subscribe((value) => this.loginUser(this.userBasicInfo.value.email),
