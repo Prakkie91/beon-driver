@@ -5,8 +5,9 @@ import {HomePage} from "../home/home";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {VehicleService} from "../../services/vehicle-service";
 import {Observable} from "rxjs";
-import {Country, VehicleBrand, VehicleCategory} from "../../services/beon-api";
+import {Country, DriverSignUpRequest, VehicleBrand, VehicleCategory} from "../../services/beon-api";
 import {UserService} from "../../services/user-service";
+import {Storage} from "@ionic/storage";
 
 /*
   Generated class for the RegisterPage page.
@@ -30,7 +31,7 @@ export class RegisterPage {
   vehicleBrands: Observable<VehicleBrand>;
   countries: Observable<Country>;
 
-  constructor(public nav: NavController, public formBuilder: FormBuilder, public vehicleService: VehicleService, public userService: UserService) {
+  constructor(public nav: NavController, public formBuilder: FormBuilder, public vehicleService: VehicleService, public userService: UserService, private storage: Storage) {
 
     this.userBasicInfo = formBuilder.group({
       name: ['', Validators.compose([Validators.required, Validators.minLength(4)])],
@@ -50,7 +51,7 @@ export class RegisterPage {
       address: ['', Validators.compose([Validators.required])],
       country: ['', Validators.compose([Validators.required])],
       state: ['', Validators.compose([Validators.required])],
-      zipCode: ['', Validators.compose([Validators.required, Validators.minLength(5)])]
+      zipCode: ['', Validators.compose([Validators.required, Validators.maxLength(5)])]
     });
 
     this.vehicleCategories = vehicleService.getVehicleCategories();
@@ -70,8 +71,31 @@ export class RegisterPage {
   signup() {
     this.submitAttempt = true;
     if (this.userBasicInfo.valid) {
-      this.nav.setRoot(HomePage);
+      let signUpRequest = new DriverSignUpRequest();
+      signUpRequest.email = this.userBasicInfo.value.email;
+      signUpRequest.password = this.userBasicInfo.value.password;
+      signUpRequest.fullName = this.userBasicInfo.value.name;
+      signUpRequest.phoneNumber = this.userBasicInfo.value.phone;
+
+      signUpRequest.address = this.userAddressInfo.value.address;
+      signUpRequest.countryId = this.userAddressInfo.value.country;
+      signUpRequest.state = this.userAddressInfo.value.state;
+      signUpRequest.zipcode = this.userAddressInfo.value.zipcode;
+
+      signUpRequest.vehicleBrandId = this.userVehicleInfo.value.brand;
+      signUpRequest.vehicleModel = this.userVehicleInfo.value.model;
+      signUpRequest.vehicleCategoryClassId = this.userVehicleInfo.value.type;
+      signUpRequest.vehiclePlateNumber = this.userVehicleInfo.value.vehiclePlateNumber;
+
+      let request = this.userService.signUp(signUpRequest);
+      request.subscribe((value) => this.loginUser(this.userBasicInfo.value.email),
+        (err) => alert(err));
     }
+  }
+
+  loginUser(username:string ){
+    this.storage.set('DriverId', username).then(a =>
+      this.nav.setRoot(HomePage));
   }
 
   login() {
