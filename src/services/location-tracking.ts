@@ -7,6 +7,8 @@ import {Client, CreateTrackingEventRequest} from "./beon-api";
 import {HomePage} from "../pages/home/home";
 import {Storage} from "@ionic/storage";
 import {LoginPage} from "../pages/login/login";
+import {DriverService} from "./driver-service";
+import {NavController} from "ionic-angular";
 
 @Injectable()
 export class LocationTrackingService {
@@ -17,7 +19,7 @@ export class LocationTrackingService {
   private apiClient: any;
   private vehicleId: number;
 
-  constructor(public zone: NgZone, public backgroundGeolocation: BackgroundGeolocation, public geolocation: Geolocation, private http: HttpClient, private storage: Storage) {
+  constructor(public zone: NgZone, public backgroundGeolocation: BackgroundGeolocation, public geolocation: Geolocation, private http: HttpClient, private storage: Storage, public driverService: DriverService) {
     this.apiClient = new Client(http, "http://beonadvertising.com");
   }
 
@@ -26,8 +28,11 @@ export class LocationTrackingService {
     this.storage.get("VehicleId")
       .then(function (vehicleId) {
         if (!vehicleId) {
-          this.nav.setRoot(LoginPage)
-          return;
+          self.driverService.getCurrentDriver().then(a => this.driver = a);
+          this.driver.subscribe((driver)=>{
+            self.storage.set('VehicleId', driver.vehicleModel.id);
+            self.vehicleId = driver.vehicleModel.id;
+          });
         }
         else {
           self.vehicleId = vehicleId

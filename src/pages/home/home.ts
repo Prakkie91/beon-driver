@@ -7,6 +7,7 @@ import {LocationTrackingService} from '../../services/location-tracking';
 import {DriverInfoResponse} from "../../services/beon-api";
 import {Observable} from "rxjs";
 import {from} from "rxjs/observable/from";
+import {Storage} from "@ionic/storage";
 
 declare var google;
 
@@ -29,9 +30,7 @@ export class HomePage {
   map: any;
 
   constructor(public nav: NavController, public driverService: DriverService, public modalCtrl: ModalController,
-              public alertCtrl: AlertController, public locationTrackingService: LocationTrackingService) {
-
-    driverService.getCurrentDriver().then(a => this.driver = a);
+              public alertCtrl: AlertController, public locationTrackingService: LocationTrackingService, private storage: Storage) {
 
     // show modal
     let modal = this.modalCtrl.create(ModalJobPage);
