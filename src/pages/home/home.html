@@ -13,12 +13,6 @@
     <ion-grid class="light-bg">
 
       <ion-row>
-        <ion-col>
-          <button *ngIf="!isTracking" ion-button full color="secondary" (click)="start()">Start Tracking</button>
-          <button *ngIf="isTracking" ion-button full color="danger" (click)="stop()">Stop Tracking</button>
-        </ion-col>
-      </ion-row>
-      <ion-row>
         <div #map id="map"></div>
       </ion-row>
       <div padding=""></div>

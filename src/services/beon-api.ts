@@ -36,7 +36,7 @@ export class Client {
    * @param password (optional)
    * @return Success
    */
-  login(userName: string | null | undefined, password: string | null | undefined): Observable<DriverInfoUpdateRequest> {
+  login(userName: string | null | undefined, password: string | null | undefined): Observable<LoginResponse> {
     let url_ = this.baseUrl + "/api/Driver/Login?";
     if (userName !== undefined)
       url_ += "userName=" + encodeURIComponent("" + userName) + "&";
@@ -59,14 +59,14 @@ export class Client {
         try {
           return this.processLogin(<any>response_);
         } catch (e) {
-          return <Observable<DriverInfoUpdateRequest>><any>Observable.throw(e);
+          return <Observable<LoginResponse>><any>Observable.throw(e);
         }
       } else
-        return <Observable<DriverInfoUpdateRequest>><any>Observable.throw(response_);
+        return <Observable<LoginResponse>><any>Observable.throw(response_);
     });
   }
 
-  protected processLogin(response: HttpResponseBase): Observable<DriverInfoUpdateRequest> {
+  protected processLogin(response: HttpResponseBase): Observable<LoginResponse> {
     const status = response.status;
     const responseBlob =
       response instanceof HttpResponse ? response.body :
@@ -77,7 +77,7 @@ export class Client {
       return blobToText(responseBlob).flatMap(_responseText => {
         let result200: any = null;
         let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result200 = resultData200 ? DriverInfoUpdateRequest.fromJS(resultData200) : new DriverInfoUpdateRequest();
+        result200 = resultData200 ? LoginResponse.fromJS(resultData200) : new LoginResponse();
         return Observable.of(result200);
       });
     } else if (status === 500) {
@@ -92,7 +92,7 @@ export class Client {
         return throwException("An unexpected server error occurred.", status, _responseText, _headers);
       });
     }
-    return Observable.of<DriverInfoUpdateRequest>(<any>null);
+    return Observable.of<LoginResponse>(<any>null);
   }
 
   /**
@@ -163,7 +163,7 @@ export class Client {
    * @param data (optional)
    * @return Success
    */
-  updateSettings(data: DriverInfoUpdateRequest | null | undefined): Observable<DriverInfoUpdateRequest> {
+  updateSettings(data: DriverInfoUpdateRequest | null | undefined): Observable<DriverInfoResponse> {
     let url_ = this.baseUrl + "/api/Driver/UpdateSetting";
     url_ = url_.replace(/[?&]$/, "");
 
@@ -186,14 +186,14 @@ export class Client {
         try {
           return this.processUpdateSettings(<any>response_);
         } catch (e) {
-          return <Observable<DriverInfoUpdateRequest>><any>Observable.throw(e);
+          return <Observable<DriverInfoResponse>><any>Observable.throw(e);
         }
       } else
-        return <Observable<DriverInfoUpdateRequest>><any>Observable.throw(response_);
+        return <Observable<DriverInfoResponse>><any>Observable.throw(response_);
     });
   }
 
-  protected processUpdateSettings(response: HttpResponseBase): Observable<DriverInfoUpdateRequest> {
+  protected processUpdateSettings(response: HttpResponseBase): Observable<DriverInfoResponse> {
     const status = response.status;
     const responseBlob =
       response instanceof HttpResponse ? response.body :
@@ -204,7 +204,7 @@ export class Client {
       return blobToText(responseBlob).flatMap(_responseText => {
         let result200: any = null;
         let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result200 = resultData200 ? DriverInfoUpdateRequest.fromJS(resultData200) : new DriverInfoUpdateRequest();
+        result200 = resultData200 ? DriverInfoResponse.fromJS(resultData200) : new DriverInfoResponse();
         return Observable.of(result200);
       });
     } else if (status === 500) {
@@ -219,14 +219,14 @@ export class Client {
         return throwException("An unexpected server error occurred.", status, _responseText, _headers);
       });
     }
-    return Observable.of<DriverInfoUpdateRequest>(<any>null);
+    return Observable.of<DriverInfoResponse>(<any>null);
   }
 
   /**
    * @param data (optional)
    * @return Success
    */
-  signUp(data: DriverSignUpRequest | null | undefined): Observable<DriverSignUpRequest> {
+  signUp(data: DriverSignUpRequest | null | undefined): Observable<SignUpResponse> {
     let url_ = this.baseUrl + "/api/Driver/SignUp";
     url_ = url_.replace(/[?&]$/, "");
 
@@ -249,14 +249,14 @@ export class Client {
         try {
           return this.processSignUp(<any>response_);
         } catch (e) {
-          return <Observable<DriverSignUpRequest>><any>Observable.throw(e);
+          return <Observable<SignUpResponse>><any>Observable.throw(e);
         }
       } else
-        return <Observable<DriverSignUpRequest>><any>Observable.throw(response_);
+        return <Observable<SignUpResponse>><any>Observable.throw(response_);
     });
   }
 
-  protected processSignUp(response: HttpResponseBase): Observable<DriverSignUpRequest> {
+  protected processSignUp(response: HttpResponseBase): Observable<SignUpResponse> {
     const status = response.status;
     const responseBlob =
       response instanceof HttpResponse ? response.body :
@@ -267,7 +267,7 @@ export class Client {
       return blobToText(responseBlob).flatMap(_responseText => {
         let result200: any = null;
         let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result200 = resultData200 ? DriverSignUpRequest.fromJS(resultData200) : new DriverSignUpRequest();
+        result200 = resultData200 ? SignUpResponse.fromJS(resultData200) : new SignUpResponse();
         return Observable.of(result200);
       });
     } else if (status === 500) {
@@ -282,7 +282,7 @@ export class Client {
         return throwException("An unexpected server error occurred.", status, _responseText, _headers);
       });
     }
-    return Observable.of<DriverSignUpRequest>(<any>null);
+    return Observable.of<SignUpResponse>(<any>null);
   }
 
   /**
@@ -839,17 +839,13 @@ export class Client {
   }
 }
 
-export class DriverInfoUpdateRequest implements IDriverInfoUpdateRequest {
+export class LoginResponse implements ILoginResponse {
   userName?: string | undefined;
   fullName?: string | undefined;
-  phoneNumber?: string | undefined;
-  email?: string | undefined;
-  address?: string | undefined;
-  state?: string | undefined;
-  countryId?: number | undefined;
-  zipCode?: string | undefined;
+  profileCloudinaryImage?: CloudinaryImage | undefined;
+  primaryVehicleId?: number | undefined;
 
-  constructor(data?: IDriverInfoUpdateRequest) {
+  constructor(data?: ILoginResponse) {
     if (data) {
       for (var property in data) {
         if (data.hasOwnProperty(property))
@@ -862,18 +858,14 @@ export class DriverInfoUpdateRequest implements IDriverInfoUpdateRequest {
     if (data) {
       this.userName = data["userName"];
       this.fullName = data["fullName"];
-      this.phoneNumber = data["phoneNumber"];
-      this.email = data["email"];
-      this.address = data["address"];
-      this.state = data["state"];
-      this.countryId = data["countryId"];
-      this.zipCode = data["zipCode"];
+      this.profileCloudinaryImage = data["profileCloudinaryImage"] ? CloudinaryImage.fromJS(data["profileCloudinaryImage"]) : <any>undefined;
+      this.primaryVehicleId = data["primaryVehicleId"];
     }
   }
 
-  static fromJS(data: any): DriverInfoUpdateRequest {
+  static fromJS(data: any): LoginResponse {
     data = typeof data === 'object' ? data : {};
-    let result = new DriverInfoUpdateRequest();
+    let result = new LoginResponse();
     result.init(data);
     return result;
   }
@@ -882,25 +874,57 @@ export class DriverInfoUpdateRequest implements IDriverInfoUpdateRequest {
     data = typeof data === 'object' ? data : {};
     data["userName"] = this.userName;
     data["fullName"] = this.fullName;
-    data["phoneNumber"] = this.phoneNumber;
-    data["email"] = this.email;
-    data["address"] = this.address;
-    data["state"] = this.state;
-    data["countryId"] = this.countryId;
-    data["zipCode"] = this.zipCode;
+    data["profileCloudinaryImage"] = this.profileCloudinaryImage ? this.profileCloudinaryImage.toJSON() : <any>undefined;
+    data["primaryVehicleId"] = this.primaryVehicleId;
     return data;
   }
 }
 
-export interface IDriverInfoUpdateRequest {
+export interface ILoginResponse {
   userName?: string | undefined;
   fullName?: string | undefined;
-  phoneNumber?: string | undefined;
-  email?: string | undefined;
-  address?: string | undefined;
-  state?: string | undefined;
-  countryId?: number | undefined;
-  zipCode?: string | undefined;
+  profileCloudinaryImage?: CloudinaryImage | undefined;
+  primaryVehicleId?: number | undefined;
+}
+
+export class CloudinaryImage implements ICloudinaryImage {
+  baseUrl?: string | undefined;
+  relativePath?: string | undefined;
+
+  constructor(data?: ICloudinaryImage) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property))
+          (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(data?: any) {
+    if (data) {
+      this.baseUrl = data["baseUrl"];
+      this.relativePath = data["relativePath"];
+    }
+  }
+
+  static fromJS(data: any): CloudinaryImage {
+    data = typeof data === 'object' ? data : {};
+    let result = new CloudinaryImage();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data["baseUrl"] = this.baseUrl;
+    data["relativePath"] = this.relativePath;
+    return data;
+  }
+}
+
+export interface ICloudinaryImage {
+  baseUrl?: string | undefined;
+  relativePath?: string | undefined;
 }
 
 export class ErrorModel implements IErrorModel {
@@ -1275,6 +1299,70 @@ export interface IVehicleCategoryClass {
   vehicleCategoryId?: number | undefined;
 }
 
+export class DriverInfoUpdateRequest implements IDriverInfoUpdateRequest {
+  userName?: string | undefined;
+  fullName?: string | undefined;
+  phoneNumber?: string | undefined;
+  email?: string | undefined;
+  address?: string | undefined;
+  state?: string | undefined;
+  countryId?: number | undefined;
+  zipCode?: string | undefined;
+
+  constructor(data?: IDriverInfoUpdateRequest) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property))
+          (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(data?: any) {
+    if (data) {
+      this.userName = data["userName"];
+      this.fullName = data["fullName"];
+      this.phoneNumber = data["phoneNumber"];
+      this.email = data["email"];
+      this.address = data["address"];
+      this.state = data["state"];
+      this.countryId = data["countryId"];
+      this.zipCode = data["zipCode"];
+    }
+  }
+
+  static fromJS(data: any): DriverInfoUpdateRequest {
+    data = typeof data === 'object' ? data : {};
+    let result = new DriverInfoUpdateRequest();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data["userName"] = this.userName;
+    data["fullName"] = this.fullName;
+    data["phoneNumber"] = this.phoneNumber;
+    data["email"] = this.email;
+    data["address"] = this.address;
+    data["state"] = this.state;
+    data["countryId"] = this.countryId;
+    data["zipCode"] = this.zipCode;
+    return data;
+  }
+}
+
+export interface IDriverInfoUpdateRequest {
+  userName?: string | undefined;
+  fullName?: string | undefined;
+  phoneNumber?: string | undefined;
+  email?: string | undefined;
+  address?: string | undefined;
+  state?: string | undefined;
+  countryId?: number | undefined;
+  zipCode?: string | undefined;
+}
+
 export class DriverSignUpRequest implements IDriverSignUpRequest {
   password?: string | undefined;
   address?: string | undefined;
@@ -1357,6 +1445,54 @@ export interface IDriverSignUpRequest {
   vehicleModel?: string | undefined;
   vehiclePlateNumber?: string | undefined;
   identityNumber?: string | undefined;
+}
+
+export class SignUpResponse implements ISignUpResponse {
+  userName?: string | undefined;
+  fullName?: string | undefined;
+  profileCloudinaryImage?: CloudinaryImage | undefined;
+  primaryVehicleId?: number | undefined;
+
+  constructor(data?: ISignUpResponse) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property))
+          (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(data?: any) {
+    if (data) {
+      this.userName = data["userName"];
+      this.fullName = data["fullName"];
+      this.profileCloudinaryImage = data["profileCloudinaryImage"] ? CloudinaryImage.fromJS(data["profileCloudinaryImage"]) : <any>undefined;
+      this.primaryVehicleId = data["primaryVehicleId"];
+    }
+  }
+
+  static fromJS(data: any): SignUpResponse {
+    data = typeof data === 'object' ? data : {};
+    let result = new SignUpResponse();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data["userName"] = this.userName;
+    data["fullName"] = this.fullName;
+    data["profileCloudinaryImage"] = this.profileCloudinaryImage ? this.profileCloudinaryImage.toJSON() : <any>undefined;
+    data["primaryVehicleId"] = this.primaryVehicleId;
+    return data;
+  }
+}
+
+export interface ISignUpResponse {
+  userName?: string | undefined;
+  fullName?: string | undefined;
+  profileCloudinaryImage?: CloudinaryImage | undefined;
+  primaryVehicleId?: number | undefined;
 }
 
 export class CreateTrackingEventRequest implements ICreateTrackingEventRequest {
@@ -1470,9 +1606,7 @@ export interface IDriverVehicleTrackingEvent {
 export class DriverVehicle implements IDriverVehicle {
   id?: number | undefined;
   driverId?: number | undefined;
-  driver?: Driver | undefined;
   trackingDeviceUID?: string | undefined;
-  model: string;
   registrationNumber: string;
   vehicleBrandId: number;
   vehicleBrand?: VehicleBrand | undefined;
@@ -1498,9 +1632,7 @@ export class DriverVehicle implements IDriverVehicle {
     if (data) {
       this.id = data["id"];
       this.driverId = data["driverId"];
-      this.driver = data["driver"] ? Driver.fromJS(data["driver"]) : <any>undefined;
       this.trackingDeviceUID = data["trackingDeviceUID"];
-      this.model = data["model"];
       this.registrationNumber = data["registrationNumber"];
       this.vehicleBrandId = data["vehicleBrandId"];
       this.vehicleBrand = data["vehicleBrand"] ? VehicleBrand.fromJS(data["vehicleBrand"]) : <any>undefined;
@@ -1538,9 +1670,7 @@ export class DriverVehicle implements IDriverVehicle {
     data = typeof data === 'object' ? data : {};
     data["id"] = this.id;
     data["driverId"] = this.driverId;
-    data["driver"] = this.driver ? this.driver.toJSON() : <any>undefined;
     data["trackingDeviceUID"] = this.trackingDeviceUID;
-    data["model"] = this.model;
     data["registrationNumber"] = this.registrationNumber;
     data["vehicleBrandId"] = this.vehicleBrandId;
     data["vehicleBrand"] = this.vehicleBrand ? this.vehicleBrand.toJSON() : <any>undefined;
@@ -1571,9 +1701,7 @@ export class DriverVehicle implements IDriverVehicle {
 export interface IDriverVehicle {
   id?: number | undefined;
   driverId?: number | undefined;
-  driver?: Driver | undefined;
   trackingDeviceUID?: string | undefined;
-  model: string;
   registrationNumber: string;
   vehicleBrandId: number;
   vehicleBrand?: VehicleBrand | undefined;
@@ -1585,86 +1713,6 @@ export interface IDriverVehicle {
   status: DriverVehicleStatus;
   driverVehicleTrackingEvents?: DriverVehicleTrackingEvent[] | undefined;
   impressionMetrics?: ImpressionMetric[] | undefined;
-}
-
-export class Driver implements IDriver {
-  applicationUserId?: string | undefined;
-  id?: number | undefined;
-  identityNumber: string;
-  identityDocumentType: DriverIdentityDocumentType;
-  identityDocument: string;
-  status?: DriverStatus | undefined;
-  vehicles?: DriverVehicle[] | undefined;
-  walletEntries?: WalletEntry[] | undefined;
-
-  constructor(data?: IDriver) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(data?: any) {
-    if (data) {
-      this.applicationUserId = data["applicationUserId"];
-      this.id = data["id"];
-      this.identityNumber = data["identityNumber"];
-      this.identityDocumentType = data["identityDocumentType"];
-      this.identityDocument = data["identityDocument"];
-      this.status = data["status"];
-      if (data["vehicles"] && data["vehicles"].constructor === Array) {
-        this.vehicles = [];
-        for (let item of data["vehicles"])
-          this.vehicles.push(DriverVehicle.fromJS(item));
-      }
-      if (data["walletEntries"] && data["walletEntries"].constructor === Array) {
-        this.walletEntries = [];
-        for (let item of data["walletEntries"])
-          this.walletEntries.push(WalletEntry.fromJS(item));
-      }
-    }
-  }
-
-  static fromJS(data: any): Driver {
-    data = typeof data === 'object' ? data : {};
-    let result = new Driver();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["applicationUserId"] = this.applicationUserId;
-    data["id"] = this.id;
-    data["identityNumber"] = this.identityNumber;
-    data["identityDocumentType"] = this.identityDocumentType;
-    data["identityDocument"] = this.identityDocument;
-    data["status"] = this.status;
-    if (this.vehicles && this.vehicles.constructor === Array) {
-      data["vehicles"] = [];
-      for (let item of this.vehicles)
-        data["vehicles"].push(item.toJSON());
-    }
-    if (this.walletEntries && this.walletEntries.constructor === Array) {
-      data["walletEntries"] = [];
-      for (let item of this.walletEntries)
-        data["walletEntries"].push(item.toJSON());
-    }
-    return data;
-  }
-}
-
-export interface IDriver {
-  applicationUserId?: string | undefined;
-  id?: number | undefined;
-  identityNumber: string;
-  identityDocumentType: DriverIdentityDocumentType;
-  identityDocument: string;
-  status?: DriverStatus | undefined;
-  vehicles?: DriverVehicle[] | undefined;
-  walletEntries?: WalletEntry[] | undefined;
 }
 
 export class DriverVehiclePlacementArea implements IDriverVehiclePlacementArea {
@@ -1837,66 +1885,6 @@ export interface IImpressionMetric {
   degreeRatio?: number | undefined;
   longitude?: number | undefined;
   latitude?: number | undefined;
-}
-
-export class WalletEntry implements IWalletEntry {
-  id?: number | undefined;
-  driverId?: number | undefined;
-  driver?: Driver | undefined;
-  status?: WalletEntryStatus | undefined;
-  createDateTime?: Date | undefined;
-  amount?: number | undefined;
-  currency?: WalletEntryCurrency | undefined;
-
-  constructor(data?: IWalletEntry) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(data?: any) {
-    if (data) {
-      this.id = data["id"];
-      this.driverId = data["driverId"];
-      this.driver = data["driver"] ? Driver.fromJS(data["driver"]) : <any>undefined;
-      this.status = data["status"];
-      this.createDateTime = data["createDateTime"] ? new Date(data["createDateTime"].toString()) : <any>undefined;
-      this.amount = data["amount"];
-      this.currency = data["currency"];
-    }
-  }
-
-  static fromJS(data: any): WalletEntry {
-    data = typeof data === 'object' ? data : {};
-    let result = new WalletEntry();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["id"] = this.id;
-    data["driverId"] = this.driverId;
-    data["driver"] = this.driver ? this.driver.toJSON() : <any>undefined;
-    data["status"] = this.status;
-    data["createDateTime"] = this.createDateTime ? this.createDateTime.toISOString() : <any>undefined;
-    data["amount"] = this.amount;
-    data["currency"] = this.currency;
-    return data;
-  }
-}
-
-export interface IWalletEntry {
-  id?: number | undefined;
-  driverId?: number | undefined;
-  driver?: Driver | undefined;
-  status?: WalletEntryStatus | undefined;
-  createDateTime?: Date | undefined;
-  amount?: number | undefined;
-  currency?: WalletEntryCurrency | undefined;
 }
 
 export class PlacementArea implements IPlacementArea {
@@ -2552,6 +2540,7 @@ export interface IUserAccount {
 }
 
 export class ApplicationUser implements IApplicationUser {
+  fullName?: string | undefined;
   userType?: ApplicationUserUserType | undefined;
   userAddressId?: number | undefined;
   userAddress?: UserAddress | undefined;
@@ -2583,6 +2572,7 @@ export class ApplicationUser implements IApplicationUser {
 
   init(data?: any) {
     if (data) {
+      this.fullName = data["fullName"];
       this.userType = data["userType"];
       this.userAddressId = data["userAddressId"];
       this.userAddress = data["userAddress"] ? UserAddress.fromJS(data["userAddress"]) : <any>undefined;
@@ -2614,6 +2604,7 @@ export class ApplicationUser implements IApplicationUser {
 
   toJSON(data?: any) {
     data = typeof data === 'object' ? data : {};
+    data["fullName"] = this.fullName;
     data["userType"] = this.userType;
     data["userAddressId"] = this.userAddressId;
     data["userAddress"] = this.userAddress ? this.userAddress.toJSON() : <any>undefined;
@@ -2638,6 +2629,7 @@ export class ApplicationUser implements IApplicationUser {
 }
 
 export interface IApplicationUser {
+  fullName?: string | undefined;
   userType?: ApplicationUserUserType | undefined;
   userAddressId?: number | undefined;
   userAddress?: UserAddress | undefined;
@@ -2721,6 +2713,146 @@ export interface IUserAddress {
   country?: Country | undefined;
   zipCode: string;
   phoneNumber: string;
+}
+
+export class Driver implements IDriver {
+  applicationUserId?: string | undefined;
+  id?: number | undefined;
+  identityNumber: string;
+  identityDocumentType: DriverIdentityDocumentType;
+  identityDocument: string;
+  status?: DriverStatus | undefined;
+  vehicles?: DriverVehicle[] | undefined;
+  walletEntries?: WalletEntry[] | undefined;
+
+  constructor(data?: IDriver) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property))
+          (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(data?: any) {
+    if (data) {
+      this.applicationUserId = data["applicationUserId"];
+      this.id = data["id"];
+      this.identityNumber = data["identityNumber"];
+      this.identityDocumentType = data["identityDocumentType"];
+      this.identityDocument = data["identityDocument"];
+      this.status = data["status"];
+      if (data["vehicles"] && data["vehicles"].constructor === Array) {
+        this.vehicles = [];
+        for (let item of data["vehicles"])
+          this.vehicles.push(DriverVehicle.fromJS(item));
+      }
+      if (data["walletEntries"] && data["walletEntries"].constructor === Array) {
+        this.walletEntries = [];
+        for (let item of data["walletEntries"])
+          this.walletEntries.push(WalletEntry.fromJS(item));
+      }
+    }
+  }
+
+  static fromJS(data: any): Driver {
+    data = typeof data === 'object' ? data : {};
+    let result = new Driver();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data["applicationUserId"] = this.applicationUserId;
+    data["id"] = this.id;
+    data["identityNumber"] = this.identityNumber;
+    data["identityDocumentType"] = this.identityDocumentType;
+    data["identityDocument"] = this.identityDocument;
+    data["status"] = this.status;
+    if (this.vehicles && this.vehicles.constructor === Array) {
+      data["vehicles"] = [];
+      for (let item of this.vehicles)
+        data["vehicles"].push(item.toJSON());
+    }
+    if (this.walletEntries && this.walletEntries.constructor === Array) {
+      data["walletEntries"] = [];
+      for (let item of this.walletEntries)
+        data["walletEntries"].push(item.toJSON());
+    }
+    return data;
+  }
+}
+
+export interface IDriver {
+  applicationUserId?: string | undefined;
+  id?: number | undefined;
+  identityNumber: string;
+  identityDocumentType: DriverIdentityDocumentType;
+  identityDocument: string;
+  status?: DriverStatus | undefined;
+  vehicles?: DriverVehicle[] | undefined;
+  walletEntries?: WalletEntry[] | undefined;
+}
+
+export class WalletEntry implements IWalletEntry {
+  id?: number | undefined;
+  driverId?: number | undefined;
+  driver?: Driver | undefined;
+  status?: WalletEntryStatus | undefined;
+  createDateTime?: Date | undefined;
+  amount?: number | undefined;
+  currency?: WalletEntryCurrency | undefined;
+
+  constructor(data?: IWalletEntry) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property))
+          (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(data?: any) {
+    if (data) {
+      this.id = data["id"];
+      this.driverId = data["driverId"];
+      this.driver = data["driver"] ? Driver.fromJS(data["driver"]) : <any>undefined;
+      this.status = data["status"];
+      this.createDateTime = data["createDateTime"] ? new Date(data["createDateTime"].toString()) : <any>undefined;
+      this.amount = data["amount"];
+      this.currency = data["currency"];
+    }
+  }
+
+  static fromJS(data: any): WalletEntry {
+    data = typeof data === 'object' ? data : {};
+    let result = new WalletEntry();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data["id"] = this.id;
+    data["driverId"] = this.driverId;
+    data["driver"] = this.driver ? this.driver.toJSON() : <any>undefined;
+    data["status"] = this.status;
+    data["createDateTime"] = this.createDateTime ? this.createDateTime.toISOString() : <any>undefined;
+    data["amount"] = this.amount;
+    data["currency"] = this.currency;
+    return data;
+  }
+}
+
+export interface IWalletEntry {
+  id?: number | undefined;
+  driverId?: number | undefined;
+  driver?: Driver | undefined;
+  status?: WalletEntryStatus | undefined;
+  createDateTime?: Date | undefined;
+  amount?: number | undefined;
+  currency?: WalletEntryCurrency | undefined;
 }
 
 export class PricingRequest implements IPricingRequest {
@@ -2862,29 +2994,7 @@ export enum DriverVehicleStatus {
   _5 = 5,
 }
 
-export enum DriverIdentityDocumentType {
-  _1 = 1,
-  _2 = 2,
-}
-
-export enum DriverStatus {
-  _1 = 1,
-  _2 = 2,
-  _3 = 3,
-  _4 = 4,
-}
-
 export enum DriverVehiclePlacementAreaStatus {
-  _1 = 1,
-  _2 = 2,
-}
-
-export enum WalletEntryStatus {
-  _1 = 1,
-  _2 = 2,
-}
-
-export enum WalletEntryCurrency {
   _1 = 1,
   _2 = 2,
 }
@@ -2900,6 +3010,28 @@ export enum ApplicationUserUserType {
   _1 = 1,
   _2 = 2,
   _3 = 3,
+}
+
+export enum DriverIdentityDocumentType {
+  _1 = 1,
+  _2 = 2,
+}
+
+export enum DriverStatus {
+  _1 = 1,
+  _2 = 2,
+  _3 = 3,
+  _4 = 4,
+}
+
+export enum WalletEntryStatus {
+  _1 = 1,
+  _2 = 2,
+}
+
+export enum WalletEntryCurrency {
+  _1 = 1,
+  _2 = 2,
 }
 
 export class SwaggerException extends Error {

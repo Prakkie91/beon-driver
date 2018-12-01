@@ -21,31 +21,50 @@ export class LocationTrackingService {
 
   constructor(public zone: NgZone, public backgroundGeolocation: BackgroundGeolocation, public geolocation: Geolocation, private http: HttpClient, private storage: Storage, public driverService: DriverService) {
     this.apiClient = new Client(http, "http://beonadvertising.com");
+    this.startTracking();
   }
 
   startTracking() {
+    this.storage.set("isTracking", true);
     let self = this;
-    this.storage.get("VehicleId")
+    this.storage.get("primaryVehicleId")
       .then(function (vehicleId) {
-        if (!vehicleId) {
-          self.driverService.getCurrentDriver().then(a => this.driver = a);
-          this.driver.subscribe((driver)=>{
-            self.storage.set('VehicleId', driver.vehicleModel.id);
-            self.vehicleId = driver.vehicleModel.id;
-          });
-        }
-        else {
-          self.vehicleId = vehicleId
-        }
+        self.vehicleId = vehicleId;
+        self.backgroundTracking();
+        self.foregroundTracking();
       });
-    // Background Tracking
+  }
 
+  foregroundTracking() {
+    // Foreground Tracking
+
+    let options = {
+      frequency: 3000,
+      enableHighAccuracy: true
+    };
+
+    this.watch = this.geolocation.watchPosition(options).filter((p: any) => p.code === undefined).subscribe((position: Geoposition) => {
+
+      console.log(position);
+
+      // Run update inside of Angular's zone
+      this.zone.run(() => {
+
+        this.lat = position.coords.latitude;
+        this.lng = position.coords.longitude;
+      });
+
+    });
+  }
+
+
+  backgroundTracking() {
     let config = {
       desiredAccuracy: 0,
       stationaryRadius: 20,
       distanceFilter: 10,
       debug: true,
-      interval: 10000
+      interval: 1000
     };
 
     this.backgroundGeolocation.configure(config).subscribe((location) => {
@@ -56,8 +75,11 @@ export class LocationTrackingService {
       request.altitude = location.altitude;
       request.longitude = location.longitude;
       request.driverVehicleId = this.vehicleId;
+      this.apiClient.driverVehicleTrackingEvent(request).subscribe(
+        res => console.log(res),
+        err => alert(err)
+      );
 
-      this.apiClient.driverVehicleTrackingEvent(request);
       // Run update inside of Angular's zone
       this.zone.run(() => {
         this.lat = location.latitude;
@@ -72,31 +94,10 @@ export class LocationTrackingService {
 
     // Turn ON the background-geolocation system.
     this.backgroundGeolocation.start();
-
-
-    // Foreground Tracking
-
-    let options = {
-      frequency: 3000,
-      enableHighAccuracy: true
-    };
-
-    this.watch = this.geolocation.watchPosition(options).filter((p: any) => p.code === undefined).subscribe((position: Geoposition) => {
-
-      console.log(position);
-
-      // Run update inside of Angular's zone
-      this.zone.run(() => {
-        this.lat = position.coords.latitude;
-        this.lng = position.coords.longitude;
-      });
-
-    });
-
   }
 
   stopTracking() {
-
+    this.storage.set("isTracking", false);
     console.log('stopTracking');
 
     this.backgroundGeolocation.finish();

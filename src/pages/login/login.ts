@@ -33,7 +33,7 @@ export class LoginPage {
 
   checkIfLoggedIn() {
     let self = this;
-    this.storage.get("DriverId")
+    this.storage.get("userName")
       .then(function (driverId) {
         if (driverId) {
           self.nav.setRoot(HomePage)
@@ -48,8 +48,7 @@ export class LoginPage {
   login() {
     this.userService.login(this.userBasicInfo.value.email,
       this.userBasicInfo.value.password).subscribe(
-      (value) => this.storage.set('DriverId', this.userBasicInfo.value.email).then(a =>
-        this.nav.setRoot(HomePage)),
+      (value) => this.nav.setRoot(HomePage),
       (err:SwaggerException) => alert(err.response)
     );
   }

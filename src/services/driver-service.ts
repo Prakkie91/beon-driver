@@ -13,7 +13,9 @@ export class DriverService {
   }
 
   getCurrentDriver() {
-    return this.storage.get("DriverId").then(a => this.driverId = a)
-        .then(()=>this.apiClient.getDriverInfo(this.driverId, true));
+    return this.storage.get("userName").then(a => this.driverId = a)
+      .then(() =>
+            this.apiClient.getDriverInfo(this.driverId, true)
+      );
   }
 }

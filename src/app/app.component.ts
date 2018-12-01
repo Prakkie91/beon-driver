@@ -23,9 +23,9 @@ import {Storage} from "@ionic/storage";
 })
 export class MyApp {
 
-  public rootPage:any;
+  public rootPage: any;
 
-  public nav:any;
+  public nav: any;
 
   public pages = [
     {
@@ -60,7 +60,7 @@ export class MyApp {
     }
   ];
 
-  constructor(platform: Platform, statusBar: StatusBar, splashScreen: SplashScreen,private storage: Storage) {
+  constructor(platform: Platform, statusBar: StatusBar, splashScreen: SplashScreen, private storage: Storage) {
     this.rootPage = RegisterPage;
     platform.ready().then(() => {
       // Okay, so the platform is ready and our plugins are available.
@@ -76,9 +76,10 @@ export class MyApp {
     this.nav.setRoot(page.component);
   }
 
-  logout(){
-    this.storage.remove("DriverId");
-    this.nav.setRoot(LoginPage);
+  logout() {
+    this.storage.remove("userName").then(a =>
+      this.nav.setRoot(LoginPage)
+  );
   }
 }
 
