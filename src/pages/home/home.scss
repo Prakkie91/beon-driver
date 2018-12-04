@@ -6,3 +6,53 @@ page-home,
   width: 100%;
   height: 50vh;
 }
+.earnings-button{
+  background-color: #00B140;
+}
+.status-container{
+  padding: 10px;
+  text-align: center;
+  background-color: #F8F8F8;
+}
+.hour-text{
+  font-size: 25px;
+  padding: 0;
+  line-height: 20px;
+}
+.billable-hour-text{
+  font-size: 15px;
+  padding: 10px 0px;
+  line-height: 20px;
+}
+
+.hours-container{
+  padding-top: 10px;
+padding-bottom: 10px;
+  color:white;
+  text-align: center;
+  vertical-align: center;
+  background-color: #00B140;
+  line-height: 10px;
+}
+.vehicle-overview{
+  color:white;
+  padding-top: 10px;
+  background-color: #222222;
+}
+
+.active-status{
+  padding: 10px;
+  text-align: center;
+  background-color: green;
+}
+.awaiting-status{
+  padding: 10px;
+  text-align: center;
+  background-color: #69BB7B;
+}
+
+.validation-status{
+  padding: 10px;
+  text-align: center;
+  background-color: yellow;
+}

@@ -20,30 +20,27 @@ export class UserService {
 
     let request =this.apiClient.signUp(data);
 
-    request.subscribe((value:SignUpResponse)=> {
-        this.storage.set("userName", value.userName);
-        this.storage.set("fullName", value.fullName);
-        this.storage.set("primaryVehicleId", value.primaryVehicleId);
-        this.storage.set("profileImage", value.profileCloudinaryImage.baseUrl + value.profileCloudinaryImage.relativePath);
-      });
-
-    return request;
+     return request.toPromise().then((value:SignUpResponse)=> [
+        this.storage.set("userName", value.userName),
+        this.storage.set("fullName", value.fullName),
+        this.storage.set("primaryVehicleId", value.primaryVehicleId),
+        this.storage.set("profileImage", value.profileCloudinaryImage.baseUrl + value.profileCloudinaryImage.relativePath)
+      ]);
   }
 
    login(username: string, password: string) {
      let request = this.apiClient.login(username, password);
 
 
-     request.subscribe((value:LoginResponse)=> {
-       console.log(value);
-
-       this.storage.set("userName", value.userName);
-       this.storage.set("fullName", value.fullName);
-       this.storage.set("primaryVehicleId", value.primaryVehicleId);
-       this.storage.set("profileImage", value.profileCloudinaryImage.baseUrl + value.profileCloudinaryImage.relativePath);
-     });
-
-     return request;
+     return request.toPromise().then((value:LoginResponse)=> {
+       return [
+           this.storage.set("userName", value.userName),
+           this.storage.set("fullName", value.fullName),
+           this.storage.set("primaryVehicleId", value.primaryVehicleId),
+           this.storage.set("profileImage", value.profileCloudinaryImage.baseUrl + value.profileCloudinaryImage.relativePath)
+         ];
+       }
+     );
   }
 
 }

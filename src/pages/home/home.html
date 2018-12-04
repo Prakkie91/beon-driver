@@ -1,6 +1,5 @@
 <ion-header>
-
-  <ion-navbar color="primary">
+  <ion-navbar class="text-center" color="primary">
     <button ion-button menuToggle>
       <ion-icon name="menu"></ion-icon>
     </button>
@@ -9,40 +8,43 @@
 </ion-header>
 
 <ion-content class=" primary-bg">
-  <div padding text-center>
+  <div text-center>
     <ion-grid class="light-bg">
-
       <ion-row>
         <div #map id="map"></div>
       </ion-row>
-      <div padding=""></div>
-      <ion-row ng-hide="driver == null">
-        <ion-col>
-          <span ion-text color="gray">Model</span>
-          <h4 ion-text color="dark"> {{ (driver | async)?.vehicleModel.brand?.name }} - {{ (driver | async)?.vehicleModel.name }}</h4>
-        </ion-col>
-        <ion-col>
-          <span ion-text color="gray">Plate</span>
-          <h4 ion-text color="dark">{{ (driver | async)?.vehicleModel.registrationNumber }}</h4>
-        </ion-col>
+      <ion-row class="status-container">
+        {{ (driver | async)?.vehicleModel.brand?.name }} - {{ (driver |
+        async)?.vehicleModel.name }} - ({{ (driver | async)?.vehicleModel.registrationNumber }})
+      </ion-row>
 
-      </ion-row>
-      <ion-row>
+
+      <ion-row ng-hide="driver == null" class="overview-container">
         <ion-col>
-          <span ion-text color="gray">Current Latitude</span>
-          <p ion-text color="dark">{{locationTrackingService.lat}}</p>
+          <p>Total Earnings</p>
+          <p>
+            <strong>{{ (driver | async)?.earnings?.totalEarnings }}</strong>
+          </p>
+          <p>HKD</p>
         </ion-col>
         <ion-col>
-          <span ion-text color="gray">Current Longitude</span>
-          <p ion-text color="dark">{{locationTrackingService.lng}}</p>
+          <p>Drive Time</p>
+          <p>
+            <strong>{{ (driver | async)?.earnings?.driveHours }}</strong>
+          </p>
+          <p>Hours</p>
         </ion-col>
       </ion-row>
+      <ion-row ng-hide="driver == null" class="hours-container">
+        <ion-col>
+          <p class="billable-hour-text" color="white">Billable Hours</p>
+        </ion-col>
+        <ion-col>
+          <p class="hour-text" color="white">{{ (driver | async)?.earnings?.driveHours }}</p>
+        </ion-col>
+      </ion-row>
+
     </ion-grid>
-
-    <button ng-hide="driver == null" ion-button block padding color="gray">
-      {{ (driver | async)?.earnings?.totalEarnings }} HKD
-      {{ (driver | async)?.earnings?.driveHours }} H
-    </button>
 
   </div>
 </ion-content>

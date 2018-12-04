@@ -36,7 +36,7 @@ export class LoginPage {
     this.storage.get("userName")
       .then(function (driverId) {
         if (driverId) {
-          self.nav.setRoot(HomePage)
+          self.nav.setRoot(HomePage);
         }
       });
   }
@@ -47,7 +47,7 @@ export class LoginPage {
 
   login() {
     this.userService.login(this.userBasicInfo.value.email,
-      this.userBasicInfo.value.password).subscribe(
+      this.userBasicInfo.value.password).then(
       (value) => this.nav.setRoot(HomePage),
       (err:SwaggerException) => alert(err.response)
     );

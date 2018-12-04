@@ -40,6 +40,7 @@ export class RegisterPage {
 
   constructor(public nav: NavController, public formBuilder: FormBuilder, public vehicleService: VehicleService, public userService: UserService, private storage: Storage) {
 
+    this.checkIfLoggedIn();
     this.userBasicInfo = formBuilder.group({
       name: ['', Validators.compose([Validators.required, Validators.minLength(4)])],
       phone: ['', Validators.compose([Validators.required, Validators.minLength(10)])],
@@ -95,17 +96,29 @@ export class RegisterPage {
       signUpRequest.vehiclePlateNumber = this.userVehicleInfo.value.numberPlate;
 
       let request = this.userService.signUp(signUpRequest);
-      request.subscribe((value) => this.loginUser(this.userBasicInfo.value.email),
+      request.then((value) =>
+          this.loginUser(this.userBasicInfo.value.email),
         (err:SwaggerException) => alert(err.response));
     }
   }
 
   loginUser(username:string ){
-    this.storage.set('DriverId', username).then(a =>
+    this.storage.set('userName', username).then(a =>
       this.nav.setRoot(HomePage));
   }
 
   login() {
     this.nav.setRoot(LoginPage);
   }
+
+  checkIfLoggedIn() {
+    let self = this;
+    return this.storage.get("userName")
+      .then(function (driverId) {
+        if (driverId) {
+          self.nav.setRoot(HomePage);
+        }
+      });
+  }
+
 }

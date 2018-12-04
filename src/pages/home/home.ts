@@ -31,25 +31,9 @@ export class HomePage {
 
   constructor(public nav: NavController, public driverService: DriverService, public modalCtrl: ModalController,
               public alertCtrl: AlertController, public locationTrackingService: LocationTrackingService, private storage: Storage) {
-
-    this.driverService.getCurrentDriver().then(a => this.driver = a);
-
-    // show modal
-    let modal = this.modalCtrl.create(ModalJobPage);
-
-    // listen for modal close
-    modal.onDidDismiss(confirm => {
-      if (confirm) {
-        // show confirm box
-        this.confirmJob();
-      } else {
-        // do nothing
-      }
+    this.driverService.getCurrentDriver().then(a =>{
+      this.driver = a;
     });
-
-    setTimeout(() => {
-      modal.present();
-    }, 3000);
   }
 
   ionViewDidLoad() {
