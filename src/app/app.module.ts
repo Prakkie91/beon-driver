@@ -37,6 +37,7 @@ import {WalletPage} from '../pages/wallet/wallet';
 import { IonicStorageModule } from '@ionic/storage';
 import {VehicleService} from "../services/vehicle-service";
 import {UserService} from "../services/user-service";
+import {Globals} from "../services/Globals";
 
 Pro.init('b4069d91', {
   appVersion: '1.0.2'
@@ -103,6 +104,7 @@ export class MyErrorHandler implements ErrorHandler {
     WalletPage
   ],
   providers: [
+    Globals,
     StatusBar,
     SplashScreen,
     DriverService,
@@ -115,8 +117,9 @@ export class MyErrorHandler implements ErrorHandler {
     Geolocation,
     LocationTrackingService,
     IonicErrorHandler,
-    [{ provide: ErrorHandler, useClass: MyErrorHandler }]
+    [{ provide: ErrorHandler, useClass: MyErrorHandler }],
     /* import services */
+
   ]
 })
 export class AppModule {

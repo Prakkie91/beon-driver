@@ -13,6 +13,10 @@ import {SupportPage} from '../pages/support/support';
 import {LoginPage} from '../pages/login/login';
 import {RegisterPage} from "../pages/register/register";
 import {Storage} from "@ionic/storage";
+import {Observable} from "rxjs";
+import {DriverInfoResponse} from "../services/beon-api";
+import {DriverService} from "../services/driver-service";
+import {Globals} from "../services/Globals";
 
 
 @Component({
@@ -26,6 +30,7 @@ export class MyApp {
   public rootPage: any;
 
   public nav: any;
+  public driver:Observable<DriverInfoResponse>;
 
   public pages = [
     {
@@ -60,7 +65,7 @@ export class MyApp {
     }
   ];
 
-  constructor(platform: Platform, statusBar: StatusBar, splashScreen: SplashScreen, private storage: Storage) {
+  constructor(platform: Platform, statusBar: StatusBar, splashScreen: SplashScreen, private storage: Storage, private driverService:DriverService) {
     this.rootPage = RegisterPage;
     platform.ready().then(() => {
       // Okay, so the platform is ready and our plugins are available.
@@ -68,6 +73,7 @@ export class MyApp {
       statusBar.styleDefault();
       splashScreen.hide();
     });
+    this.driver = driverService.getCurrentDriver();
   }
 
   openPage(page) {

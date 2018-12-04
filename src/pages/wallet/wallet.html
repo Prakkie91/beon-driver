@@ -16,9 +16,9 @@
 </ion-header>
 
 
-<ion-content class=" primary-bg">
+<ion-content class=" secondary-bg">
   <div class="top-balance light-bg" padding text-center>
-    <span class="label" ion-text color="secondary" >Current balance (USD)</span>
+    <span class="label" ion-text color="secondary" >Current balance (HKD)</span>
     <h2 no-margin ion-text color="secondary" >10.0</h2>
 
     <button  ion-button block color="secondary" >WITHDRAW</button>
@@ -26,9 +26,9 @@
 
   <!-- list of transaction records -->
   <ion-list class="dark-list list-no-border">
-    <ion-item no-border class="primary-bg" *ngFor="let record of records">
+    <ion-item no-border class="primary-bg" *ngFor="let record of (records | async)">
       <div>
-        <span ion-text color="light" >{{ record.date }}</span>
+        <span ion-text color="light" >{{ record.createDateTime }}</span>
       </div>
       <div color="light" >
         <span ion-text color="gray" >Status</span>
@@ -37,7 +37,7 @@
       <div>
         <span class="bold" ion-text color="light" >{{ record.amount }} {{ record.currency }}</span>
       </div>
-      <ion-badge color="secondary"  item-right>{{ record.action }}</ion-badge>
+      <ion-badge color="secondary"  item-right></ion-badge>
     </ion-item>
   </ion-list>
 </ion-content>

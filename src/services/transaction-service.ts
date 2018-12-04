@@ -1,28 +1,20 @@
 import {Injectable} from "@angular/core";
 import {TRANSACTIONS} from "./mock-transactions";
+import {HttpClient} from "@angular/common/http";
+import {Storage} from "@ionic/storage";
+import {Client} from "./beon-api";
 
 @Injectable()
 export class TransactionService {
-  private transactions:any;
+  private apiClient: any;
 
-  constructor() {
-    this.transactions = TRANSACTIONS;
+  constructor(private http: HttpClient, private storage: Storage) {
+    this.apiClient = new Client(http, "http://beonadvertising.com");
   }
 
   getAll() {
-    return this.transactions;
-  }
-
-  getItem(id) {
-    for (var i = 0; i < this.transactions.length; i++) {
-      if (this.transactions[i].id === parseInt(id)) {
-        return this.transactions[i];
-      }
-    }
-    return null;
-  }
-
-  remove(item) {
-    this.transactions.splice(this.transactions.indexOf(item), 1);
+    return this.storage.get("userName").then(a =>
+      this.apiClient.getWallet(a)
+    );
   }
 }

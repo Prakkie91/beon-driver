@@ -18,22 +18,19 @@ declare var google;
 
 export class HomePage {
   // driver info
-  public driver: Observable<DriverInfoResponse>;
   public x: number;
   public y: number;
   public marker: any;
   public icon: any;
   public isTracking: boolean = false;
-
+  public driver: Observable<DriverInfoResponse>;
 
   @ViewChild('map') mapElement: ElementRef;
   map: any;
 
-  constructor(public nav: NavController, public driverService: DriverService, public modalCtrl: ModalController,
+  constructor(public nav: NavController, private driverService: DriverService, public modalCtrl: ModalController,
               public alertCtrl: AlertController, public locationTrackingService: LocationTrackingService, private storage: Storage) {
-    this.driverService.getCurrentDriver().then(a =>{
-      this.driver = a;
-    });
+    this.driverService.getCurrentDriver().then(a=>this.driver = a);
   }
 
   ionViewDidLoad() {

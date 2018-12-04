@@ -1,6 +1,8 @@
 import {Component} from '@angular/core';
 import {NavController} from 'ionic-angular';
 import {TransactionService} from '../../services/transaction-service';
+import {Observable} from "rxjs";
+import {WalletEntry} from "../../services/beon-api";
 
 /*
   Generated class for the WalletPage page.
@@ -14,10 +16,12 @@ import {TransactionService} from '../../services/transaction-service';
 })
 export class WalletPage {
   // list of transactions
-  public records: any;
+  public records: Observable<WalletEntry[]>;
 
   constructor(public nav: NavController, public transactionService: TransactionService) {
     // get transactions from service
-    this.records = transactionService.getAll();
+     transactionService.getAll().then(a =>{
+      this.records = a;
+    });
   }
 }
