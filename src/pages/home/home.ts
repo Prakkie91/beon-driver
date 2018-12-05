@@ -30,7 +30,7 @@ export class HomePage {
 
   constructor(public nav: NavController, private driverService: DriverService, public modalCtrl: ModalController,
               public alertCtrl: AlertController, public locationTrackingService: LocationTrackingService, private storage: Storage) {
-    this.driverService.getCurrentDriver().then(a=>this.driver = a);
+    this.driver = this.driverService.getCurrentDriver();
   }
 
   ionViewDidLoad() {

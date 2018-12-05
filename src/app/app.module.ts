@@ -37,10 +37,9 @@ import {WalletPage} from '../pages/wallet/wallet';
 import { IonicStorageModule } from '@ionic/storage';
 import {VehicleService} from "../services/vehicle-service";
 import {UserService} from "../services/user-service";
-import {Globals} from "../services/Globals";
 
 Pro.init('b4069d91', {
-  appVersion: '1.0.2'
+  appVersion: '1.0.4'
 });
 
 @Injectable()
@@ -104,7 +103,6 @@ export class MyErrorHandler implements ErrorHandler {
     WalletPage
   ],
   providers: [
-    Globals,
     StatusBar,
     SplashScreen,
     DriverService,

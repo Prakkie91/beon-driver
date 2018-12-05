@@ -16,7 +16,6 @@ import {Storage} from "@ionic/storage";
 import {Observable} from "rxjs";
 import {DriverInfoResponse} from "../services/beon-api";
 import {DriverService} from "../services/driver-service";
-import {Globals} from "../services/Globals";
 
 
 @Component({
@@ -73,10 +72,10 @@ export class MyApp {
       statusBar.styleDefault();
       splashScreen.hide();
     });
-    this.driver = driverService.getCurrentDriver();
   }
 
   openPage(page) {
+      this.driver = this.driverService.getCurrentDriver();
     // Reset the content nav to have just this page
     // we wouldn't want the back button to show in this scenario
     this.nav.setRoot(page.component);

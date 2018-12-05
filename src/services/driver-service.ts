@@ -3,29 +3,23 @@ import {Client, DriverInfoResponse} from './beon-api';
 import {HttpClient} from "@angular/common/http";
 import {Storage} from "@ionic/storage";
 import {Observable} from "rxjs";
-import {Globals} from "./Globals";
 
 @Injectable()
 export class DriverService {
   private apiClient: any;
-  public driver: DriverInfoResponse;
+  private driver: Observable<DriverInfoResponse>;
 
-  constructor(private http: HttpClient, private storage: Storage, private globals: Globals) {
+  constructor(private http: HttpClient, private storage: Storage) {
     this.apiClient = new Client(http, "http://beonadvertising.com");
-    globals.userName = "dsfsdf";
   }
 
-  getCurrentDriver() {
-    return this.driver
-      ? Observable.of(this.driver)
-      : this.storage.get("userName").then(a => {
+  getCurrentDriver(): Observable<DriverInfoResponse>  {
+    return this.driver ? this.driver: Observable
+      .fromPromise(this.storage.get("userName"))
+      .flatMap(a => {
         let request = this.apiClient.getDriverInfo(a, true);
-        request.toPromise().then(a => {
-          this.driver = a;
-          this.globals.userName = a.userName;
-        });
+        this.driver = request;
         return request;
-      }
-    );
+      });
   }
 }
