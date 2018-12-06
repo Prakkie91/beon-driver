@@ -23,14 +23,14 @@
         <ion-col>
           <p>Total Earnings</p>
           <p>
-            <strong>{{ (driver | async)?.earnings?.totalEarnings }}</strong>
+            <strong>{{ (driver | async)?.earnings?.totalEarning }}</strong>
           </p>
           <p>HKD</p>
         </ion-col>
         <ion-col>
           <p>Drive Time</p>
           <p>
-            <strong>{{ (driver | async)?.earnings?.driveHours }}</strong>
+            <strong>{{ (driver | async)?.earnings?.totalDriveTime }}</strong>
           </p>
           <p>Hours</p>
         </ion-col>
@@ -40,7 +40,7 @@
           <p class="billable-hour-text" color="white">Billable Hours</p>
         </ion-col>
         <ion-col>
-          <p class="hour-text" color="white">{{ (this.driver | async)?.earnings?.driveHours }}</p>
+          <p class="hour-text" color="white">{{ (this.driver | async)?.earnings?.currentDriveTime }}</p>
         </ion-col>
       </ion-row>
 

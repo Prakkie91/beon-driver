@@ -18,10 +18,18 @@ export class WalletPage {
   // list of transactions
   public records: Observable<WalletEntry[]>;
 
+  public canWithdraw:boolean =false;
+
   constructor(public nav: NavController, public transactionService: TransactionService) {
     // get transactions from service
      transactionService.getAll().then(a =>{
       this.records = a;
     });
   }
+
+  withDraw()
+  {
+
+  }
+
 }

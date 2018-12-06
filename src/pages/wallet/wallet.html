@@ -21,7 +21,7 @@
     <span class="label" ion-text color="secondary" >Current balance (HKD)</span>
     <h2 no-margin ion-text color="secondary" >10.0</h2>
 
-    <button  ion-button block color="secondary" >WITHDRAW</button>
+    <button  ion-button block color="secondary" [disabled]="canWithdraw" >WITHDRAW</button>
   </div>
 
   <!-- list of transaction records -->

@@ -713,13 +713,13 @@ export class Client {
   }
 
   /**
-   * @param userId (optional)
+   * @param userName (optional)
    * @return Success
    */
-  withdraw(userId: string | null | undefined): Observable<WalletEntry> {
+  withdraw(userName: string | null | undefined): Observable<WalletEntry> {
     let url_ = this.baseUrl + "/api/Wallet/Withdraw?";
-    if (userId !== undefined)
-      url_ += "userId=" + encodeURIComponent("" + userId) + "&";
+    if (userName !== undefined)
+      url_ += "UserName=" + encodeURIComponent("" + userName) + "&";
     url_ = url_.replace(/[?&]$/, "");
 
     let options_ : any = {
@@ -774,13 +774,13 @@ export class Client {
   }
 
   /**
-   * @param userId (optional)
+   * @param userName (optional)
    * @return Success
    */
-  getWallet(userId: string | null | undefined): Observable<WalletEntry[]> {
+  getWallet(userName: string | null | undefined): Observable<WalletEntry[]> {
     let url_ = this.baseUrl + "/api/Wallet/GetWalletEntries?";
-    if (userId !== undefined)
-      url_ += "userId=" + encodeURIComponent("" + userId) + "&";
+    if (userName !== undefined)
+      url_ += "UserName=" + encodeURIComponent("" + userName) + "&";
     url_ = url_.replace(/[?&]$/, "");
 
     let options_ : any = {
@@ -1076,8 +1076,12 @@ export interface IAddressInfo {
 }
 
 export class Earnings implements IEarnings {
-  totalEarnings?: number | undefined;
-  driveHours?: number | undefined;
+  currentEarning?: number | undefined;
+  currentDriveTime?: number | undefined;
+  currentDriveDistance?: number | undefined;
+  totalEarning?: number | undefined;
+  totalDriveTime?: number | undefined;
+  totalDriveDistance?: number | undefined;
 
   constructor(data?: IEarnings) {
     if (data) {
@@ -1090,8 +1094,12 @@ export class Earnings implements IEarnings {
 
   init(data?: any) {
     if (data) {
-      this.totalEarnings = data["totalEarnings"];
-      this.driveHours = data["driveHours"];
+      this.currentEarning = data["currentEarning"];
+      this.currentDriveTime = data["currentDriveTime"];
+      this.currentDriveDistance = data["currentDriveDistance"];
+      this.totalEarning = data["totalEarning"];
+      this.totalDriveTime = data["totalDriveTime"];
+      this.totalDriveDistance = data["totalDriveDistance"];
     }
   }
 
@@ -1104,15 +1112,23 @@ export class Earnings implements IEarnings {
 
   toJSON(data?: any) {
     data = typeof data === 'object' ? data : {};
-    data["totalEarnings"] = this.totalEarnings;
-    data["driveHours"] = this.driveHours;
+    data["currentEarning"] = this.currentEarning;
+    data["currentDriveTime"] = this.currentDriveTime;
+    data["currentDriveDistance"] = this.currentDriveDistance;
+    data["totalEarning"] = this.totalEarning;
+    data["totalDriveTime"] = this.totalDriveTime;
+    data["totalDriveDistance"] = this.totalDriveDistance;
     return data;
   }
 }
 
 export interface IEarnings {
-  totalEarnings?: number | undefined;
-  driveHours?: number | undefined;
+  currentEarning?: number | undefined;
+  currentDriveTime?: number | undefined;
+  currentDriveDistance?: number | undefined;
+  totalEarning?: number | undefined;
+  totalDriveTime?: number | undefined;
+  totalDriveDistance?: number | undefined;
 }
 
 export class VehicleModel implements IVehicleModel {
@@ -1618,6 +1634,10 @@ export class DriverVehicle implements IDriverVehicle {
   status: DriverVehicleStatus;
   driverVehicleTrackingEvents?: DriverVehicleTrackingEvent[] | undefined;
   impressionMetrics?: ImpressionMetric[] | undefined;
+  driverMetricsId?: number | undefined;
+  driverMetric?: DriverMetric | undefined;
+  calculatedDriverMetricsId?: number | undefined;
+  calculatedDriverMetrics?: CalculatedDriverMetrics | undefined;
 
   constructor(data?: IDriverVehicle) {
     if (data) {
@@ -1656,6 +1676,10 @@ export class DriverVehicle implements IDriverVehicle {
         for (let item of data["impressionMetrics"])
           this.impressionMetrics.push(ImpressionMetric.fromJS(item));
       }
+      this.driverMetricsId = data["driverMetricsId"];
+      this.driverMetric = data["driverMetric"] ? DriverMetric.fromJS(data["driverMetric"]) : <any>undefined;
+      this.calculatedDriverMetricsId = data["calculatedDriverMetricsId"];
+      this.calculatedDriverMetrics = data["calculatedDriverMetrics"] ? CalculatedDriverMetrics.fromJS(data["calculatedDriverMetrics"]) : <any>undefined;
     }
   }
 
@@ -1694,6 +1718,10 @@ export class DriverVehicle implements IDriverVehicle {
       for (let item of this.impressionMetrics)
         data["impressionMetrics"].push(item.toJSON());
     }
+    data["driverMetricsId"] = this.driverMetricsId;
+    data["driverMetric"] = this.driverMetric ? this.driverMetric.toJSON() : <any>undefined;
+    data["calculatedDriverMetricsId"] = this.calculatedDriverMetricsId;
+    data["calculatedDriverMetrics"] = this.calculatedDriverMetrics ? this.calculatedDriverMetrics.toJSON() : <any>undefined;
     return data;
   }
 }
@@ -1713,6 +1741,10 @@ export interface IDriverVehicle {
   status: DriverVehicleStatus;
   driverVehicleTrackingEvents?: DriverVehicleTrackingEvent[] | undefined;
   impressionMetrics?: ImpressionMetric[] | undefined;
+  driverMetricsId?: number | undefined;
+  driverMetric?: DriverMetric | undefined;
+  calculatedDriverMetricsId?: number | undefined;
+  calculatedDriverMetrics?: CalculatedDriverMetrics | undefined;
 }
 
 export class DriverVehiclePlacementArea implements IDriverVehiclePlacementArea {
@@ -1792,10 +1824,11 @@ export class ImpressionMetric implements IImpressionMetric {
   ageMetrics?: AgeMetric[] | undefined;
   ethnicityMetrics?: EthnicityMetric[] | undefined;
   incomeMetrics?: IncomeMetric[] | undefined;
-  maleToFemaleRatio?: number | undefined;
-  degreeRatio?: number | undefined;
+  genderMetrics?: GenderMetric[] | undefined;
+  districtId?: number | undefined;
   longitude?: number | undefined;
   latitude?: number | undefined;
+  distanceFromLastLocation?: number | undefined;
 
   constructor(data?: IImpressionMetric) {
     if (data) {
@@ -1828,10 +1861,15 @@ export class ImpressionMetric implements IImpressionMetric {
         for (let item of data["incomeMetrics"])
           this.incomeMetrics.push(IncomeMetric.fromJS(item));
       }
-      this.maleToFemaleRatio = data["maleToFemaleRatio"];
-      this.degreeRatio = data["degreeRatio"];
+      if (data["genderMetrics"] && data["genderMetrics"].constructor === Array) {
+        this.genderMetrics = [];
+        for (let item of data["genderMetrics"])
+          this.genderMetrics.push(GenderMetric.fromJS(item));
+      }
+      this.districtId = data["districtId"];
       this.longitude = data["longitude"];
       this.latitude = data["latitude"];
+      this.distanceFromLastLocation = data["distanceFromLastLocation"];
     }
   }
 
@@ -1864,10 +1902,15 @@ export class ImpressionMetric implements IImpressionMetric {
       for (let item of this.incomeMetrics)
         data["incomeMetrics"].push(item.toJSON());
     }
-    data["maleToFemaleRatio"] = this.maleToFemaleRatio;
-    data["degreeRatio"] = this.degreeRatio;
+    if (this.genderMetrics && this.genderMetrics.constructor === Array) {
+      data["genderMetrics"] = [];
+      for (let item of this.genderMetrics)
+        data["genderMetrics"].push(item.toJSON());
+    }
+    data["districtId"] = this.districtId;
     data["longitude"] = this.longitude;
     data["latitude"] = this.latitude;
+    data["distanceFromLastLocation"] = this.distanceFromLastLocation;
     return data;
   }
 }
@@ -1881,10 +1924,187 @@ export interface IImpressionMetric {
   ageMetrics?: AgeMetric[] | undefined;
   ethnicityMetrics?: EthnicityMetric[] | undefined;
   incomeMetrics?: IncomeMetric[] | undefined;
-  maleToFemaleRatio?: number | undefined;
-  degreeRatio?: number | undefined;
+  genderMetrics?: GenderMetric[] | undefined;
+  districtId?: number | undefined;
   longitude?: number | undefined;
   latitude?: number | undefined;
+  distanceFromLastLocation?: number | undefined;
+}
+
+export class DriverMetric implements IDriverMetric {
+  id?: number | undefined;
+  driverOverviewMetric?: DriverOverviewMetric | undefined;
+  driverEthnicGroups?: DriverEthnicGroup[] | undefined;
+  driverGenderGroups?: DriverGenderGroup[] | undefined;
+  driverAgeGroups?: DriverAgeGroup[] | undefined;
+  driverIncomeGroups?: DriverIncomeGroup[] | undefined;
+  driverDistrictMetrics?: DriverDistrictMetric[] | undefined;
+  driverWeekdayMetrics?: DriverWeekdayMetric[] | undefined;
+  baseCostEstimate?: number | undefined;
+
+  constructor(data?: IDriverMetric) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property))
+          (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(data?: any) {
+    if (data) {
+      this.id = data["id"];
+      this.driverOverviewMetric = data["driverOverviewMetric"] ? DriverOverviewMetric.fromJS(data["driverOverviewMetric"]) : <any>undefined;
+      if (data["driverEthnicGroups"] && data["driverEthnicGroups"].constructor === Array) {
+        this.driverEthnicGroups = [];
+        for (let item of data["driverEthnicGroups"])
+          this.driverEthnicGroups.push(DriverEthnicGroup.fromJS(item));
+      }
+      if (data["driverGenderGroups"] && data["driverGenderGroups"].constructor === Array) {
+        this.driverGenderGroups = [];
+        for (let item of data["driverGenderGroups"])
+          this.driverGenderGroups.push(DriverGenderGroup.fromJS(item));
+      }
+      if (data["driverAgeGroups"] && data["driverAgeGroups"].constructor === Array) {
+        this.driverAgeGroups = [];
+        for (let item of data["driverAgeGroups"])
+          this.driverAgeGroups.push(DriverAgeGroup.fromJS(item));
+      }
+      if (data["driverIncomeGroups"] && data["driverIncomeGroups"].constructor === Array) {
+        this.driverIncomeGroups = [];
+        for (let item of data["driverIncomeGroups"])
+          this.driverIncomeGroups.push(DriverIncomeGroup.fromJS(item));
+      }
+      if (data["driverDistrictMetrics"] && data["driverDistrictMetrics"].constructor === Array) {
+        this.driverDistrictMetrics = [];
+        for (let item of data["driverDistrictMetrics"])
+          this.driverDistrictMetrics.push(DriverDistrictMetric.fromJS(item));
+      }
+      if (data["driverWeekdayMetrics"] && data["driverWeekdayMetrics"].constructor === Array) {
+        this.driverWeekdayMetrics = [];
+        for (let item of data["driverWeekdayMetrics"])
+          this.driverWeekdayMetrics.push(DriverWeekdayMetric.fromJS(item));
+      }
+      this.baseCostEstimate = data["baseCostEstimate"];
+    }
+  }
+
+  static fromJS(data: any): DriverMetric {
+    data = typeof data === 'object' ? data : {};
+    let result = new DriverMetric();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data["id"] = this.id;
+    data["driverOverviewMetric"] = this.driverOverviewMetric ? this.driverOverviewMetric.toJSON() : <any>undefined;
+    if (this.driverEthnicGroups && this.driverEthnicGroups.constructor === Array) {
+      data["driverEthnicGroups"] = [];
+      for (let item of this.driverEthnicGroups)
+        data["driverEthnicGroups"].push(item.toJSON());
+    }
+    if (this.driverGenderGroups && this.driverGenderGroups.constructor === Array) {
+      data["driverGenderGroups"] = [];
+      for (let item of this.driverGenderGroups)
+        data["driverGenderGroups"].push(item.toJSON());
+    }
+    if (this.driverAgeGroups && this.driverAgeGroups.constructor === Array) {
+      data["driverAgeGroups"] = [];
+      for (let item of this.driverAgeGroups)
+        data["driverAgeGroups"].push(item.toJSON());
+    }
+    if (this.driverIncomeGroups && this.driverIncomeGroups.constructor === Array) {
+      data["driverIncomeGroups"] = [];
+      for (let item of this.driverIncomeGroups)
+        data["driverIncomeGroups"].push(item.toJSON());
+    }
+    if (this.driverDistrictMetrics && this.driverDistrictMetrics.constructor === Array) {
+      data["driverDistrictMetrics"] = [];
+      for (let item of this.driverDistrictMetrics)
+        data["driverDistrictMetrics"].push(item.toJSON());
+    }
+    if (this.driverWeekdayMetrics && this.driverWeekdayMetrics.constructor === Array) {
+      data["driverWeekdayMetrics"] = [];
+      for (let item of this.driverWeekdayMetrics)
+        data["driverWeekdayMetrics"].push(item.toJSON());
+    }
+    data["baseCostEstimate"] = this.baseCostEstimate;
+    return data;
+  }
+}
+
+export interface IDriverMetric {
+  id?: number | undefined;
+  driverOverviewMetric?: DriverOverviewMetric | undefined;
+  driverEthnicGroups?: DriverEthnicGroup[] | undefined;
+  driverGenderGroups?: DriverGenderGroup[] | undefined;
+  driverAgeGroups?: DriverAgeGroup[] | undefined;
+  driverIncomeGroups?: DriverIncomeGroup[] | undefined;
+  driverDistrictMetrics?: DriverDistrictMetric[] | undefined;
+  driverWeekdayMetrics?: DriverWeekdayMetric[] | undefined;
+  baseCostEstimate?: number | undefined;
+}
+
+export class CalculatedDriverMetrics implements ICalculatedDriverMetrics {
+  id?: number | undefined;
+  currentEarning?: number | undefined;
+  currentDriveTime?: number | undefined;
+  currentDriveDistance?: number | undefined;
+  totalEarning?: number | undefined;
+  totalDriveTime?: number | undefined;
+  totalDriveDistance?: number | undefined;
+
+  constructor(data?: ICalculatedDriverMetrics) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property))
+          (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(data?: any) {
+    if (data) {
+      this.id = data["id"];
+      this.currentEarning = data["currentEarning"];
+      this.currentDriveTime = data["currentDriveTime"];
+      this.currentDriveDistance = data["currentDriveDistance"];
+      this.totalEarning = data["totalEarning"];
+      this.totalDriveTime = data["totalDriveTime"];
+      this.totalDriveDistance = data["totalDriveDistance"];
+    }
+  }
+
+  static fromJS(data: any): CalculatedDriverMetrics {
+    data = typeof data === 'object' ? data : {};
+    let result = new CalculatedDriverMetrics();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data["id"] = this.id;
+    data["currentEarning"] = this.currentEarning;
+    data["currentDriveTime"] = this.currentDriveTime;
+    data["currentDriveDistance"] = this.currentDriveDistance;
+    data["totalEarning"] = this.totalEarning;
+    data["totalDriveTime"] = this.totalDriveTime;
+    data["totalDriveDistance"] = this.totalDriveDistance;
+    return data;
+  }
+}
+
+export interface ICalculatedDriverMetrics {
+  id?: number | undefined;
+  currentEarning?: number | undefined;
+  currentDriveTime?: number | undefined;
+  currentDriveDistance?: number | undefined;
+  totalEarning?: number | undefined;
+  totalDriveTime?: number | undefined;
+  totalDriveDistance?: number | undefined;
 }
 
 export class PlacementArea implements IPlacementArea {
@@ -1952,6 +2172,8 @@ export class JobOffer implements IJobOffer {
   creativeId?: number | undefined;
   creative?: Creative | undefined;
   status?: JobOfferStatus | undefined;
+  acceptanceDate?: Date | undefined;
+  startDate?: Date | undefined;
   driverVehiclePlacementAreaId?: number | undefined;
   driverVehiclePlacementArea?: DriverVehiclePlacementArea | undefined;
 
@@ -1970,6 +2192,8 @@ export class JobOffer implements IJobOffer {
       this.creativeId = data["creativeId"];
       this.creative = data["creative"] ? Creative.fromJS(data["creative"]) : <any>undefined;
       this.status = data["status"];
+      this.acceptanceDate = data["acceptanceDate"] ? new Date(data["acceptanceDate"].toString()) : <any>undefined;
+      this.startDate = data["startDate"] ? new Date(data["startDate"].toString()) : <any>undefined;
       this.driverVehiclePlacementAreaId = data["driverVehiclePlacementAreaId"];
       this.driverVehiclePlacementArea = data["driverVehiclePlacementArea"] ? DriverVehiclePlacementArea.fromJS(data["driverVehiclePlacementArea"]) : <any>undefined;
     }
@@ -1988,6 +2212,8 @@ export class JobOffer implements IJobOffer {
     data["creativeId"] = this.creativeId;
     data["creative"] = this.creative ? this.creative.toJSON() : <any>undefined;
     data["status"] = this.status;
+    data["acceptanceDate"] = this.acceptanceDate ? this.acceptanceDate.toISOString() : <any>undefined;
+    data["startDate"] = this.startDate ? this.startDate.toISOString() : <any>undefined;
     data["driverVehiclePlacementAreaId"] = this.driverVehiclePlacementAreaId;
     data["driverVehiclePlacementArea"] = this.driverVehiclePlacementArea ? this.driverVehiclePlacementArea.toJSON() : <any>undefined;
     return data;
@@ -1999,11 +2225,15 @@ export interface IJobOffer {
   creativeId?: number | undefined;
   creative?: Creative | undefined;
   status?: JobOfferStatus | undefined;
+  acceptanceDate?: Date | undefined;
+  startDate?: Date | undefined;
   driverVehiclePlacementAreaId?: number | undefined;
   driverVehiclePlacementArea?: DriverVehiclePlacementArea | undefined;
 }
 
 export class AgeMetric implements IAgeMetric {
+  impressionMetricId?: number | undefined;
+  impressionMetric?: ImpressionMetric | undefined;
   id?: number | undefined;
   lower?: number | undefined;
   upper?: number | undefined;
@@ -2020,6 +2250,8 @@ export class AgeMetric implements IAgeMetric {
 
   init(data?: any) {
     if (data) {
+      this.impressionMetricId = data["impressionMetricId"];
+      this.impressionMetric = data["impressionMetric"] ? ImpressionMetric.fromJS(data["impressionMetric"]) : <any>undefined;
       this.id = data["id"];
       this.lower = data["lower"];
       this.upper = data["upper"];
@@ -2036,6 +2268,8 @@ export class AgeMetric implements IAgeMetric {
 
   toJSON(data?: any) {
     data = typeof data === 'object' ? data : {};
+    data["impressionMetricId"] = this.impressionMetricId;
+    data["impressionMetric"] = this.impressionMetric ? this.impressionMetric.toJSON() : <any>undefined;
     data["id"] = this.id;
     data["lower"] = this.lower;
     data["upper"] = this.upper;
@@ -2045,6 +2279,8 @@ export class AgeMetric implements IAgeMetric {
 }
 
 export interface IAgeMetric {
+  impressionMetricId?: number | undefined;
+  impressionMetric?: ImpressionMetric | undefined;
   id?: number | undefined;
   lower?: number | undefined;
   upper?: number | undefined;
@@ -2052,8 +2288,10 @@ export interface IAgeMetric {
 }
 
 export class EthnicityMetric implements IEthnicityMetric {
+  impressionMetricId?: number | undefined;
+  impressionMetric?: ImpressionMetric | undefined;
   id?: number | undefined;
-  class?: string | undefined;
+  label?: string | undefined;
   fraction?: number | undefined;
 
   constructor(data?: IEthnicityMetric) {
@@ -2067,8 +2305,10 @@ export class EthnicityMetric implements IEthnicityMetric {
 
   init(data?: any) {
     if (data) {
+      this.impressionMetricId = data["impressionMetricId"];
+      this.impressionMetric = data["impressionMetric"] ? ImpressionMetric.fromJS(data["impressionMetric"]) : <any>undefined;
       this.id = data["id"];
-      this.class = data["class"];
+      this.label = data["label"];
       this.fraction = data["fraction"];
     }
   }
@@ -2082,23 +2322,29 @@ export class EthnicityMetric implements IEthnicityMetric {
 
   toJSON(data?: any) {
     data = typeof data === 'object' ? data : {};
+    data["impressionMetricId"] = this.impressionMetricId;
+    data["impressionMetric"] = this.impressionMetric ? this.impressionMetric.toJSON() : <any>undefined;
     data["id"] = this.id;
-    data["class"] = this.class;
+    data["label"] = this.label;
     data["fraction"] = this.fraction;
     return data;
   }
 }
 
 export interface IEthnicityMetric {
+  impressionMetricId?: number | undefined;
+  impressionMetric?: ImpressionMetric | undefined;
   id?: number | undefined;
-  class?: string | undefined;
+  label?: string | undefined;
   fraction?: number | undefined;
 }
 
 export class IncomeMetric implements IIncomeMetric {
+  impressionMetricId?: number | undefined;
+  impressionMetric?: ImpressionMetric | undefined;
   id?: number | undefined;
-  incomeLower?: number | undefined;
-  incomeUpper?: number | undefined;
+  lower?: number | undefined;
+  upper?: number | undefined;
   fraction?: number | undefined;
 
   constructor(data?: IIncomeMetric) {
@@ -2112,9 +2358,11 @@ export class IncomeMetric implements IIncomeMetric {
 
   init(data?: any) {
     if (data) {
+      this.impressionMetricId = data["impressionMetricId"];
+      this.impressionMetric = data["impressionMetric"] ? ImpressionMetric.fromJS(data["impressionMetric"]) : <any>undefined;
       this.id = data["id"];
-      this.incomeLower = data["incomeLower"];
-      this.incomeUpper = data["incomeUpper"];
+      this.lower = data["lower"];
+      this.upper = data["upper"];
       this.fraction = data["fraction"];
     }
   }
@@ -2128,18 +2376,438 @@ export class IncomeMetric implements IIncomeMetric {
 
   toJSON(data?: any) {
     data = typeof data === 'object' ? data : {};
+    data["impressionMetricId"] = this.impressionMetricId;
+    data["impressionMetric"] = this.impressionMetric ? this.impressionMetric.toJSON() : <any>undefined;
     data["id"] = this.id;
-    data["incomeLower"] = this.incomeLower;
-    data["incomeUpper"] = this.incomeUpper;
+    data["lower"] = this.lower;
+    data["upper"] = this.upper;
     data["fraction"] = this.fraction;
     return data;
   }
 }
 
 export interface IIncomeMetric {
+  impressionMetricId?: number | undefined;
+  impressionMetric?: ImpressionMetric | undefined;
   id?: number | undefined;
-  incomeLower?: number | undefined;
-  incomeUpper?: number | undefined;
+  lower?: number | undefined;
+  upper?: number | undefined;
+  fraction?: number | undefined;
+}
+
+export class GenderMetric implements IGenderMetric {
+  impressionMetricId?: number | undefined;
+  impressionMetric?: ImpressionMetric | undefined;
+  id?: number | undefined;
+  label?: string | undefined;
+  fraction?: number | undefined;
+
+  constructor(data?: IGenderMetric) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property))
+          (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(data?: any) {
+    if (data) {
+      this.impressionMetricId = data["impressionMetricId"];
+      this.impressionMetric = data["impressionMetric"] ? ImpressionMetric.fromJS(data["impressionMetric"]) : <any>undefined;
+      this.id = data["id"];
+      this.label = data["label"];
+      this.fraction = data["fraction"];
+    }
+  }
+
+  static fromJS(data: any): GenderMetric {
+    data = typeof data === 'object' ? data : {};
+    let result = new GenderMetric();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data["impressionMetricId"] = this.impressionMetricId;
+    data["impressionMetric"] = this.impressionMetric ? this.impressionMetric.toJSON() : <any>undefined;
+    data["id"] = this.id;
+    data["label"] = this.label;
+    data["fraction"] = this.fraction;
+    return data;
+  }
+}
+
+export interface IGenderMetric {
+  impressionMetricId?: number | undefined;
+  impressionMetric?: ImpressionMetric | undefined;
+  id?: number | undefined;
+  label?: string | undefined;
+  fraction?: number | undefined;
+}
+
+export class DriverOverviewMetric implements IDriverOverviewMetric {
+  id?: number | undefined;
+  driveTime?: number | undefined;
+  distance?: number | undefined;
+  impressions?: number | undefined;
+
+  constructor(data?: IDriverOverviewMetric) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property))
+          (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(data?: any) {
+    if (data) {
+      this.id = data["id"];
+      this.driveTime = data["driveTime"];
+      this.distance = data["distance"];
+      this.impressions = data["impressions"];
+    }
+  }
+
+  static fromJS(data: any): DriverOverviewMetric {
+    data = typeof data === 'object' ? data : {};
+    let result = new DriverOverviewMetric();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data["id"] = this.id;
+    data["driveTime"] = this.driveTime;
+    data["distance"] = this.distance;
+    data["impressions"] = this.impressions;
+    return data;
+  }
+}
+
+export interface IDriverOverviewMetric {
+  id?: number | undefined;
+  driveTime?: number | undefined;
+  distance?: number | undefined;
+  impressions?: number | undefined;
+}
+
+export class DriverEthnicGroup implements IDriverEthnicGroup {
+  id?: number | undefined;
+  driverMetricId?: number | undefined;
+  driverMetric?: DriverMetric | undefined;
+  name?: string | undefined;
+  fraction?: number | undefined;
+
+  constructor(data?: IDriverEthnicGroup) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property))
+          (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(data?: any) {
+    if (data) {
+      this.id = data["id"];
+      this.driverMetricId = data["driverMetricId"];
+      this.driverMetric = data["driverMetric"] ? DriverMetric.fromJS(data["driverMetric"]) : <any>undefined;
+      this.name = data["name"];
+      this.fraction = data["fraction"];
+    }
+  }
+
+  static fromJS(data: any): DriverEthnicGroup {
+    data = typeof data === 'object' ? data : {};
+    let result = new DriverEthnicGroup();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data["id"] = this.id;
+    data["driverMetricId"] = this.driverMetricId;
+    data["driverMetric"] = this.driverMetric ? this.driverMetric.toJSON() : <any>undefined;
+    data["name"] = this.name;
+    data["fraction"] = this.fraction;
+    return data;
+  }
+}
+
+export interface IDriverEthnicGroup {
+  id?: number | undefined;
+  driverMetricId?: number | undefined;
+  driverMetric?: DriverMetric | undefined;
+  name?: string | undefined;
+  fraction?: number | undefined;
+}
+
+export class DriverGenderGroup implements IDriverGenderGroup {
+  id?: number | undefined;
+  driverMetricId?: number | undefined;
+  driverMetric?: DriverMetric | undefined;
+  name?: string | undefined;
+  fraction?: number | undefined;
+
+  constructor(data?: IDriverGenderGroup) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property))
+          (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(data?: any) {
+    if (data) {
+      this.id = data["id"];
+      this.driverMetricId = data["driverMetricId"];
+      this.driverMetric = data["driverMetric"] ? DriverMetric.fromJS(data["driverMetric"]) : <any>undefined;
+      this.name = data["name"];
+      this.fraction = data["fraction"];
+    }
+  }
+
+  static fromJS(data: any): DriverGenderGroup {
+    data = typeof data === 'object' ? data : {};
+    let result = new DriverGenderGroup();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data["id"] = this.id;
+    data["driverMetricId"] = this.driverMetricId;
+    data["driverMetric"] = this.driverMetric ? this.driverMetric.toJSON() : <any>undefined;
+    data["name"] = this.name;
+    data["fraction"] = this.fraction;
+    return data;
+  }
+}
+
+export interface IDriverGenderGroup {
+  id?: number | undefined;
+  driverMetricId?: number | undefined;
+  driverMetric?: DriverMetric | undefined;
+  name?: string | undefined;
+  fraction?: number | undefined;
+}
+
+export class DriverAgeGroup implements IDriverAgeGroup {
+  id?: number | undefined;
+  driverMetricId?: number | undefined;
+  driverMetric?: DriverMetric | undefined;
+  name?: string | undefined;
+  fraction?: number | undefined;
+
+  constructor(data?: IDriverAgeGroup) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property))
+          (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(data?: any) {
+    if (data) {
+      this.id = data["id"];
+      this.driverMetricId = data["driverMetricId"];
+      this.driverMetric = data["driverMetric"] ? DriverMetric.fromJS(data["driverMetric"]) : <any>undefined;
+      this.name = data["name"];
+      this.fraction = data["fraction"];
+    }
+  }
+
+  static fromJS(data: any): DriverAgeGroup {
+    data = typeof data === 'object' ? data : {};
+    let result = new DriverAgeGroup();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data["id"] = this.id;
+    data["driverMetricId"] = this.driverMetricId;
+    data["driverMetric"] = this.driverMetric ? this.driverMetric.toJSON() : <any>undefined;
+    data["name"] = this.name;
+    data["fraction"] = this.fraction;
+    return data;
+  }
+}
+
+export interface IDriverAgeGroup {
+  id?: number | undefined;
+  driverMetricId?: number | undefined;
+  driverMetric?: DriverMetric | undefined;
+  name?: string | undefined;
+  fraction?: number | undefined;
+}
+
+export class DriverIncomeGroup implements IDriverIncomeGroup {
+  id?: number | undefined;
+  driverMetricId?: number | undefined;
+  driverMetric?: DriverMetric | undefined;
+  name?: string | undefined;
+  fraction?: number | undefined;
+
+  constructor(data?: IDriverIncomeGroup) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property))
+          (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(data?: any) {
+    if (data) {
+      this.id = data["id"];
+      this.driverMetricId = data["driverMetricId"];
+      this.driverMetric = data["driverMetric"] ? DriverMetric.fromJS(data["driverMetric"]) : <any>undefined;
+      this.name = data["name"];
+      this.fraction = data["fraction"];
+    }
+  }
+
+  static fromJS(data: any): DriverIncomeGroup {
+    data = typeof data === 'object' ? data : {};
+    let result = new DriverIncomeGroup();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data["id"] = this.id;
+    data["driverMetricId"] = this.driverMetricId;
+    data["driverMetric"] = this.driverMetric ? this.driverMetric.toJSON() : <any>undefined;
+    data["name"] = this.name;
+    data["fraction"] = this.fraction;
+    return data;
+  }
+}
+
+export interface IDriverIncomeGroup {
+  id?: number | undefined;
+  driverMetricId?: number | undefined;
+  driverMetric?: DriverMetric | undefined;
+  name?: string | undefined;
+  fraction?: number | undefined;
+}
+
+export class DriverDistrictMetric implements IDriverDistrictMetric {
+  id?: number | undefined;
+  driverMetricId?: number | undefined;
+  driverMetric?: DriverMetric | undefined;
+  districtId?: number | undefined;
+  fraction?: number | undefined;
+
+  constructor(data?: IDriverDistrictMetric) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property))
+          (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(data?: any) {
+    if (data) {
+      this.id = data["id"];
+      this.driverMetricId = data["driverMetricId"];
+      this.driverMetric = data["driverMetric"] ? DriverMetric.fromJS(data["driverMetric"]) : <any>undefined;
+      this.districtId = data["districtId"];
+      this.fraction = data["fraction"];
+    }
+  }
+
+  static fromJS(data: any): DriverDistrictMetric {
+    data = typeof data === 'object' ? data : {};
+    let result = new DriverDistrictMetric();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data["id"] = this.id;
+    data["driverMetricId"] = this.driverMetricId;
+    data["driverMetric"] = this.driverMetric ? this.driverMetric.toJSON() : <any>undefined;
+    data["districtId"] = this.districtId;
+    data["fraction"] = this.fraction;
+    return data;
+  }
+}
+
+export interface IDriverDistrictMetric {
+  id?: number | undefined;
+  driverMetricId?: number | undefined;
+  driverMetric?: DriverMetric | undefined;
+  districtId?: number | undefined;
+  fraction?: number | undefined;
+}
+
+export class DriverWeekdayMetric implements IDriverWeekdayMetric {
+  id?: number | undefined;
+  driverMetricId?: number | undefined;
+  driverMetric?: DriverMetric | undefined;
+  hour?: string | undefined;
+  weekday?: string | undefined;
+  fraction?: number | undefined;
+
+  constructor(data?: IDriverWeekdayMetric) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property))
+          (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(data?: any) {
+    if (data) {
+      this.id = data["id"];
+      this.driverMetricId = data["driverMetricId"];
+      this.driverMetric = data["driverMetric"] ? DriverMetric.fromJS(data["driverMetric"]) : <any>undefined;
+      this.hour = data["hour"];
+      this.weekday = data["weekday"];
+      this.fraction = data["fraction"];
+    }
+  }
+
+  static fromJS(data: any): DriverWeekdayMetric {
+    data = typeof data === 'object' ? data : {};
+    let result = new DriverWeekdayMetric();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data["id"] = this.id;
+    data["driverMetricId"] = this.driverMetricId;
+    data["driverMetric"] = this.driverMetric ? this.driverMetric.toJSON() : <any>undefined;
+    data["hour"] = this.hour;
+    data["weekday"] = this.weekday;
+    data["fraction"] = this.fraction;
+    return data;
+  }
+}
+
+export interface IDriverWeekdayMetric {
+  id?: number | undefined;
+  driverMetricId?: number | undefined;
+  driverMetric?: DriverMetric | undefined;
+  hour?: string | undefined;
+  weekday?: string | undefined;
   fraction?: number | undefined;
 }
 
@@ -2156,6 +2824,7 @@ export class Creative implements ICreative {
   jobOffers?: JobOffer[] | undefined;
   status?: string | undefined;
   campaignLength?: number | undefined;
+  costPerVehiclePerMonth?: number | undefined;
   creativeTargetAreas?: CreativeTargetArea[] | undefined;
 
   constructor(data?: ICreative) {
@@ -2185,6 +2854,7 @@ export class Creative implements ICreative {
       }
       this.status = data["status"];
       this.campaignLength = data["campaignLength"];
+      this.costPerVehiclePerMonth = data["costPerVehiclePerMonth"];
       if (data["creativeTargetAreas"] && data["creativeTargetAreas"].constructor === Array) {
         this.creativeTargetAreas = [];
         for (let item of data["creativeTargetAreas"])
@@ -2218,6 +2888,7 @@ export class Creative implements ICreative {
     }
     data["status"] = this.status;
     data["campaignLength"] = this.campaignLength;
+    data["costPerVehiclePerMonth"] = this.costPerVehiclePerMonth;
     if (this.creativeTargetAreas && this.creativeTargetAreas.constructor === Array) {
       data["creativeTargetAreas"] = [];
       for (let item of this.creativeTargetAreas)
@@ -2240,6 +2911,7 @@ export interface ICreative {
   jobOffers?: JobOffer[] | undefined;
   status?: string | undefined;
   campaignLength?: number | undefined;
+  costPerVehiclePerMonth?: number | undefined;
   creativeTargetAreas?: CreativeTargetArea[] | undefined;
 }
 
@@ -2411,15 +3083,10 @@ export class HKDistricts implements IHKDistricts {
   id?: number | undefined;
   name?: string | undefined;
   populationDensity?: number | undefined;
-  averageGDP?: number | undefined;
-  maleToFemaleRatio?: number | undefined;
-  age_0_14?: number | undefined;
-  age_15_24?: number | undefined;
-  age_25_44?: number | undefined;
-  age_45_64?: number | undefined;
-  age_65_?: number | undefined;
-  degree?: number | undefined;
-  non_Degree?: number | undefined;
+  ageMetrics?: DistrictAgeMetric[] | undefined;
+  ethnicityMetrics?: DistrictEthnicityMetric[] | undefined;
+  incomeMetrics?: DistrictIncomeMetric[] | undefined;
+  genderMetrics?: DistrictGenderMetric[] | undefined;
 
   constructor(data?: IHKDistricts) {
     if (data) {
@@ -2435,15 +3102,26 @@ export class HKDistricts implements IHKDistricts {
       this.id = data["id"];
       this.name = data["name"];
       this.populationDensity = data["populationDensity"];
-      this.averageGDP = data["averageGDP"];
-      this.maleToFemaleRatio = data["maleToFemaleRatio"];
-      this.age_0_14 = data["age_0_14"];
-      this.age_15_24 = data["age_15_24"];
-      this.age_25_44 = data["age_25_44"];
-      this.age_45_64 = data["age_45_64"];
-      this.age_65_ = data["age_65_"];
-      this.degree = data["degree"];
-      this.non_Degree = data["non_Degree"];
+      if (data["ageMetrics"] && data["ageMetrics"].constructor === Array) {
+        this.ageMetrics = [];
+        for (let item of data["ageMetrics"])
+          this.ageMetrics.push(DistrictAgeMetric.fromJS(item));
+      }
+      if (data["ethnicityMetrics"] && data["ethnicityMetrics"].constructor === Array) {
+        this.ethnicityMetrics = [];
+        for (let item of data["ethnicityMetrics"])
+          this.ethnicityMetrics.push(DistrictEthnicityMetric.fromJS(item));
+      }
+      if (data["incomeMetrics"] && data["incomeMetrics"].constructor === Array) {
+        this.incomeMetrics = [];
+        for (let item of data["incomeMetrics"])
+          this.incomeMetrics.push(DistrictIncomeMetric.fromJS(item));
+      }
+      if (data["genderMetrics"] && data["genderMetrics"].constructor === Array) {
+        this.genderMetrics = [];
+        for (let item of data["genderMetrics"])
+          this.genderMetrics.push(DistrictGenderMetric.fromJS(item));
+      }
     }
   }
 
@@ -2459,15 +3137,26 @@ export class HKDistricts implements IHKDistricts {
     data["id"] = this.id;
     data["name"] = this.name;
     data["populationDensity"] = this.populationDensity;
-    data["averageGDP"] = this.averageGDP;
-    data["maleToFemaleRatio"] = this.maleToFemaleRatio;
-    data["age_0_14"] = this.age_0_14;
-    data["age_15_24"] = this.age_15_24;
-    data["age_25_44"] = this.age_25_44;
-    data["age_45_64"] = this.age_45_64;
-    data["age_65_"] = this.age_65_;
-    data["degree"] = this.degree;
-    data["non_Degree"] = this.non_Degree;
+    if (this.ageMetrics && this.ageMetrics.constructor === Array) {
+      data["ageMetrics"] = [];
+      for (let item of this.ageMetrics)
+        data["ageMetrics"].push(item.toJSON());
+    }
+    if (this.ethnicityMetrics && this.ethnicityMetrics.constructor === Array) {
+      data["ethnicityMetrics"] = [];
+      for (let item of this.ethnicityMetrics)
+        data["ethnicityMetrics"].push(item.toJSON());
+    }
+    if (this.incomeMetrics && this.incomeMetrics.constructor === Array) {
+      data["incomeMetrics"] = [];
+      for (let item of this.incomeMetrics)
+        data["incomeMetrics"].push(item.toJSON());
+    }
+    if (this.genderMetrics && this.genderMetrics.constructor === Array) {
+      data["genderMetrics"] = [];
+      for (let item of this.genderMetrics)
+        data["genderMetrics"].push(item.toJSON());
+    }
     return data;
   }
 }
@@ -2476,15 +3165,10 @@ export interface IHKDistricts {
   id?: number | undefined;
   name?: string | undefined;
   populationDensity?: number | undefined;
-  averageGDP?: number | undefined;
-  maleToFemaleRatio?: number | undefined;
-  age_0_14?: number | undefined;
-  age_15_24?: number | undefined;
-  age_25_44?: number | undefined;
-  age_45_64?: number | undefined;
-  age_65_?: number | undefined;
-  degree?: number | undefined;
-  non_Degree?: number | undefined;
+  ageMetrics?: DistrictAgeMetric[] | undefined;
+  ethnicityMetrics?: DistrictEthnicityMetric[] | undefined;
+  incomeMetrics?: DistrictIncomeMetric[] | undefined;
+  genderMetrics?: DistrictGenderMetric[] | undefined;
 }
 
 export class UserAccount implements IUserAccount {
@@ -2537,6 +3221,222 @@ export interface IUserAccount {
   applicationUser?: ApplicationUser | undefined;
   accountId?: number | undefined;
   account?: Account | undefined;
+}
+
+export class DistrictAgeMetric implements IDistrictAgeMetric {
+  hkDistrictsId?: number | undefined;
+  hkDistricts?: HKDistricts | undefined;
+  id?: number | undefined;
+  lower?: number | undefined;
+  upper?: number | undefined;
+  fraction?: number | undefined;
+
+  constructor(data?: IDistrictAgeMetric) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property))
+          (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(data?: any) {
+    if (data) {
+      this.hkDistrictsId = data["hkDistrictsId"];
+      this.hkDistricts = data["hkDistricts"] ? HKDistricts.fromJS(data["hkDistricts"]) : <any>undefined;
+      this.id = data["id"];
+      this.lower = data["lower"];
+      this.upper = data["upper"];
+      this.fraction = data["fraction"];
+    }
+  }
+
+  static fromJS(data: any): DistrictAgeMetric {
+    data = typeof data === 'object' ? data : {};
+    let result = new DistrictAgeMetric();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data["hkDistrictsId"] = this.hkDistrictsId;
+    data["hkDistricts"] = this.hkDistricts ? this.hkDistricts.toJSON() : <any>undefined;
+    data["id"] = this.id;
+    data["lower"] = this.lower;
+    data["upper"] = this.upper;
+    data["fraction"] = this.fraction;
+    return data;
+  }
+}
+
+export interface IDistrictAgeMetric {
+  hkDistrictsId?: number | undefined;
+  hkDistricts?: HKDistricts | undefined;
+  id?: number | undefined;
+  lower?: number | undefined;
+  upper?: number | undefined;
+  fraction?: number | undefined;
+}
+
+export class DistrictEthnicityMetric implements IDistrictEthnicityMetric {
+  hkDistrictsId?: number | undefined;
+  hkDistricts?: HKDistricts | undefined;
+  id?: number | undefined;
+  label?: string | undefined;
+  fraction?: number | undefined;
+
+  constructor(data?: IDistrictEthnicityMetric) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property))
+          (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(data?: any) {
+    if (data) {
+      this.hkDistrictsId = data["hkDistrictsId"];
+      this.hkDistricts = data["hkDistricts"] ? HKDistricts.fromJS(data["hkDistricts"]) : <any>undefined;
+      this.id = data["id"];
+      this.label = data["label"];
+      this.fraction = data["fraction"];
+    }
+  }
+
+  static fromJS(data: any): DistrictEthnicityMetric {
+    data = typeof data === 'object' ? data : {};
+    let result = new DistrictEthnicityMetric();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data["hkDistrictsId"] = this.hkDistrictsId;
+    data["hkDistricts"] = this.hkDistricts ? this.hkDistricts.toJSON() : <any>undefined;
+    data["id"] = this.id;
+    data["label"] = this.label;
+    data["fraction"] = this.fraction;
+    return data;
+  }
+}
+
+export interface IDistrictEthnicityMetric {
+  hkDistrictsId?: number | undefined;
+  hkDistricts?: HKDistricts | undefined;
+  id?: number | undefined;
+  label?: string | undefined;
+  fraction?: number | undefined;
+}
+
+export class DistrictIncomeMetric implements IDistrictIncomeMetric {
+  hkDistrictsId?: number | undefined;
+  hkDistricts?: HKDistricts | undefined;
+  id?: number | undefined;
+  lower?: number | undefined;
+  upper?: number | undefined;
+  fraction?: number | undefined;
+
+  constructor(data?: IDistrictIncomeMetric) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property))
+          (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(data?: any) {
+    if (data) {
+      this.hkDistrictsId = data["hkDistrictsId"];
+      this.hkDistricts = data["hkDistricts"] ? HKDistricts.fromJS(data["hkDistricts"]) : <any>undefined;
+      this.id = data["id"];
+      this.lower = data["lower"];
+      this.upper = data["upper"];
+      this.fraction = data["fraction"];
+    }
+  }
+
+  static fromJS(data: any): DistrictIncomeMetric {
+    data = typeof data === 'object' ? data : {};
+    let result = new DistrictIncomeMetric();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data["hkDistrictsId"] = this.hkDistrictsId;
+    data["hkDistricts"] = this.hkDistricts ? this.hkDistricts.toJSON() : <any>undefined;
+    data["id"] = this.id;
+    data["lower"] = this.lower;
+    data["upper"] = this.upper;
+    data["fraction"] = this.fraction;
+    return data;
+  }
+}
+
+export interface IDistrictIncomeMetric {
+  hkDistrictsId?: number | undefined;
+  hkDistricts?: HKDistricts | undefined;
+  id?: number | undefined;
+  lower?: number | undefined;
+  upper?: number | undefined;
+  fraction?: number | undefined;
+}
+
+export class DistrictGenderMetric implements IDistrictGenderMetric {
+  hkDistrictsId?: number | undefined;
+  hkDistricts?: HKDistricts | undefined;
+  id?: number | undefined;
+  label?: string | undefined;
+  fraction?: number | undefined;
+
+  constructor(data?: IDistrictGenderMetric) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property))
+          (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(data?: any) {
+    if (data) {
+      this.hkDistrictsId = data["hkDistrictsId"];
+      this.hkDistricts = data["hkDistricts"] ? HKDistricts.fromJS(data["hkDistricts"]) : <any>undefined;
+      this.id = data["id"];
+      this.label = data["label"];
+      this.fraction = data["fraction"];
+    }
+  }
+
+  static fromJS(data: any): DistrictGenderMetric {
+    data = typeof data === 'object' ? data : {};
+    let result = new DistrictGenderMetric();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data["hkDistrictsId"] = this.hkDistrictsId;
+    data["hkDistricts"] = this.hkDistricts ? this.hkDistricts.toJSON() : <any>undefined;
+    data["id"] = this.id;
+    data["label"] = this.label;
+    data["fraction"] = this.fraction;
+    return data;
+  }
+}
+
+export interface IDistrictGenderMetric {
+  hkDistrictsId?: number | undefined;
+  hkDistricts?: HKDistricts | undefined;
+  id?: number | undefined;
+  label?: string | undefined;
+  fraction?: number | undefined;
 }
 
 export class ApplicationUser implements IApplicationUser {
@@ -2716,8 +3616,7 @@ export interface IUserAddress {
 }
 
 export class Driver implements IDriver {
-  applicationUserId?: string | undefined;
-  id?: number | undefined;
+  id?: string | undefined;
   identityNumber: string;
   identityDocumentType: DriverIdentityDocumentType;
   identityDocument: string;
@@ -2736,7 +3635,6 @@ export class Driver implements IDriver {
 
   init(data?: any) {
     if (data) {
-      this.applicationUserId = data["applicationUserId"];
       this.id = data["id"];
       this.identityNumber = data["identityNumber"];
       this.identityDocumentType = data["identityDocumentType"];
@@ -2764,7 +3662,6 @@ export class Driver implements IDriver {
 
   toJSON(data?: any) {
     data = typeof data === 'object' ? data : {};
-    data["applicationUserId"] = this.applicationUserId;
     data["id"] = this.id;
     data["identityNumber"] = this.identityNumber;
     data["identityDocumentType"] = this.identityDocumentType;
@@ -2785,8 +3682,7 @@ export class Driver implements IDriver {
 }
 
 export interface IDriver {
-  applicationUserId?: string | undefined;
-  id?: number | undefined;
+  id?: string | undefined;
   identityNumber: string;
   identityDocumentType: DriverIdentityDocumentType;
   identityDocument: string;
@@ -2797,7 +3693,7 @@ export interface IDriver {
 
 export class WalletEntry implements IWalletEntry {
   id?: number | undefined;
-  driverId?: number | undefined;
+  driverId?: string | undefined;
   driver?: Driver | undefined;
   status?: WalletEntryStatus | undefined;
   createDateTime?: Date | undefined;
@@ -2847,7 +3743,7 @@ export class WalletEntry implements IWalletEntry {
 
 export interface IWalletEntry {
   id?: number | undefined;
-  driverId?: number | undefined;
+  driverId?: string | undefined;
   driver?: Driver | undefined;
   status?: WalletEntryStatus | undefined;
   createDateTime?: Date | undefined;
