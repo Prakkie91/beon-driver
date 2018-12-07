@@ -33,13 +33,13 @@ import {SettingPage} from '../pages/setting/setting';
 import {SupportPage} from '../pages/support/support';
 import {WalletPage} from '../pages/wallet/wallet';
 // end import pages
-
+import {UniqueDeviceID} from '@ionic-native/unique-device-id';
 import { IonicStorageModule } from '@ionic/storage';
 import {VehicleService} from "../services/vehicle-service";
 import {UserService} from "../services/user-service";
 
 Pro.init('b4069d91', {
-  appVersion: '1.0.4'
+  appVersion: '1.0.6'
 });
 
 @Injectable()
@@ -81,7 +81,7 @@ export class MyErrorHandler implements ErrorHandler {
   imports: [
     BrowserModule,
     HttpClientModule,
-    IonicModule.forRoot(MyApp),
+    IonicModule.forRoot(MyApp, { scrollAssist: false, autoFocusAssist: false }),
     IonicStorageModule.forRoot({
       name: '__mydb',
       driverOrder: ['indexeddb', 'sqlite', 'websql']
@@ -115,10 +115,12 @@ export class MyErrorHandler implements ErrorHandler {
     Geolocation,
     LocationTrackingService,
     IonicErrorHandler,
+    UniqueDeviceID,
     [{ provide: ErrorHandler, useClass: MyErrorHandler }],
     /* import services */
 
   ]
+
 })
 export class AppModule {
 }

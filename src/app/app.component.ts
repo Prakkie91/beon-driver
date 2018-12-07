@@ -22,7 +22,8 @@ import {DriverService} from "../services/driver-service";
   templateUrl: 'app.html',
   queries: {
     nav: new ViewChild('content')
-  }
+  },
+
 })
 export class MyApp {
 

@@ -41,7 +41,8 @@ export class HomePage {
 
     let mapOptions = {
       zoom: 15,
-      mapTypeId: google.maps.MapTypeId.ROADMAP
+      mapTypeId: google.maps.MapTypeId.ROADMAP,
+      location:new google.maps.LatLng(22.271266, 114.203355)
     };
 
     this.map = new google.maps.Map(this.mapElement.nativeElement, mapOptions);
@@ -58,16 +59,12 @@ export class HomePage {
       let latLng = new google.maps.LatLng(this.y, this.x);
       // using global variable:
       this.map.panTo(latLng);
-      this.marker.rotation = position.coords.heading;//<-- Car angle
-
+      this.marker.rotation = position.coords.heading;
       this.marker.setPosition(latLng);
-
     }, (err) => {
       alert(err);
       console.log(err);
     });
-
-
   }
 
 
