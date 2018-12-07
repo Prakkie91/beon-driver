@@ -1,5 +1,4 @@
 import {Injectable} from "@angular/core";
-import {TRANSACTIONS} from "./mock-transactions";
 import {HttpClient} from "@angular/common/http";
 import {Storage} from "@ionic/storage";
 import {Client} from "./beon-api";

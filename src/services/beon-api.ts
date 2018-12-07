@@ -289,6 +289,69 @@ export class Client {
    * @param data (optional)
    * @return Success
    */
+  updateVehicleDeviceId(data: UpdateVehicleDeviceIdRequest | null | undefined): Observable<DriverVehicle> {
+    let url_ = this.baseUrl + "/api/DriverVehicleTrackingEvents/UpdateVehicleDeviceId";
+    url_ = url_.replace(/[?&]$/, "");
+
+    const content_ = JSON.stringify(data);
+
+    let options_ : any = {
+      body: content_,
+      observe: "response",
+      responseType: "blob",
+      headers: new HttpHeaders({
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+      })
+    };
+
+    return this.http.request("post", url_, options_).flatMap((response_ : any) => {
+      return this.processUpdateVehicleDeviceId(response_);
+    }).catch((response_: any) => {
+      if (response_ instanceof HttpResponseBase) {
+        try {
+          return this.processUpdateVehicleDeviceId(<any>response_);
+        } catch (e) {
+          return <Observable<DriverVehicle>><any>Observable.throw(e);
+        }
+      } else
+        return <Observable<DriverVehicle>><any>Observable.throw(response_);
+    });
+  }
+
+  protected processUpdateVehicleDeviceId(response: HttpResponseBase): Observable<DriverVehicle> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse ? response.body :
+        (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
+    if (status === 200) {
+      return blobToText(responseBlob).flatMap(_responseText => {
+        let result200: any = null;
+        let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+        result200 = resultData200 ? DriverVehicle.fromJS(resultData200) : new DriverVehicle();
+        return Observable.of(result200);
+      });
+    } else if (status === 500) {
+      return blobToText(responseBlob).flatMap(_responseText => {
+        let result500: any = null;
+        let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+        result500 = resultData500 ? ErrorModel.fromJS(resultData500) : new ErrorModel();
+        return throwException("A server error occurred.", status, _responseText, _headers, result500);
+      });
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).flatMap(_responseText => {
+        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+      });
+    }
+    return Observable.of<DriverVehicle>(<any>null);
+  }
+
+  /**
+   * @param data (optional)
+   * @return Success
+   */
   driverVehicleTrackingEvent(data: CreateTrackingEventRequest | null | undefined): Observable<DriverVehicleTrackingEvent> {
     let url_ = this.baseUrl + "/api/DriverVehicleTrackingEvents/DriverVehicleTrackingEvent";
     url_ = url_.replace(/[?&]$/, "");
@@ -1511,13 +1574,11 @@ export interface ISignUpResponse {
   primaryVehicleId?: number | undefined;
 }
 
-export class CreateTrackingEventRequest implements ICreateTrackingEventRequest {
-  driverVehicleId?: number | undefined;
-  altitude?: number | undefined;
-  longitude?: number | undefined;
-  latitude?: number | undefined;
+export class UpdateVehicleDeviceIdRequest implements IUpdateVehicleDeviceIdRequest {
+  vehicleId?: number | undefined;
+  deviceId?: string | undefined;
 
-  constructor(data?: ICreateTrackingEventRequest) {
+  constructor(data?: IUpdateVehicleDeviceIdRequest) {
     if (data) {
       for (var property in data) {
         if (data.hasOwnProperty(property))
@@ -1528,95 +1589,29 @@ export class CreateTrackingEventRequest implements ICreateTrackingEventRequest {
 
   init(data?: any) {
     if (data) {
-      this.driverVehicleId = data["driverVehicleId"];
-      this.altitude = data["altitude"];
-      this.longitude = data["longitude"];
-      this.latitude = data["latitude"];
+      this.vehicleId = data["vehicleId"];
+      this.deviceId = data["deviceId"];
     }
   }
 
-  static fromJS(data: any): CreateTrackingEventRequest {
+  static fromJS(data: any): UpdateVehicleDeviceIdRequest {
     data = typeof data === 'object' ? data : {};
-    let result = new CreateTrackingEventRequest();
+    let result = new UpdateVehicleDeviceIdRequest();
     result.init(data);
     return result;
   }
 
   toJSON(data?: any) {
     data = typeof data === 'object' ? data : {};
-    data["driverVehicleId"] = this.driverVehicleId;
-    data["altitude"] = this.altitude;
-    data["longitude"] = this.longitude;
-    data["latitude"] = this.latitude;
+    data["vehicleId"] = this.vehicleId;
+    data["deviceId"] = this.deviceId;
     return data;
   }
 }
 
-export interface ICreateTrackingEventRequest {
-  driverVehicleId?: number | undefined;
-  altitude?: number | undefined;
-  longitude?: number | undefined;
-  latitude?: number | undefined;
-}
-
-export class DriverVehicleTrackingEvent implements IDriverVehicleTrackingEvent {
-  id?: number | undefined;
-  driverVehicleId?: number | undefined;
-  driverVehicle?: DriverVehicle | undefined;
-  createDateTime?: Date | undefined;
-  altitude: number;
-  longitude: number;
-  latitude: number;
-
-  constructor(data?: IDriverVehicleTrackingEvent) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(data?: any) {
-    if (data) {
-      this.id = data["id"];
-      this.driverVehicleId = data["driverVehicleId"];
-      this.driverVehicle = data["driverVehicle"] ? DriverVehicle.fromJS(data["driverVehicle"]) : <any>undefined;
-      this.createDateTime = data["createDateTime"] ? new Date(data["createDateTime"].toString()) : <any>undefined;
-      this.altitude = data["altitude"];
-      this.longitude = data["longitude"];
-      this.latitude = data["latitude"];
-    }
-  }
-
-  static fromJS(data: any): DriverVehicleTrackingEvent {
-    data = typeof data === 'object' ? data : {};
-    let result = new DriverVehicleTrackingEvent();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["id"] = this.id;
-    data["driverVehicleId"] = this.driverVehicleId;
-    data["driverVehicle"] = this.driverVehicle ? this.driverVehicle.toJSON() : <any>undefined;
-    data["createDateTime"] = this.createDateTime ? this.createDateTime.toISOString() : <any>undefined;
-    data["altitude"] = this.altitude;
-    data["longitude"] = this.longitude;
-    data["latitude"] = this.latitude;
-    return data;
-  }
-}
-
-export interface IDriverVehicleTrackingEvent {
-  id?: number | undefined;
-  driverVehicleId?: number | undefined;
-  driverVehicle?: DriverVehicle | undefined;
-  createDateTime?: Date | undefined;
-  altitude: number;
-  longitude: number;
-  latitude: number;
+export interface IUpdateVehicleDeviceIdRequest {
+  vehicleId?: number | undefined;
+  deviceId?: string | undefined;
 }
 
 export class DriverVehicle implements IDriverVehicle {
@@ -1813,6 +1808,66 @@ export interface IDriverVehiclePlacementArea {
   placementArea?: PlacementArea | undefined;
   status?: DriverVehiclePlacementAreaStatus | undefined;
   jobOffers?: JobOffer[] | undefined;
+}
+
+export class DriverVehicleTrackingEvent implements IDriverVehicleTrackingEvent {
+  id?: number | undefined;
+  driverVehicleId?: number | undefined;
+  driverVehicle?: DriverVehicle | undefined;
+  createDateTime?: Date | undefined;
+  altitude: number;
+  longitude: number;
+  latitude: number;
+
+  constructor(data?: IDriverVehicleTrackingEvent) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property))
+          (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(data?: any) {
+    if (data) {
+      this.id = data["id"];
+      this.driverVehicleId = data["driverVehicleId"];
+      this.driverVehicle = data["driverVehicle"] ? DriverVehicle.fromJS(data["driverVehicle"]) : <any>undefined;
+      this.createDateTime = data["createDateTime"] ? new Date(data["createDateTime"].toString()) : <any>undefined;
+      this.altitude = data["altitude"];
+      this.longitude = data["longitude"];
+      this.latitude = data["latitude"];
+    }
+  }
+
+  static fromJS(data: any): DriverVehicleTrackingEvent {
+    data = typeof data === 'object' ? data : {};
+    let result = new DriverVehicleTrackingEvent();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data["id"] = this.id;
+    data["driverVehicleId"] = this.driverVehicleId;
+    data["driverVehicle"] = this.driverVehicle ? this.driverVehicle.toJSON() : <any>undefined;
+    data["createDateTime"] = this.createDateTime ? this.createDateTime.toISOString() : <any>undefined;
+    data["altitude"] = this.altitude;
+    data["longitude"] = this.longitude;
+    data["latitude"] = this.latitude;
+    return data;
+  }
+}
+
+export interface IDriverVehicleTrackingEvent {
+  id?: number | undefined;
+  driverVehicleId?: number | undefined;
+  driverVehicle?: DriverVehicle | undefined;
+  createDateTime?: Date | undefined;
+  altitude: number;
+  longitude: number;
+  latitude: number;
 }
 
 export class ImpressionMetric implements IImpressionMetric {
@@ -2174,6 +2229,7 @@ export class JobOffer implements IJobOffer {
   status?: JobOfferStatus | undefined;
   acceptanceDate?: Date | undefined;
   startDate?: Date | undefined;
+  endDate?: Date | undefined;
   driverVehiclePlacementAreaId?: number | undefined;
   driverVehiclePlacementArea?: DriverVehiclePlacementArea | undefined;
 
@@ -2194,6 +2250,7 @@ export class JobOffer implements IJobOffer {
       this.status = data["status"];
       this.acceptanceDate = data["acceptanceDate"] ? new Date(data["acceptanceDate"].toString()) : <any>undefined;
       this.startDate = data["startDate"] ? new Date(data["startDate"].toString()) : <any>undefined;
+      this.endDate = data["endDate"] ? new Date(data["endDate"].toString()) : <any>undefined;
       this.driverVehiclePlacementAreaId = data["driverVehiclePlacementAreaId"];
       this.driverVehiclePlacementArea = data["driverVehiclePlacementArea"] ? DriverVehiclePlacementArea.fromJS(data["driverVehiclePlacementArea"]) : <any>undefined;
     }
@@ -2214,6 +2271,7 @@ export class JobOffer implements IJobOffer {
     data["status"] = this.status;
     data["acceptanceDate"] = this.acceptanceDate ? this.acceptanceDate.toISOString() : <any>undefined;
     data["startDate"] = this.startDate ? this.startDate.toISOString() : <any>undefined;
+    data["endDate"] = this.endDate ? this.endDate.toISOString() : <any>undefined;
     data["driverVehiclePlacementAreaId"] = this.driverVehiclePlacementAreaId;
     data["driverVehiclePlacementArea"] = this.driverVehiclePlacementArea ? this.driverVehiclePlacementArea.toJSON() : <any>undefined;
     return data;
@@ -2227,6 +2285,7 @@ export interface IJobOffer {
   status?: JobOfferStatus | undefined;
   acceptanceDate?: Date | undefined;
   startDate?: Date | undefined;
+  endDate?: Date | undefined;
   driverVehiclePlacementAreaId?: number | undefined;
   driverVehiclePlacementArea?: DriverVehiclePlacementArea | undefined;
 }
@@ -3749,6 +3808,54 @@ export interface IWalletEntry {
   createDateTime?: Date | undefined;
   amount?: number | undefined;
   currency?: WalletEntryCurrency | undefined;
+}
+
+export class CreateTrackingEventRequest implements ICreateTrackingEventRequest {
+  deviceId?: string | undefined;
+  altitude?: number | undefined;
+  longitude?: number | undefined;
+  latitude?: number | undefined;
+
+  constructor(data?: ICreateTrackingEventRequest) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property))
+          (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(data?: any) {
+    if (data) {
+      this.deviceId = data["deviceId"];
+      this.altitude = data["altitude"];
+      this.longitude = data["longitude"];
+      this.latitude = data["latitude"];
+    }
+  }
+
+  static fromJS(data: any): CreateTrackingEventRequest {
+    data = typeof data === 'object' ? data : {};
+    let result = new CreateTrackingEventRequest();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data["deviceId"] = this.deviceId;
+    data["altitude"] = this.altitude;
+    data["longitude"] = this.longitude;
+    data["latitude"] = this.latitude;
+    return data;
+  }
+}
+
+export interface ICreateTrackingEventRequest {
+  deviceId?: string | undefined;
+  altitude?: number | undefined;
+  longitude?: number | undefined;
+  latitude?: number | undefined;
 }
 
 export class PricingRequest implements IPricingRequest {

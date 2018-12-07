@@ -33,7 +33,7 @@ import {SettingPage} from '../pages/setting/setting';
 import {SupportPage} from '../pages/support/support';
 import {WalletPage} from '../pages/wallet/wallet';
 // end import pages
-import {UniqueDeviceID} from '@ionic-native/unique-device-id';
+import { Device } from '@ionic-native/device';
 import { IonicStorageModule } from '@ionic/storage';
 import {VehicleService} from "../services/vehicle-service";
 import {UserService} from "../services/user-service";
@@ -115,7 +115,7 @@ export class MyErrorHandler implements ErrorHandler {
     Geolocation,
     LocationTrackingService,
     IonicErrorHandler,
-    UniqueDeviceID,
+    Device,
     [{ provide: ErrorHandler, useClass: MyErrorHandler }],
     /* import services */
 

@@ -22,7 +22,6 @@ export class HomePage {
   public y: number;
   public marker: any;
   public icon: any;
-  public isTracking: boolean = false;
   public driver: Observable<DriverInfoResponse>;
 
   @ViewChild('map') mapElement: ElementRef;
@@ -33,7 +32,7 @@ export class HomePage {
     this.driver = this.driverService.getCurrentDriver();
   }
 
-  ionViewDidLoad() {
+  ngOnInit() {
     this.loadMap();
   }
 
@@ -52,6 +51,9 @@ export class HomePage {
       animation: google.maps.Animation.DROP,
       position: this.map.getCenter()
     });
+
+    let latLng = new google.maps.LatLng(22.271266, 114.203355);
+    this.map.panTo(latLng);
 
     this.locationTrackingService.geolocation.watchPosition().subscribe((position) => {
       this.x = position.coords.longitude;
