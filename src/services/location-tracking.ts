@@ -65,20 +65,16 @@ export class LocationTrackingService {
     });
   }
 
-
   backgroundTracking() {
     let config = {
-      desiredAccuracy: 0,
+      desiredAccuracy: 10,
       stationaryRadius: 20,
       distanceFilter: 10,
-      debug: true,
+      debug: false,
       interval: 1000,
-      url: 'http://beonadvertising.com/api/DriverVehicleTrackingEvents/DriverVehicleTrackingEvent',
-      postTemplate: {
-        latitude: '@latitude',
-        longitude: '@longitude',
-        deviceId: this.device.uuid
-      }
+      stopOnTerminate:false,
+      startOnBoot:true,
+      url: 'http://beonadvertising.com/api/DriverVehicleTrackingEvents/DriverVehicleTrackingEvent/' + this.device.uuid,
     };
 
     this.backgroundGeolocation.configure(config).subscribe((location) => {
@@ -86,7 +82,7 @@ export class LocationTrackingService {
       this.zone.run(() => {
         alert(JSON.stringify(location));
       });
-      }, (err) => {
+    }, (err) => {
       this.zone.run(() => {
         alert(JSON.stringify(err));
       });
