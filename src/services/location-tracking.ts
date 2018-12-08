@@ -70,7 +70,7 @@ export class LocationTrackingService {
       interval: 1000,
       stopOnTerminate: false,
       startOnBoot: true,
-      syncUrl: 'http://beonadvertising.com/api/DriverVehicleTrackingEvents/DriverVehicleTrackingEvent/' + this.device.uuid,
+      url: 'http://beonadvertising.com/api/DriverVehicleTrackingEvents/DriverVehicleTrackingEvent/' + this.device.uuid,
     };
 
     this.backgroundGeolocation.configure(config).subscribe(a => console.log(a));
