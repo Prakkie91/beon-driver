@@ -1,5 +1,5 @@
 import {Injectable, NgZone} from '@angular/core';
-import {BackgroundGeolocation} from '@ionic-native/background-geolocation';
+import {BackgroundGeolocation, BackgroundGeolocationResponse} from '@ionic-native/background-geolocation';
 import {Geolocation, Geoposition} from '@ionic-native/geolocation';
 import 'rxjs/add/operator/filter';
 import {Storage} from "@ionic/storage";
@@ -71,23 +71,26 @@ export class LocationTrackingService {
     let config = {
       desiredAccuracy: 10,
       stationaryRadius: 20,
-      distanceFilter: 10,
-      debug: false,
+      distanceFilter: 30,
+      debug: true,
       interval: 1000,
       stopOnTerminate: false,
       startOnBoot: true,
-      syncUrl: 'http://beonadvertising.com/api/DriverVehicleTrackingEvents/DriverVehicleTrackingEvent/' + this.device.uuid,
+      url: 'http://beonadvertising.com/api/DriverVehicleTrackingEvents/DriverVehicleTrackingEvent/' + this.device.uuid
     };
 
-    this.backgroundGeolocation.configure(config).subscribe(a=>console.log(a));
+    this.backgroundGeolocation.configure(config).subscribe((location: BackgroundGeolocationResponse) => {
+
+      console.log(location);
+
+      // IMPORTANT:  You must execute the finish method here to inform the native plugin that you're finished,
+      // and the background-task may be completed.  You must do this regardless if your HTTP request is successful or not.
+      // IF YOU DON'T, ios will CRASH YOUR APP for spending too much time in the background.
+      this.backgroundGeolocation.finish(); // FOR IOS ONLY
+
+    });
     // Turn ON the background-geolocation system.
     this.backgroundGeolocation.start();
-  }
-
-  stopTracking() {
-    console.log('stopTracking');
-    this.backgroundGeolocation.finish();
-    this.watch.unsubscribe();
   }
 
 }
