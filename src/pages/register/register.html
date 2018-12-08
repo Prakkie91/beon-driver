@@ -4,7 +4,9 @@
   See http://ionicframework.com/docs/v2/components/#navigation for more info on
   Ionic pages and navigation.
 -->
-
+<div class="loading" *ngIf="loading">
+  <img src="/assets/img/loader.svg" class="loading-img"/>
+</div>
 <ion-content>
   <div class="auth-content">
     <div class="light-bg" *ngIf="!(vehicleCategories | async)?.length || !(countries | async)?.length || !(vehicleBrands | async)?.length ">

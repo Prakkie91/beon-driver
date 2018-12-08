@@ -37,6 +37,7 @@ export class RegisterPage {
   vehicleCategories: Observable<VehicleCategory>;
   vehicleBrands: Observable<VehicleBrand>;
   countries: Observable<Country>;
+  public loading: boolean = true;
 
   constructor(public nav: NavController, public formBuilder: FormBuilder, public vehicleService: VehicleService, public userService: UserService, private storage: Storage) {
 
@@ -65,6 +66,16 @@ export class RegisterPage {
     this.vehicleCategories = vehicleService.getVehicleCategories();
     this.vehicleBrands = vehicleService.getVehicleBrands();
     this.countries = userService.getCountries();
+
+    let self = this;
+    Promise.all([
+      self.vehicleCategories.toPromise(),
+      self.vehicleBrands.toPromise(),
+      self.countries.toPromise(),
+    ]).then(a =>
+      setTimeout(() => {
+        this.loading = false;
+      }, 500));
   }
 
   next(page: number) {
@@ -98,11 +109,11 @@ export class RegisterPage {
       let request = this.userService.signUp(signUpRequest);
       request.then((value) =>
           this.loginUser(this.userBasicInfo.value.email),
-        (err:SwaggerException) => alert(err.response));
+        (err: SwaggerException) => alert(err.response));
     }
   }
 
-  loginUser(username:string ){
+  loginUser(username: string) {
     this.storage.set('userName', username).then(a =>
       this.nav.setRoot(HomePage));
   }

@@ -20,7 +20,7 @@ import {SwaggerException} from "../../services/beon-api";
 export class LoginPage {
 
   userBasicInfo: FormGroup;
-
+  public loading: boolean = true;
   constructor(public nav: NavController, private storage: Storage, public formBuilder: FormBuilder, public userService: UserService) {
     this.checkIfLoggedIn();
 
@@ -28,7 +28,9 @@ export class LoginPage {
       email: ['', Validators.compose([Validators.required, Validators.email])],
       password: ['', Validators.compose([Validators.required, Validators.minLength(5)])]
     });
-
+    setTimeout(() => {
+      this.loading = false;
+    }, 500);
   }
 
   checkIfLoggedIn() {

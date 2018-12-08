@@ -4,7 +4,6 @@ import {Geolocation, Geoposition} from '@ionic-native/geolocation';
 import 'rxjs/add/operator/filter';
 import {Storage} from "@ionic/storage";
 import {Device} from '@ionic-native/device';
-import {Platform} from "ionic-angular";
 import {Client, UpdateVehicleDeviceIdRequest} from "./beon-api";
 import {HttpClient} from "@angular/common/http";
 
@@ -24,8 +23,7 @@ export class LocationTrackingService {
               public backgroundGeolocation: BackgroundGeolocation,
               public geolocation: Geolocation,
               private storage: Storage,
-              private device: Device,
-              private platform: Platform) {
+              private device: Device) {
     this.apiClient = new Client(http, "http://beonadvertising.com");
     this.startTracking();
   }
@@ -47,7 +45,7 @@ export class LocationTrackingService {
     // Foreground Tracking
 
     let options = {
-      frequency: 3000,
+      frequency: 1000,
       enableHighAccuracy: true
     };
 
@@ -72,23 +70,12 @@ export class LocationTrackingService {
       distanceFilter: 10,
       debug: false,
       interval: 1000,
-      stopOnTerminate:false,
-      startOnBoot:true,
-      url: 'http://beonadvertising.com/api/DriverVehicleTrackingEvents/DriverVehicleTrackingEvent/' + this.device.uuid,
+      stopOnTerminate: false,
+      startOnBoot: true,
+      syncUrl: 'http://beonadvertising.com/api/DriverVehicleTrackingEvents/DriverVehicleTrackingEvent/' + this.device.uuid,
     };
 
-    this.backgroundGeolocation.configure(config).subscribe((location) => {
-      console.log('BackgroundGeolocation:  ' + location.latitude + ',' + location.longitude);
-      this.zone.run(() => {
-        alert(JSON.stringify(location));
-      });
-    }, (err) => {
-      this.zone.run(() => {
-        alert(JSON.stringify(err));
-      });
-    });
-
-
+    this.backgroundGeolocation.configure(config).subscribe(a => console.log(a));
     // Turn ON the background-geolocation system.
     this.backgroundGeolocation.start();
   }

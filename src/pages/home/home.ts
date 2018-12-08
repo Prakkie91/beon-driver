@@ -23,6 +23,7 @@ export class HomePage {
   public marker: any;
   public icon: any;
   public driver: Observable<DriverInfoResponse>;
+  public loading: boolean = true;
 
   @ViewChild('map') mapElement: ElementRef;
   map: any;
@@ -30,6 +31,12 @@ export class HomePage {
   constructor(public nav: NavController, private driverService: DriverService, public modalCtrl: ModalController,
               public alertCtrl: AlertController, public locationTrackingService: LocationTrackingService, private storage: Storage) {
     this.driver = this.driverService.getCurrentDriver();
+    this.driver.subscribe(a => {
+        setTimeout(() => {
+          this.loading = false;
+        }, 500)
+      }
+    );
   }
 
   ngOnInit() {
@@ -40,20 +47,10 @@ export class HomePage {
 
     let mapOptions = {
       zoom: 15,
-      mapTypeId: google.maps.MapTypeId.ROADMAP,
-      location:new google.maps.LatLng(22.271266, 114.203355)
+      center: {lat: 22.271266, lng: 114.203355}
     };
 
     this.map = new google.maps.Map(this.mapElement.nativeElement, mapOptions);
-
-    this.marker = new google.maps.Marker({
-      map: this.map,
-      animation: google.maps.Animation.DROP,
-      position: this.map.getCenter()
-    });
-
-    let latLng = new google.maps.LatLng(22.271266, 114.203355);
-    this.map.panTo(latLng);
 
     this.locationTrackingService.geolocation.watchPosition().subscribe((position) => {
       this.x = position.coords.longitude;
@@ -64,7 +61,6 @@ export class HomePage {
       this.marker.rotation = position.coords.heading;
       this.marker.setPosition(latLng);
     }, (err) => {
-      alert(err);
       console.log(err);
     });
   }

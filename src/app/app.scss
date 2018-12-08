@@ -9,6 +9,32 @@
 
 // import page css
 
+.loading-img {
+  position: fixed;
+  z-index: 9999;
+  width: 40vw;
+  overflow: show;
+  margin: auto;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+}
+
+.loading {
+  position: fixed;
+  z-index: 9998;
+  height: 100%;
+  width: 100%;
+  overflow: show;
+  margin: auto;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background-color: #00b140;
+}
+
 
 .grid{
   padding:0px ;
