@@ -42,8 +42,6 @@ export class LocationTrackingService {
   }
 
   foregroundTracking() {
-    // Foreground Tracking
-
     let options = {
       frequency: 1000,
       enableHighAccuracy: true
