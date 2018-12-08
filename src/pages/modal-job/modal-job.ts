@@ -21,7 +21,6 @@ export class ModalJobPage {
 
   constructor(public viewCtrl: ViewController, public jobService: JobService) {
     // get job info from service
-    this.job = jobService.getItem(1);
 
     // start count down
     this.countDown();

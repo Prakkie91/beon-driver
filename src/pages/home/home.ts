@@ -52,6 +52,12 @@ export class HomePage {
 
     this.map = new google.maps.Map(this.mapElement.nativeElement, mapOptions);
 
+    this.marker = new google.maps.Marker({
+      map: this.map,
+      animation: google.maps.Animation.DROP,
+      position: this.map.getCenter()
+    });
+
     this.locationTrackingService.geolocation.watchPosition().subscribe((position) => {
       this.x = position.coords.longitude;
       this.y = position.coords.latitude;

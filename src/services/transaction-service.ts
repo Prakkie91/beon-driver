@@ -16,4 +16,10 @@ export class TransactionService {
       this.apiClient.getWallet(a)
     );
   }
+
+  withDraw() {
+    return this.storage.get("userName").then(a =>
+      this.apiClient.withdraw(a)
+    );
+  }
 }

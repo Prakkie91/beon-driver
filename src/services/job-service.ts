@@ -1,28 +1,26 @@
 import {Injectable} from "@angular/core";
 import {JOBS} from "./mock-jobs";
+import {HttpClient} from "@angular/common/http";
+import {Storage} from "@ionic/storage";
+import {Client} from "./beon-api";
 
 @Injectable()
 export class JobService {
-  private jobs:any;
+  private apiClient: any;
 
-  constructor() {
-    this.jobs = JOBS;
+  constructor(private http: HttpClient, private storage: Storage) {
+    this.apiClient = new Client(http, "http://beonadvertising.com");
   }
 
   getAll() {
-    return this.jobs;
+    return this.storage.get("userName").then(a =>
+      this.apiClient.getJobOffers(a)
+    );
   }
 
-  getItem(id) {
-    for (var i = 0; i < this.jobs.length; i++) {
-      if (this.jobs[i].id === parseInt(id)) {
-        return this.jobs[i];
-      }
-    }
-    return null;
+  accept() {
   }
 
-  remove(item) {
-    this.jobs.splice(this.jobs.indexOf(item), 1);
+  reject() {
   }
 }

@@ -1,7 +1,8 @@
 import {Component} from '@angular/core';
 import {NavController} from 'ionic-angular';
 import {JobService} from '../../services/job-service';
-import {ReportService} from '../../services/report-service';
+import {Observable} from "rxjs";
+import {JobOffer, WalletEntry} from "../../services/beon-api";
 
 /*
   Generated class for the JobHistoryPage page.
@@ -15,18 +16,20 @@ import {ReportService} from '../../services/report-service';
 })
 export class JobRequestsPage {
 
-  // statistic
-  public stats: any;
+  public records: Observable<JobOffer[]>;
 
-  // list of records
-  public records: any;
-
-  constructor(public nav: NavController, public jobService: JobService, public reportService: ReportService) {
-    // set report data
-    this.stats = reportService.getAll();
-
-    // set jobs
-    this.records = jobService.getAll();
+  constructor(public nav: NavController, public jobService: JobService) {
+    jobService.getAll().then(a => {
+      this.records = a;
+    });
   }
 
+  accept()
+  {
+
+  }
+
+  reject(){
+
+  }
 }

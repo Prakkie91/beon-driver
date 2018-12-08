@@ -19,28 +19,29 @@
 <ion-content class=" primary-bg">
   <!-- list of history records -->
   <ion-grid class="dark-list list-border">
-    <ion-row class="primary-bg" *ngFor="let record of records">
+    <ion-row class="primary-bg" *ngFor="let record of (records | async)">
       <ion-col>
         <ion-row>
           <ion-col text-center>
-            <h1 ion-text color="light">{{ record.advertiser }}</h1>
+            <h1 ion-text color="light">{{ record.creative.campaign.account.companyName }}</h1>
+
           </ion-col>
           <ion-col text-right class="job-status">
             <span ion-text color="gray">Status</span>
             <span ion-text color="light">{{ record.status }}</span>
             <div class="uppercase">
-              <span ion-text color="light">{{ record.campaign_length }} Weeks</span>
+              <span ion-text color="light">{{ record.creative.startDate.toLocaleDateString() }} - {{ record.creative.campaignLength }} Months</span>
             </div>
           </ion-col>
         </ion-row>
-        <ion-row class="light-bg padding-job" >
+        <ion-row class="light-bg padding-job">
           <ion-col>
-            <h4 ion-text color="dark">Placements</h4>
-            <div class="placement-container" *ngFor="let placement of record.placements">
-              <span ion-text text-left color="dark">{{ placement.name }}</span>
-              <span ion-text text-right color="secondary">({{ placement.payment_amount }} {{ placement.currency }})</span>
-              <span tappable text-right color="secondary" (click)="preview(placement.id)">preview</span>
-            </div>
+            <span ion-text color="dark">{{record.creative.campaign.name}}</span>
+            <br/>
+            <span ion-text color="dark">{{record.driverVehiclePlacementArea.placementArea?.name}}</span>
+          </ion-col>
+          <ion-col>
+            <span ion-text color="dark">{{record.creative.costPerVehiclePerMonth*record.creative.campaignLength*0.70 }} HKD</span>
           </ion-col>
         </ion-row>
         <ion-row class="light-bg">
