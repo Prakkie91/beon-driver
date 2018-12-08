@@ -17,8 +17,7 @@ export class PickUpPage {
   public job: any;
 
   constructor(public nav: NavController, public jobService: JobService) {
-    // get job info from service
-    this.job = jobService.getItem(1);
+
   }
 
   // pick off

@@ -18,8 +18,6 @@ export class PickOffPage {
   public job: any;
 
   constructor(public nav: NavController, public jobService: JobService, public alertCtrl: AlertController) {
-    // get job info from service
-    this.job = jobService.getItem(1);
   }
 
   // show payment popup
