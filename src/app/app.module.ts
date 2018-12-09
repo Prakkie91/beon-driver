@@ -16,7 +16,6 @@ import { HttpClientModule } from '@angular/common/http';
 // import services
 import {DriverService} from '../services/driver-service';
 import {JobService} from '../services/job-service';
-import {ReportService} from '../services/report-service';
 import {TransactionService} from '../services/transaction-service';
 // end import services
 
@@ -109,7 +108,6 @@ export class MyErrorHandler implements ErrorHandler {
     UserService,
     VehicleService,
     JobService,
-    ReportService,
     TransactionService,
     BackgroundGeolocation,
     Geolocation,

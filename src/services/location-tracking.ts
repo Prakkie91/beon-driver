@@ -1,7 +1,6 @@
 import {Injectable, NgZone} from '@angular/core';
 import {BackgroundGeolocation, BackgroundGeolocationResponse} from '@ionic-native/background-geolocation';
 import {Geolocation, Geoposition} from '@ionic-native/geolocation';
-import 'rxjs/add/operator/filter';
 import {Storage} from "@ionic/storage";
 import {Device} from '@ionic-native/device';
 import {Platform} from "ionic-angular";
@@ -15,11 +14,10 @@ export class LocationTrackingService {
   public watch: any;
   public lat: number = 0;
   public lng: number = 0;
-  private uuid: string;
 
   private apiClient: any;
 
-  constructor(private http: HttpClient,
+  constructor(public http: HttpClient,
               public zone: NgZone,
               public backgroundGeolocation: BackgroundGeolocation,
               public geolocation: Geolocation,

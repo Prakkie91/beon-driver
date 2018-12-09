@@ -1,5 +1,4 @@
 import {Injectable} from "@angular/core";
-import {JOBS} from "./mock-jobs";
 import {HttpClient} from "@angular/common/http";
 import {Storage} from "@ionic/storage";
 import {Client} from "./beon-api";
