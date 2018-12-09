@@ -12,13 +12,26 @@
 .loading-img {
   position: fixed;
   z-index: 9999;
-  width: 40vw;
+  width: 30vw;
   overflow: show;
   margin: auto;
   top: 0;
   left: 0;
   bottom: 0;
   right: 0;
+  opacity: 0.5;
+}
+.loading-img-center{
+  position: fixed;
+  z-index: 9999;
+  width: 17vw;
+  overflow: show;
+  margin: auto;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  opacity: 0.9;
 }
 
 .loading {
