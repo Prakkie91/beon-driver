@@ -8,7 +8,6 @@ import {Observable} from "rxjs";
 import {
   Country,
   DriverSignUpRequest,
-  ErrorModel,
   SwaggerException,
   VehicleBrand,
   VehicleCategory

@@ -25,7 +25,10 @@ export class LocationTrackingService {
               private device: Device,
               private platform: Platform) {
     this.apiClient = new Client(http, "http://beonadvertising.com");
-    this.startTracking();
+
+    platform.ready().then(() => {
+      this.startTracking();
+    });
   }
 
   updateUuid(vehicleId: number) {
