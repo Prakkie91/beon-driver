@@ -352,8 +352,11 @@ export class Client {
    * @param data (optional)
    * @return Success
    */
-  driverVehicleTrackingEvent(data: CreateTrackingEventRequest | null | undefined): Observable<DriverVehicleTrackingEvent> {
-    let url_ = this.baseUrl + "/api/DriverVehicleTrackingEvents/DriverVehicleTrackingEvent";
+  driverVehicleTrackingEvent(deviceId: string, data: CreateTrackingEventRequest[] | null | undefined): Observable<DriverVehicleTrackingEvent> {
+    let url_ = this.baseUrl + "/api/DriverVehicleTrackingEvents/DriverVehicleTrackingEvent/{deviceId}";
+    if (deviceId === undefined || deviceId === null)
+      throw new Error("The parameter 'deviceId' must be defined.");
+    url_ = url_.replace("{deviceId}", encodeURIComponent("" + deviceId));
     url_ = url_.replace(/[?&]$/, "");
 
     const content_ = JSON.stringify(data);
@@ -477,7 +480,7 @@ export class Client {
    * @param id (optional)
    * @return Success
    */
-  getJobOffers(id: string | null | undefined): Observable<JobOffer[]> {
+  getJobOffers(id: string | null | undefined): Observable<JobOffersResponse> {
     let url_ = this.baseUrl + "/api/JobOffers/GetJobOffers?";
     if (id !== undefined)
       url_ += "Id=" + encodeURIComponent("" + id) + "&";
@@ -498,14 +501,14 @@ export class Client {
         try {
           return this.processGetJobOffers(<any>response_);
         } catch (e) {
-          return <Observable<JobOffer[]>><any>Observable.throw(e);
+          return <Observable<JobOffersResponse>><any>Observable.throw(e);
         }
       } else
-        return <Observable<JobOffer[]>><any>Observable.throw(response_);
+        return <Observable<JobOffersResponse>><any>Observable.throw(response_);
     });
   }
 
-  protected processGetJobOffers(response: HttpResponseBase): Observable<JobOffer[]> {
+  protected processGetJobOffers(response: HttpResponseBase): Observable<JobOffersResponse> {
     const status = response.status;
     const responseBlob =
       response instanceof HttpResponse ? response.body :
@@ -516,11 +519,7 @@ export class Client {
       return blobToText(responseBlob).flatMap(_responseText => {
         let result200: any = null;
         let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        if (resultData200 && resultData200.constructor === Array) {
-          result200 = [];
-          for (let item of resultData200)
-            result200.push(JobOffer.fromJS(item));
-        }
+        result200 = resultData200 ? JobOffersResponse.fromJS(resultData200) : new JobOffersResponse();
         return Observable.of(result200);
       });
     } else if (status === 500) {
@@ -535,7 +534,129 @@ export class Client {
         return throwException("An unexpected server error occurred.", status, _responseText, _headers);
       });
     }
-    return Observable.of<JobOffer[]>(<any>null);
+    return Observable.of<JobOffersResponse>(<any>null);
+  }
+
+  /**
+   * @param jobOfferId (optional)
+   * @return Success
+   */
+  acceptJobOffer(jobOfferId: number | null | undefined): Observable<SuccessModel> {
+    let url_ = this.baseUrl + "/api/JobOffers/AcceptJobOffer?";
+    if (jobOfferId !== undefined)
+      url_ += "JobOfferId=" + encodeURIComponent("" + jobOfferId) + "&";
+    url_ = url_.replace(/[?&]$/, "");
+
+    let options_ : any = {
+      observe: "response",
+      responseType: "blob",
+      headers: new HttpHeaders({
+        "Accept": "application/json"
+      })
+    };
+
+    return this.http.request("post", url_, options_).flatMap((response_ : any) => {
+      return this.processAcceptJobOffer(response_);
+    }).catch((response_: any) => {
+      if (response_ instanceof HttpResponseBase) {
+        try {
+          return this.processAcceptJobOffer(<any>response_);
+        } catch (e) {
+          return <Observable<SuccessModel>><any>Observable.throw(e);
+        }
+      } else
+        return <Observable<SuccessModel>><any>Observable.throw(response_);
+    });
+  }
+
+  protected processAcceptJobOffer(response: HttpResponseBase): Observable<SuccessModel> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse ? response.body :
+        (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
+    if (status === 200) {
+      return blobToText(responseBlob).flatMap(_responseText => {
+        let result200: any = null;
+        let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+        result200 = resultData200 ? SuccessModel.fromJS(resultData200) : new SuccessModel();
+        return Observable.of(result200);
+      });
+    } else if (status === 500) {
+      return blobToText(responseBlob).flatMap(_responseText => {
+        let result500: any = null;
+        let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+        result500 = resultData500 ? ErrorModel.fromJS(resultData500) : new ErrorModel();
+        return throwException("A server error occurred.", status, _responseText, _headers, result500);
+      });
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).flatMap(_responseText => {
+        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+      });
+    }
+    return Observable.of<SuccessModel>(<any>null);
+  }
+
+  /**
+   * @param jobOfferId (optional)
+   * @return Success
+   */
+  rejectJobOffer(jobOfferId: number | null | undefined): Observable<SuccessModel> {
+    let url_ = this.baseUrl + "/api/JobOffers/RejectJobOffer?";
+    if (jobOfferId !== undefined)
+      url_ += "JobOfferId=" + encodeURIComponent("" + jobOfferId) + "&";
+    url_ = url_.replace(/[?&]$/, "");
+
+    let options_ : any = {
+      observe: "response",
+      responseType: "blob",
+      headers: new HttpHeaders({
+        "Accept": "application/json"
+      })
+    };
+
+    return this.http.request("post", url_, options_).flatMap((response_ : any) => {
+      return this.processRejectJobOffer(response_);
+    }).catch((response_: any) => {
+      if (response_ instanceof HttpResponseBase) {
+        try {
+          return this.processRejectJobOffer(<any>response_);
+        } catch (e) {
+          return <Observable<SuccessModel>><any>Observable.throw(e);
+        }
+      } else
+        return <Observable<SuccessModel>><any>Observable.throw(response_);
+    });
+  }
+
+  protected processRejectJobOffer(response: HttpResponseBase): Observable<SuccessModel> {
+    const status = response.status;
+    const responseBlob =
+      response instanceof HttpResponse ? response.body :
+        (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
+    if (status === 200) {
+      return blobToText(responseBlob).flatMap(_responseText => {
+        let result200: any = null;
+        let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+        result200 = resultData200 ? SuccessModel.fromJS(resultData200) : new SuccessModel();
+        return Observable.of(result200);
+      });
+    } else if (status === 500) {
+      return blobToText(responseBlob).flatMap(_responseText => {
+        let result500: any = null;
+        let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+        result500 = resultData500 ? ErrorModel.fromJS(resultData500) : new ErrorModel();
+        return throwException("A server error occurred.", status, _responseText, _headers, result500);
+      });
+    } else if (status !== 200 && status !== 204) {
+      return blobToText(responseBlob).flatMap(_responseText => {
+        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+      });
+    }
+    return Observable.of<SuccessModel>(<any>null);
   }
 
   /**
@@ -779,7 +900,7 @@ export class Client {
    * @param userName (optional)
    * @return Success
    */
-  withdraw(userName: string | null | undefined): Observable<WalletEntry> {
+  withdraw(userName: string | null | undefined): Observable<SuccessModel> {
     let url_ = this.baseUrl + "/api/Wallet/Withdraw?";
     if (userName !== undefined)
       url_ += "UserName=" + encodeURIComponent("" + userName) + "&";
@@ -800,14 +921,14 @@ export class Client {
         try {
           return this.processWithdraw(<any>response_);
         } catch (e) {
-          return <Observable<WalletEntry>><any>Observable.throw(e);
+          return <Observable<SuccessModel>><any>Observable.throw(e);
         }
       } else
-        return <Observable<WalletEntry>><any>Observable.throw(response_);
+        return <Observable<SuccessModel>><any>Observable.throw(response_);
     });
   }
 
-  protected processWithdraw(response: HttpResponseBase): Observable<WalletEntry> {
+  protected processWithdraw(response: HttpResponseBase): Observable<SuccessModel> {
     const status = response.status;
     const responseBlob =
       response instanceof HttpResponse ? response.body :
@@ -818,7 +939,7 @@ export class Client {
       return blobToText(responseBlob).flatMap(_responseText => {
         let result200: any = null;
         let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result200 = resultData200 ? WalletEntry.fromJS(resultData200) : new WalletEntry();
+        result200 = resultData200 ? SuccessModel.fromJS(resultData200) : new SuccessModel();
         return Observable.of(result200);
       });
     } else if (status === 500) {
@@ -833,14 +954,14 @@ export class Client {
         return throwException("An unexpected server error occurred.", status, _responseText, _headers);
       });
     }
-    return Observable.of<WalletEntry>(<any>null);
+    return Observable.of<SuccessModel>(<any>null);
   }
 
   /**
    * @param userName (optional)
    * @return Success
    */
-  getWallet(userName: string | null | undefined): Observable<WalletEntry[]> {
+  getWallet(userName: string | null | undefined): Observable<WalletResponse> {
     let url_ = this.baseUrl + "/api/Wallet/GetWalletEntries?";
     if (userName !== undefined)
       url_ += "UserName=" + encodeURIComponent("" + userName) + "&";
@@ -861,14 +982,14 @@ export class Client {
         try {
           return this.processGetWallet(<any>response_);
         } catch (e) {
-          return <Observable<WalletEntry[]>><any>Observable.throw(e);
+          return <Observable<WalletResponse>><any>Observable.throw(e);
         }
       } else
-        return <Observable<WalletEntry[]>><any>Observable.throw(response_);
+        return <Observable<WalletResponse>><any>Observable.throw(response_);
     });
   }
 
-  protected processGetWallet(response: HttpResponseBase): Observable<WalletEntry[]> {
+  protected processGetWallet(response: HttpResponseBase): Observable<WalletResponse> {
     const status = response.status;
     const responseBlob =
       response instanceof HttpResponse ? response.body :
@@ -879,11 +1000,7 @@ export class Client {
       return blobToText(responseBlob).flatMap(_responseText => {
         let result200: any = null;
         let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        if (resultData200 && resultData200.constructor === Array) {
-          result200 = [];
-          for (let item of resultData200)
-            result200.push(WalletEntry.fromJS(item));
-        }
+        result200 = resultData200 ? WalletResponse.fromJS(resultData200) : new WalletResponse();
         return Observable.of(result200);
       });
     } else if (status === 500) {
@@ -898,7 +1015,7 @@ export class Client {
         return throwException("An unexpected server error occurred.", status, _responseText, _headers);
       });
     }
-    return Observable.of<WalletEntry[]>(<any>null);
+    return Observable.of<WalletResponse>(<any>null);
   }
 }
 
@@ -1745,11 +1862,9 @@ export interface IDriverVehicle {
 export class DriverVehiclePlacementArea implements IDriverVehiclePlacementArea {
   id?: number | undefined;
   driverVehicleId?: number | undefined;
-  driverVehicle?: DriverVehicle | undefined;
   placementAreaId?: number | undefined;
   placementArea?: PlacementArea | undefined;
   status?: DriverVehiclePlacementAreaStatus | undefined;
-  jobOffers?: JobOffer[] | undefined;
 
   constructor(data?: IDriverVehiclePlacementArea) {
     if (data) {
@@ -1764,15 +1879,9 @@ export class DriverVehiclePlacementArea implements IDriverVehiclePlacementArea {
     if (data) {
       this.id = data["id"];
       this.driverVehicleId = data["driverVehicleId"];
-      this.driverVehicle = data["driverVehicle"] ? DriverVehicle.fromJS(data["driverVehicle"]) : <any>undefined;
       this.placementAreaId = data["placementAreaId"];
       this.placementArea = data["placementArea"] ? PlacementArea.fromJS(data["placementArea"]) : <any>undefined;
       this.status = data["status"];
-      if (data["jobOffers"] && data["jobOffers"].constructor === Array) {
-        this.jobOffers = [];
-        for (let item of data["jobOffers"])
-          this.jobOffers.push(JobOffer.fromJS(item));
-      }
     }
   }
 
@@ -1787,15 +1896,9 @@ export class DriverVehiclePlacementArea implements IDriverVehiclePlacementArea {
     data = typeof data === 'object' ? data : {};
     data["id"] = this.id;
     data["driverVehicleId"] = this.driverVehicleId;
-    data["driverVehicle"] = this.driverVehicle ? this.driverVehicle.toJSON() : <any>undefined;
     data["placementAreaId"] = this.placementAreaId;
     data["placementArea"] = this.placementArea ? this.placementArea.toJSON() : <any>undefined;
     data["status"] = this.status;
-    if (this.jobOffers && this.jobOffers.constructor === Array) {
-      data["jobOffers"] = [];
-      for (let item of this.jobOffers)
-        data["jobOffers"].push(item.toJSON());
-    }
     return data;
   }
 }
@@ -1803,11 +1906,9 @@ export class DriverVehiclePlacementArea implements IDriverVehiclePlacementArea {
 export interface IDriverVehiclePlacementArea {
   id?: number | undefined;
   driverVehicleId?: number | undefined;
-  driverVehicle?: DriverVehicle | undefined;
   placementAreaId?: number | undefined;
   placementArea?: PlacementArea | undefined;
   status?: DriverVehiclePlacementAreaStatus | undefined;
-  jobOffers?: JobOffer[] | undefined;
 }
 
 export class DriverVehicleTrackingEvent implements IDriverVehicleTrackingEvent {
@@ -2220,74 +2321,6 @@ export interface IPlacementArea {
   height: number;
   width: number;
   area: number;
-}
-
-export class JobOffer implements IJobOffer {
-  id?: number | undefined;
-  creativeId?: number | undefined;
-  creative?: Creative | undefined;
-  status?: JobOfferStatus | undefined;
-  acceptanceDate?: Date | undefined;
-  startDate?: Date | undefined;
-  endDate?: Date | undefined;
-  driverVehiclePlacementAreaId?: number | undefined;
-  driverVehiclePlacementArea?: DriverVehiclePlacementArea | undefined;
-
-  constructor(data?: IJobOffer) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(data?: any) {
-    if (data) {
-      this.id = data["id"];
-      this.creativeId = data["creativeId"];
-      this.creative = data["creative"] ? Creative.fromJS(data["creative"]) : <any>undefined;
-      this.status = data["status"];
-      this.acceptanceDate = data["acceptanceDate"] ? new Date(data["acceptanceDate"].toString()) : <any>undefined;
-      this.startDate = data["startDate"] ? new Date(data["startDate"].toString()) : <any>undefined;
-      this.endDate = data["endDate"] ? new Date(data["endDate"].toString()) : <any>undefined;
-      this.driverVehiclePlacementAreaId = data["driverVehiclePlacementAreaId"];
-      this.driverVehiclePlacementArea = data["driverVehiclePlacementArea"] ? DriverVehiclePlacementArea.fromJS(data["driverVehiclePlacementArea"]) : <any>undefined;
-    }
-  }
-
-  static fromJS(data: any): JobOffer {
-    data = typeof data === 'object' ? data : {};
-    let result = new JobOffer();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["id"] = this.id;
-    data["creativeId"] = this.creativeId;
-    data["creative"] = this.creative ? this.creative.toJSON() : <any>undefined;
-    data["status"] = this.status;
-    data["acceptanceDate"] = this.acceptanceDate ? this.acceptanceDate.toISOString() : <any>undefined;
-    data["startDate"] = this.startDate ? this.startDate.toISOString() : <any>undefined;
-    data["endDate"] = this.endDate ? this.endDate.toISOString() : <any>undefined;
-    data["driverVehiclePlacementAreaId"] = this.driverVehiclePlacementAreaId;
-    data["driverVehiclePlacementArea"] = this.driverVehiclePlacementArea ? this.driverVehiclePlacementArea.toJSON() : <any>undefined;
-    return data;
-  }
-}
-
-export interface IJobOffer {
-  id?: number | undefined;
-  creativeId?: number | undefined;
-  creative?: Creative | undefined;
-  status?: JobOfferStatus | undefined;
-  acceptanceDate?: Date | undefined;
-  startDate?: Date | undefined;
-  endDate?: Date | undefined;
-  driverVehiclePlacementAreaId?: number | undefined;
-  driverVehiclePlacementArea?: DriverVehiclePlacementArea | undefined;
 }
 
 export class AgeMetric implements IAgeMetric {
@@ -2870,6 +2903,286 @@ export interface IDriverWeekdayMetric {
   fraction?: number | undefined;
 }
 
+export class CreateTrackingEventRequest implements ICreateTrackingEventRequest {
+  provider?: string | undefined;
+  time?: number | undefined;
+  latitude?: number | undefined;
+  longitude?: number | undefined;
+  accuracy?: number | undefined;
+  locationProvider?: number | undefined;
+
+  constructor(data?: ICreateTrackingEventRequest) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property))
+          (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(data?: any) {
+    if (data) {
+      this.provider = data["provider"];
+      this.time = data["time"];
+      this.latitude = data["latitude"];
+      this.longitude = data["longitude"];
+      this.accuracy = data["accuracy"];
+      this.locationProvider = data["locationProvider"];
+    }
+  }
+
+  static fromJS(data: any): CreateTrackingEventRequest {
+    data = typeof data === 'object' ? data : {};
+    let result = new CreateTrackingEventRequest();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data["provider"] = this.provider;
+    data["time"] = this.time;
+    data["latitude"] = this.latitude;
+    data["longitude"] = this.longitude;
+    data["accuracy"] = this.accuracy;
+    data["locationProvider"] = this.locationProvider;
+    return data;
+  }
+}
+
+export interface ICreateTrackingEventRequest {
+  provider?: string | undefined;
+  time?: number | undefined;
+  latitude?: number | undefined;
+  longitude?: number | undefined;
+  accuracy?: number | undefined;
+  locationProvider?: number | undefined;
+}
+
+export class JobOffersResponse implements IJobOffersResponse {
+  status?: string | undefined;
+  jobOffers?: JobOfferEntryResponse[] | undefined;
+
+  constructor(data?: IJobOffersResponse) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property))
+          (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(data?: any) {
+    if (data) {
+      this.status = data["status"];
+      if (data["jobOffers"] && data["jobOffers"].constructor === Array) {
+        this.jobOffers = [];
+        for (let item of data["jobOffers"])
+          this.jobOffers.push(JobOfferEntryResponse.fromJS(item));
+      }
+    }
+  }
+
+  static fromJS(data: any): JobOffersResponse {
+    data = typeof data === 'object' ? data : {};
+    let result = new JobOffersResponse();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data["status"] = this.status;
+    if (this.jobOffers && this.jobOffers.constructor === Array) {
+      data["jobOffers"] = [];
+      for (let item of this.jobOffers)
+        data["jobOffers"].push(item.toJSON());
+    }
+    return data;
+  }
+}
+
+export interface IJobOffersResponse {
+  status?: string | undefined;
+  jobOffers?: JobOfferEntryResponse[] | undefined;
+}
+
+export class JobOfferEntryResponse implements IJobOfferEntryResponse {
+  id?: number | undefined;
+  status?: string | undefined;
+  totalAmount?: number | undefined;
+  campaignLength?: number | undefined;
+  startDate?: Date | undefined;
+  placementArea?: string | undefined;
+  advertiser?: string | undefined;
+  campaignName?: string | undefined;
+
+  constructor(data?: IJobOfferEntryResponse) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property))
+          (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(data?: any) {
+    if (data) {
+      this.id = data["id"];
+      this.status = data["status"];
+      this.totalAmount = data["totalAmount"];
+      this.campaignLength = data["campaignLength"];
+      this.startDate = data["startDate"] ? new Date(data["startDate"].toString()) : <any>undefined;
+      this.placementArea = data["placementArea"];
+      this.advertiser = data["advertiser"];
+      this.campaignName = data["campaignName"];
+    }
+  }
+
+  static fromJS(data: any): JobOfferEntryResponse {
+    data = typeof data === 'object' ? data : {};
+    let result = new JobOfferEntryResponse();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data["id"] = this.id;
+    data["status"] = this.status;
+    data["totalAmount"] = this.totalAmount;
+    data["campaignLength"] = this.campaignLength;
+    data["startDate"] = this.startDate ? this.startDate.toISOString() : <any>undefined;
+    data["placementArea"] = this.placementArea;
+    data["advertiser"] = this.advertiser;
+    data["campaignName"] = this.campaignName;
+    return data;
+  }
+}
+
+export interface IJobOfferEntryResponse {
+  id?: number | undefined;
+  status?: string | undefined;
+  totalAmount?: number | undefined;
+  campaignLength?: number | undefined;
+  startDate?: Date | undefined;
+  placementArea?: string | undefined;
+  advertiser?: string | undefined;
+  campaignName?: string | undefined;
+}
+
+export class SuccessModel implements ISuccessModel {
+  messages?: string[] | undefined;
+
+  constructor(data?: ISuccessModel) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property))
+          (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(data?: any) {
+    if (data) {
+      if (data["messages"] && data["messages"].constructor === Array) {
+        this.messages = [];
+        for (let item of data["messages"])
+          this.messages.push(item);
+      }
+    }
+  }
+
+  static fromJS(data: any): SuccessModel {
+    data = typeof data === 'object' ? data : {};
+    let result = new SuccessModel();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    if (this.messages && this.messages.constructor === Array) {
+      data["messages"] = [];
+      for (let item of this.messages)
+        data["messages"].push(item);
+    }
+    return data;
+  }
+}
+
+export interface ISuccessModel {
+  messages?: string[] | undefined;
+}
+
+export class JobOffer implements IJobOffer {
+  id?: number | undefined;
+  creativeId?: number | undefined;
+  creative?: Creative | undefined;
+  status?: JobOfferStatus | undefined;
+  acceptanceDate?: Date | undefined;
+  startDate?: Date | undefined;
+  endDate?: Date | undefined;
+  driverVehiclePlacementAreaId?: number | undefined;
+  driverVehiclePlacementArea?: DriverVehiclePlacementArea | undefined;
+
+  constructor(data?: IJobOffer) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property))
+          (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(data?: any) {
+    if (data) {
+      this.id = data["id"];
+      this.creativeId = data["creativeId"];
+      this.creative = data["creative"] ? Creative.fromJS(data["creative"]) : <any>undefined;
+      this.status = data["status"];
+      this.acceptanceDate = data["acceptanceDate"] ? new Date(data["acceptanceDate"].toString()) : <any>undefined;
+      this.startDate = data["startDate"] ? new Date(data["startDate"].toString()) : <any>undefined;
+      this.endDate = data["endDate"] ? new Date(data["endDate"].toString()) : <any>undefined;
+      this.driverVehiclePlacementAreaId = data["driverVehiclePlacementAreaId"];
+      this.driverVehiclePlacementArea = data["driverVehiclePlacementArea"] ? DriverVehiclePlacementArea.fromJS(data["driverVehiclePlacementArea"]) : <any>undefined;
+    }
+  }
+
+  static fromJS(data: any): JobOffer {
+    data = typeof data === 'object' ? data : {};
+    let result = new JobOffer();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data["id"] = this.id;
+    data["creativeId"] = this.creativeId;
+    data["creative"] = this.creative ? this.creative.toJSON() : <any>undefined;
+    data["status"] = this.status;
+    data["acceptanceDate"] = this.acceptanceDate ? this.acceptanceDate.toISOString() : <any>undefined;
+    data["startDate"] = this.startDate ? this.startDate.toISOString() : <any>undefined;
+    data["endDate"] = this.endDate ? this.endDate.toISOString() : <any>undefined;
+    data["driverVehiclePlacementAreaId"] = this.driverVehiclePlacementAreaId;
+    data["driverVehiclePlacementArea"] = this.driverVehiclePlacementArea ? this.driverVehiclePlacementArea.toJSON() : <any>undefined;
+    return data;
+  }
+}
+
+export interface IJobOffer {
+  id?: number | undefined;
+  creativeId?: number | undefined;
+  creative?: Creative | undefined;
+  status?: JobOfferStatus | undefined;
+  acceptanceDate?: Date | undefined;
+  startDate?: Date | undefined;
+  endDate?: Date | undefined;
+  driverVehiclePlacementAreaId?: number | undefined;
+  driverVehiclePlacementArea?: DriverVehiclePlacementArea | undefined;
+}
+
 export class Creative implements ICreative {
   id?: number | undefined;
   name: string;
@@ -2880,11 +3193,9 @@ export class Creative implements ICreative {
   vehicleCategoryClass?: VehicleCategoryClass | undefined;
   createDateTime?: Date | undefined;
   startDate?: Date | undefined;
-  jobOffers?: JobOffer[] | undefined;
   status?: string | undefined;
   campaignLength?: number | undefined;
   costPerVehiclePerMonth?: number | undefined;
-  creativeTargetAreas?: CreativeTargetArea[] | undefined;
 
   constructor(data?: ICreative) {
     if (data) {
@@ -2906,19 +3217,9 @@ export class Creative implements ICreative {
       this.vehicleCategoryClass = data["vehicleCategoryClass"] ? VehicleCategoryClass.fromJS(data["vehicleCategoryClass"]) : <any>undefined;
       this.createDateTime = data["createDateTime"] ? new Date(data["createDateTime"].toString()) : <any>undefined;
       this.startDate = data["startDate"] ? new Date(data["startDate"].toString()) : <any>undefined;
-      if (data["jobOffers"] && data["jobOffers"].constructor === Array) {
-        this.jobOffers = [];
-        for (let item of data["jobOffers"])
-          this.jobOffers.push(JobOffer.fromJS(item));
-      }
       this.status = data["status"];
       this.campaignLength = data["campaignLength"];
       this.costPerVehiclePerMonth = data["costPerVehiclePerMonth"];
-      if (data["creativeTargetAreas"] && data["creativeTargetAreas"].constructor === Array) {
-        this.creativeTargetAreas = [];
-        for (let item of data["creativeTargetAreas"])
-          this.creativeTargetAreas.push(CreativeTargetArea.fromJS(item));
-      }
     }
   }
 
@@ -2940,19 +3241,9 @@ export class Creative implements ICreative {
     data["vehicleCategoryClass"] = this.vehicleCategoryClass ? this.vehicleCategoryClass.toJSON() : <any>undefined;
     data["createDateTime"] = this.createDateTime ? this.createDateTime.toISOString() : <any>undefined;
     data["startDate"] = this.startDate ? this.startDate.toISOString() : <any>undefined;
-    if (this.jobOffers && this.jobOffers.constructor === Array) {
-      data["jobOffers"] = [];
-      for (let item of this.jobOffers)
-        data["jobOffers"].push(item.toJSON());
-    }
     data["status"] = this.status;
     data["campaignLength"] = this.campaignLength;
     data["costPerVehiclePerMonth"] = this.costPerVehiclePerMonth;
-    if (this.creativeTargetAreas && this.creativeTargetAreas.constructor === Array) {
-      data["creativeTargetAreas"] = [];
-      for (let item of this.creativeTargetAreas)
-        data["creativeTargetAreas"].push(item.toJSON());
-    }
     return data;
   }
 }
@@ -2967,11 +3258,9 @@ export interface ICreative {
   vehicleCategoryClass?: VehicleCategoryClass | undefined;
   createDateTime?: Date | undefined;
   startDate?: Date | undefined;
-  jobOffers?: JobOffer[] | undefined;
   status?: string | undefined;
   campaignLength?: number | undefined;
   costPerVehiclePerMonth?: number | undefined;
-  creativeTargetAreas?: CreativeTargetArea[] | undefined;
 }
 
 export class Campaign implements ICampaign {
@@ -2979,7 +3268,6 @@ export class Campaign implements ICampaign {
   name: string;
   accountId?: number | undefined;
   account?: Account | undefined;
-  creatives?: Creative[] | undefined;
 
   constructor(data?: ICampaign) {
     if (data) {
@@ -2996,11 +3284,6 @@ export class Campaign implements ICampaign {
       this.name = data["name"];
       this.accountId = data["accountId"];
       this.account = data["account"] ? Account.fromJS(data["account"]) : <any>undefined;
-      if (data["creatives"] && data["creatives"].constructor === Array) {
-        this.creatives = [];
-        for (let item of data["creatives"])
-          this.creatives.push(Creative.fromJS(item));
-      }
     }
   }
 
@@ -3017,11 +3300,6 @@ export class Campaign implements ICampaign {
     data["name"] = this.name;
     data["accountId"] = this.accountId;
     data["account"] = this.account ? this.account.toJSON() : <any>undefined;
-    if (this.creatives && this.creatives.constructor === Array) {
-      data["creatives"] = [];
-      for (let item of this.creatives)
-        data["creatives"].push(item.toJSON());
-    }
     return data;
   }
 }
@@ -3031,65 +3309,11 @@ export interface ICampaign {
   name: string;
   accountId?: number | undefined;
   account?: Account | undefined;
-  creatives?: Creative[] | undefined;
-}
-
-export class CreativeTargetArea implements ICreativeTargetArea {
-  id?: number | undefined;
-  creativeId?: number | undefined;
-  creative?: Creative | undefined;
-  hkDistrictsId?: number | undefined;
-  hkDistricts?: HKDistricts | undefined;
-
-  constructor(data?: ICreativeTargetArea) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(data?: any) {
-    if (data) {
-      this.id = data["id"];
-      this.creativeId = data["creativeId"];
-      this.creative = data["creative"] ? Creative.fromJS(data["creative"]) : <any>undefined;
-      this.hkDistrictsId = data["hkDistrictsId"];
-      this.hkDistricts = data["hkDistricts"] ? HKDistricts.fromJS(data["hkDistricts"]) : <any>undefined;
-    }
-  }
-
-  static fromJS(data: any): CreativeTargetArea {
-    data = typeof data === 'object' ? data : {};
-    let result = new CreativeTargetArea();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["id"] = this.id;
-    data["creativeId"] = this.creativeId;
-    data["creative"] = this.creative ? this.creative.toJSON() : <any>undefined;
-    data["hkDistrictsId"] = this.hkDistrictsId;
-    data["hkDistricts"] = this.hkDistricts ? this.hkDistricts.toJSON() : <any>undefined;
-    return data;
-  }
-}
-
-export interface ICreativeTargetArea {
-  id?: number | undefined;
-  creativeId?: number | undefined;
-  creative?: Creative | undefined;
-  hkDistrictsId?: number | undefined;
-  hkDistricts?: HKDistricts | undefined;
 }
 
 export class Account implements IAccount {
   id?: number | undefined;
   companyName: string;
-  users?: UserAccount[] | undefined;
 
   constructor(data?: IAccount) {
     if (data) {
@@ -3104,11 +3328,6 @@ export class Account implements IAccount {
     if (data) {
       this.id = data["id"];
       this.companyName = data["companyName"];
-      if (data["users"] && data["users"].constructor === Array) {
-        this.users = [];
-        for (let item of data["users"])
-          this.users.push(UserAccount.fromJS(item));
-      }
     }
   }
 
@@ -3123,11 +3342,6 @@ export class Account implements IAccount {
     data = typeof data === 'object' ? data : {};
     data["id"] = this.id;
     data["companyName"] = this.companyName;
-    if (this.users && this.users.constructor === Array) {
-      data["users"] = [];
-      for (let item of this.users)
-        data["users"].push(item.toJSON());
-    }
     return data;
   }
 }
@@ -3135,727 +3349,6 @@ export class Account implements IAccount {
 export interface IAccount {
   id?: number | undefined;
   companyName: string;
-  users?: UserAccount[] | undefined;
-}
-
-export class HKDistricts implements IHKDistricts {
-  id?: number | undefined;
-  name?: string | undefined;
-  populationDensity?: number | undefined;
-  ageMetrics?: DistrictAgeMetric[] | undefined;
-  ethnicityMetrics?: DistrictEthnicityMetric[] | undefined;
-  incomeMetrics?: DistrictIncomeMetric[] | undefined;
-  genderMetrics?: DistrictGenderMetric[] | undefined;
-
-  constructor(data?: IHKDistricts) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(data?: any) {
-    if (data) {
-      this.id = data["id"];
-      this.name = data["name"];
-      this.populationDensity = data["populationDensity"];
-      if (data["ageMetrics"] && data["ageMetrics"].constructor === Array) {
-        this.ageMetrics = [];
-        for (let item of data["ageMetrics"])
-          this.ageMetrics.push(DistrictAgeMetric.fromJS(item));
-      }
-      if (data["ethnicityMetrics"] && data["ethnicityMetrics"].constructor === Array) {
-        this.ethnicityMetrics = [];
-        for (let item of data["ethnicityMetrics"])
-          this.ethnicityMetrics.push(DistrictEthnicityMetric.fromJS(item));
-      }
-      if (data["incomeMetrics"] && data["incomeMetrics"].constructor === Array) {
-        this.incomeMetrics = [];
-        for (let item of data["incomeMetrics"])
-          this.incomeMetrics.push(DistrictIncomeMetric.fromJS(item));
-      }
-      if (data["genderMetrics"] && data["genderMetrics"].constructor === Array) {
-        this.genderMetrics = [];
-        for (let item of data["genderMetrics"])
-          this.genderMetrics.push(DistrictGenderMetric.fromJS(item));
-      }
-    }
-  }
-
-  static fromJS(data: any): HKDistricts {
-    data = typeof data === 'object' ? data : {};
-    let result = new HKDistricts();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["id"] = this.id;
-    data["name"] = this.name;
-    data["populationDensity"] = this.populationDensity;
-    if (this.ageMetrics && this.ageMetrics.constructor === Array) {
-      data["ageMetrics"] = [];
-      for (let item of this.ageMetrics)
-        data["ageMetrics"].push(item.toJSON());
-    }
-    if (this.ethnicityMetrics && this.ethnicityMetrics.constructor === Array) {
-      data["ethnicityMetrics"] = [];
-      for (let item of this.ethnicityMetrics)
-        data["ethnicityMetrics"].push(item.toJSON());
-    }
-    if (this.incomeMetrics && this.incomeMetrics.constructor === Array) {
-      data["incomeMetrics"] = [];
-      for (let item of this.incomeMetrics)
-        data["incomeMetrics"].push(item.toJSON());
-    }
-    if (this.genderMetrics && this.genderMetrics.constructor === Array) {
-      data["genderMetrics"] = [];
-      for (let item of this.genderMetrics)
-        data["genderMetrics"].push(item.toJSON());
-    }
-    return data;
-  }
-}
-
-export interface IHKDistricts {
-  id?: number | undefined;
-  name?: string | undefined;
-  populationDensity?: number | undefined;
-  ageMetrics?: DistrictAgeMetric[] | undefined;
-  ethnicityMetrics?: DistrictEthnicityMetric[] | undefined;
-  incomeMetrics?: DistrictIncomeMetric[] | undefined;
-  genderMetrics?: DistrictGenderMetric[] | undefined;
-}
-
-export class UserAccount implements IUserAccount {
-  id?: number | undefined;
-  applicationUserId?: string | undefined;
-  applicationUser?: ApplicationUser | undefined;
-  accountId?: number | undefined;
-  account?: Account | undefined;
-
-  constructor(data?: IUserAccount) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(data?: any) {
-    if (data) {
-      this.id = data["id"];
-      this.applicationUserId = data["applicationUserId"];
-      this.applicationUser = data["applicationUser"] ? ApplicationUser.fromJS(data["applicationUser"]) : <any>undefined;
-      this.accountId = data["accountId"];
-      this.account = data["account"] ? Account.fromJS(data["account"]) : <any>undefined;
-    }
-  }
-
-  static fromJS(data: any): UserAccount {
-    data = typeof data === 'object' ? data : {};
-    let result = new UserAccount();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["id"] = this.id;
-    data["applicationUserId"] = this.applicationUserId;
-    data["applicationUser"] = this.applicationUser ? this.applicationUser.toJSON() : <any>undefined;
-    data["accountId"] = this.accountId;
-    data["account"] = this.account ? this.account.toJSON() : <any>undefined;
-    return data;
-  }
-}
-
-export interface IUserAccount {
-  id?: number | undefined;
-  applicationUserId?: string | undefined;
-  applicationUser?: ApplicationUser | undefined;
-  accountId?: number | undefined;
-  account?: Account | undefined;
-}
-
-export class DistrictAgeMetric implements IDistrictAgeMetric {
-  hkDistrictsId?: number | undefined;
-  hkDistricts?: HKDistricts | undefined;
-  id?: number | undefined;
-  lower?: number | undefined;
-  upper?: number | undefined;
-  fraction?: number | undefined;
-
-  constructor(data?: IDistrictAgeMetric) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(data?: any) {
-    if (data) {
-      this.hkDistrictsId = data["hkDistrictsId"];
-      this.hkDistricts = data["hkDistricts"] ? HKDistricts.fromJS(data["hkDistricts"]) : <any>undefined;
-      this.id = data["id"];
-      this.lower = data["lower"];
-      this.upper = data["upper"];
-      this.fraction = data["fraction"];
-    }
-  }
-
-  static fromJS(data: any): DistrictAgeMetric {
-    data = typeof data === 'object' ? data : {};
-    let result = new DistrictAgeMetric();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["hkDistrictsId"] = this.hkDistrictsId;
-    data["hkDistricts"] = this.hkDistricts ? this.hkDistricts.toJSON() : <any>undefined;
-    data["id"] = this.id;
-    data["lower"] = this.lower;
-    data["upper"] = this.upper;
-    data["fraction"] = this.fraction;
-    return data;
-  }
-}
-
-export interface IDistrictAgeMetric {
-  hkDistrictsId?: number | undefined;
-  hkDistricts?: HKDistricts | undefined;
-  id?: number | undefined;
-  lower?: number | undefined;
-  upper?: number | undefined;
-  fraction?: number | undefined;
-}
-
-export class DistrictEthnicityMetric implements IDistrictEthnicityMetric {
-  hkDistrictsId?: number | undefined;
-  hkDistricts?: HKDistricts | undefined;
-  id?: number | undefined;
-  label?: string | undefined;
-  fraction?: number | undefined;
-
-  constructor(data?: IDistrictEthnicityMetric) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(data?: any) {
-    if (data) {
-      this.hkDistrictsId = data["hkDistrictsId"];
-      this.hkDistricts = data["hkDistricts"] ? HKDistricts.fromJS(data["hkDistricts"]) : <any>undefined;
-      this.id = data["id"];
-      this.label = data["label"];
-      this.fraction = data["fraction"];
-    }
-  }
-
-  static fromJS(data: any): DistrictEthnicityMetric {
-    data = typeof data === 'object' ? data : {};
-    let result = new DistrictEthnicityMetric();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["hkDistrictsId"] = this.hkDistrictsId;
-    data["hkDistricts"] = this.hkDistricts ? this.hkDistricts.toJSON() : <any>undefined;
-    data["id"] = this.id;
-    data["label"] = this.label;
-    data["fraction"] = this.fraction;
-    return data;
-  }
-}
-
-export interface IDistrictEthnicityMetric {
-  hkDistrictsId?: number | undefined;
-  hkDistricts?: HKDistricts | undefined;
-  id?: number | undefined;
-  label?: string | undefined;
-  fraction?: number | undefined;
-}
-
-export class DistrictIncomeMetric implements IDistrictIncomeMetric {
-  hkDistrictsId?: number | undefined;
-  hkDistricts?: HKDistricts | undefined;
-  id?: number | undefined;
-  lower?: number | undefined;
-  upper?: number | undefined;
-  fraction?: number | undefined;
-
-  constructor(data?: IDistrictIncomeMetric) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(data?: any) {
-    if (data) {
-      this.hkDistrictsId = data["hkDistrictsId"];
-      this.hkDistricts = data["hkDistricts"] ? HKDistricts.fromJS(data["hkDistricts"]) : <any>undefined;
-      this.id = data["id"];
-      this.lower = data["lower"];
-      this.upper = data["upper"];
-      this.fraction = data["fraction"];
-    }
-  }
-
-  static fromJS(data: any): DistrictIncomeMetric {
-    data = typeof data === 'object' ? data : {};
-    let result = new DistrictIncomeMetric();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["hkDistrictsId"] = this.hkDistrictsId;
-    data["hkDistricts"] = this.hkDistricts ? this.hkDistricts.toJSON() : <any>undefined;
-    data["id"] = this.id;
-    data["lower"] = this.lower;
-    data["upper"] = this.upper;
-    data["fraction"] = this.fraction;
-    return data;
-  }
-}
-
-export interface IDistrictIncomeMetric {
-  hkDistrictsId?: number | undefined;
-  hkDistricts?: HKDistricts | undefined;
-  id?: number | undefined;
-  lower?: number | undefined;
-  upper?: number | undefined;
-  fraction?: number | undefined;
-}
-
-export class DistrictGenderMetric implements IDistrictGenderMetric {
-  hkDistrictsId?: number | undefined;
-  hkDistricts?: HKDistricts | undefined;
-  id?: number | undefined;
-  label?: string | undefined;
-  fraction?: number | undefined;
-
-  constructor(data?: IDistrictGenderMetric) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(data?: any) {
-    if (data) {
-      this.hkDistrictsId = data["hkDistrictsId"];
-      this.hkDistricts = data["hkDistricts"] ? HKDistricts.fromJS(data["hkDistricts"]) : <any>undefined;
-      this.id = data["id"];
-      this.label = data["label"];
-      this.fraction = data["fraction"];
-    }
-  }
-
-  static fromJS(data: any): DistrictGenderMetric {
-    data = typeof data === 'object' ? data : {};
-    let result = new DistrictGenderMetric();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["hkDistrictsId"] = this.hkDistrictsId;
-    data["hkDistricts"] = this.hkDistricts ? this.hkDistricts.toJSON() : <any>undefined;
-    data["id"] = this.id;
-    data["label"] = this.label;
-    data["fraction"] = this.fraction;
-    return data;
-  }
-}
-
-export interface IDistrictGenderMetric {
-  hkDistrictsId?: number | undefined;
-  hkDistricts?: HKDistricts | undefined;
-  id?: number | undefined;
-  label?: string | undefined;
-  fraction?: number | undefined;
-}
-
-export class ApplicationUser implements IApplicationUser {
-  fullName?: string | undefined;
-  userType?: ApplicationUserUserType | undefined;
-  userAddressId?: number | undefined;
-  userAddress?: UserAddress | undefined;
-  driver?: Driver | undefined;
-  id?: string | undefined;
-  userName?: string | undefined;
-  normalizedUserName?: string | undefined;
-  email?: string | undefined;
-  normalizedEmail?: string | undefined;
-  emailConfirmed?: boolean | undefined;
-  passwordHash?: string | undefined;
-  securityStamp?: string | undefined;
-  concurrencyStamp?: string | undefined;
-  phoneNumber?: string | undefined;
-  phoneNumberConfirmed?: boolean | undefined;
-  twoFactorEnabled?: boolean | undefined;
-  lockoutEnd?: Date | undefined;
-  lockoutEnabled?: boolean | undefined;
-  accessFailedCount?: number | undefined;
-
-  constructor(data?: IApplicationUser) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(data?: any) {
-    if (data) {
-      this.fullName = data["fullName"];
-      this.userType = data["userType"];
-      this.userAddressId = data["userAddressId"];
-      this.userAddress = data["userAddress"] ? UserAddress.fromJS(data["userAddress"]) : <any>undefined;
-      this.driver = data["driver"] ? Driver.fromJS(data["driver"]) : <any>undefined;
-      this.id = data["id"];
-      this.userName = data["userName"];
-      this.normalizedUserName = data["normalizedUserName"];
-      this.email = data["email"];
-      this.normalizedEmail = data["normalizedEmail"];
-      this.emailConfirmed = data["emailConfirmed"];
-      this.passwordHash = data["passwordHash"];
-      this.securityStamp = data["securityStamp"];
-      this.concurrencyStamp = data["concurrencyStamp"];
-      this.phoneNumber = data["phoneNumber"];
-      this.phoneNumberConfirmed = data["phoneNumberConfirmed"];
-      this.twoFactorEnabled = data["twoFactorEnabled"];
-      this.lockoutEnd = data["lockoutEnd"] ? new Date(data["lockoutEnd"].toString()) : <any>undefined;
-      this.lockoutEnabled = data["lockoutEnabled"];
-      this.accessFailedCount = data["accessFailedCount"];
-    }
-  }
-
-  static fromJS(data: any): ApplicationUser {
-    data = typeof data === 'object' ? data : {};
-    let result = new ApplicationUser();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["fullName"] = this.fullName;
-    data["userType"] = this.userType;
-    data["userAddressId"] = this.userAddressId;
-    data["userAddress"] = this.userAddress ? this.userAddress.toJSON() : <any>undefined;
-    data["driver"] = this.driver ? this.driver.toJSON() : <any>undefined;
-    data["id"] = this.id;
-    data["userName"] = this.userName;
-    data["normalizedUserName"] = this.normalizedUserName;
-    data["email"] = this.email;
-    data["normalizedEmail"] = this.normalizedEmail;
-    data["emailConfirmed"] = this.emailConfirmed;
-    data["passwordHash"] = this.passwordHash;
-    data["securityStamp"] = this.securityStamp;
-    data["concurrencyStamp"] = this.concurrencyStamp;
-    data["phoneNumber"] = this.phoneNumber;
-    data["phoneNumberConfirmed"] = this.phoneNumberConfirmed;
-    data["twoFactorEnabled"] = this.twoFactorEnabled;
-    data["lockoutEnd"] = this.lockoutEnd ? this.lockoutEnd.toISOString() : <any>undefined;
-    data["lockoutEnabled"] = this.lockoutEnabled;
-    data["accessFailedCount"] = this.accessFailedCount;
-    return data;
-  }
-}
-
-export interface IApplicationUser {
-  fullName?: string | undefined;
-  userType?: ApplicationUserUserType | undefined;
-  userAddressId?: number | undefined;
-  userAddress?: UserAddress | undefined;
-  driver?: Driver | undefined;
-  id?: string | undefined;
-  userName?: string | undefined;
-  normalizedUserName?: string | undefined;
-  email?: string | undefined;
-  normalizedEmail?: string | undefined;
-  emailConfirmed?: boolean | undefined;
-  passwordHash?: string | undefined;
-  securityStamp?: string | undefined;
-  concurrencyStamp?: string | undefined;
-  phoneNumber?: string | undefined;
-  phoneNumberConfirmed?: boolean | undefined;
-  twoFactorEnabled?: boolean | undefined;
-  lockoutEnd?: Date | undefined;
-  lockoutEnabled?: boolean | undefined;
-  accessFailedCount?: number | undefined;
-}
-
-export class UserAddress implements IUserAddress {
-  id?: number | undefined;
-  applicationUserId?: string | undefined;
-  address: string;
-  state: string;
-  countryId: number;
-  country?: Country | undefined;
-  zipCode: string;
-  phoneNumber: string;
-
-  constructor(data?: IUserAddress) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(data?: any) {
-    if (data) {
-      this.id = data["id"];
-      this.applicationUserId = data["applicationUserId"];
-      this.address = data["address"];
-      this.state = data["state"];
-      this.countryId = data["countryId"];
-      this.country = data["country"] ? Country.fromJS(data["country"]) : <any>undefined;
-      this.zipCode = data["zipCode"];
-      this.phoneNumber = data["phoneNumber"];
-    }
-  }
-
-  static fromJS(data: any): UserAddress {
-    data = typeof data === 'object' ? data : {};
-    let result = new UserAddress();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["id"] = this.id;
-    data["applicationUserId"] = this.applicationUserId;
-    data["address"] = this.address;
-    data["state"] = this.state;
-    data["countryId"] = this.countryId;
-    data["country"] = this.country ? this.country.toJSON() : <any>undefined;
-    data["zipCode"] = this.zipCode;
-    data["phoneNumber"] = this.phoneNumber;
-    return data;
-  }
-}
-
-export interface IUserAddress {
-  id?: number | undefined;
-  applicationUserId?: string | undefined;
-  address: string;
-  state: string;
-  countryId: number;
-  country?: Country | undefined;
-  zipCode: string;
-  phoneNumber: string;
-}
-
-export class Driver implements IDriver {
-  id?: string | undefined;
-  identityNumber: string;
-  identityDocumentType: DriverIdentityDocumentType;
-  identityDocument: string;
-  status?: DriverStatus | undefined;
-  vehicles?: DriverVehicle[] | undefined;
-  walletEntries?: WalletEntry[] | undefined;
-
-  constructor(data?: IDriver) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(data?: any) {
-    if (data) {
-      this.id = data["id"];
-      this.identityNumber = data["identityNumber"];
-      this.identityDocumentType = data["identityDocumentType"];
-      this.identityDocument = data["identityDocument"];
-      this.status = data["status"];
-      if (data["vehicles"] && data["vehicles"].constructor === Array) {
-        this.vehicles = [];
-        for (let item of data["vehicles"])
-          this.vehicles.push(DriverVehicle.fromJS(item));
-      }
-      if (data["walletEntries"] && data["walletEntries"].constructor === Array) {
-        this.walletEntries = [];
-        for (let item of data["walletEntries"])
-          this.walletEntries.push(WalletEntry.fromJS(item));
-      }
-    }
-  }
-
-  static fromJS(data: any): Driver {
-    data = typeof data === 'object' ? data : {};
-    let result = new Driver();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["id"] = this.id;
-    data["identityNumber"] = this.identityNumber;
-    data["identityDocumentType"] = this.identityDocumentType;
-    data["identityDocument"] = this.identityDocument;
-    data["status"] = this.status;
-    if (this.vehicles && this.vehicles.constructor === Array) {
-      data["vehicles"] = [];
-      for (let item of this.vehicles)
-        data["vehicles"].push(item.toJSON());
-    }
-    if (this.walletEntries && this.walletEntries.constructor === Array) {
-      data["walletEntries"] = [];
-      for (let item of this.walletEntries)
-        data["walletEntries"].push(item.toJSON());
-    }
-    return data;
-  }
-}
-
-export interface IDriver {
-  id?: string | undefined;
-  identityNumber: string;
-  identityDocumentType: DriverIdentityDocumentType;
-  identityDocument: string;
-  status?: DriverStatus | undefined;
-  vehicles?: DriverVehicle[] | undefined;
-  walletEntries?: WalletEntry[] | undefined;
-}
-
-export class WalletEntry implements IWalletEntry {
-  id?: number | undefined;
-  driverId?: string | undefined;
-  driver?: Driver | undefined;
-  status?: WalletEntryStatus | undefined;
-  createDateTime?: Date | undefined;
-  amount?: number | undefined;
-  currency?: WalletEntryCurrency | undefined;
-
-  constructor(data?: IWalletEntry) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(data?: any) {
-    if (data) {
-      this.id = data["id"];
-      this.driverId = data["driverId"];
-      this.driver = data["driver"] ? Driver.fromJS(data["driver"]) : <any>undefined;
-      this.status = data["status"];
-      this.createDateTime = data["createDateTime"] ? new Date(data["createDateTime"].toString()) : <any>undefined;
-      this.amount = data["amount"];
-      this.currency = data["currency"];
-    }
-  }
-
-  static fromJS(data: any): WalletEntry {
-    data = typeof data === 'object' ? data : {};
-    let result = new WalletEntry();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["id"] = this.id;
-    data["driverId"] = this.driverId;
-    data["driver"] = this.driver ? this.driver.toJSON() : <any>undefined;
-    data["status"] = this.status;
-    data["createDateTime"] = this.createDateTime ? this.createDateTime.toISOString() : <any>undefined;
-    data["amount"] = this.amount;
-    data["currency"] = this.currency;
-    return data;
-  }
-}
-
-export interface IWalletEntry {
-  id?: number | undefined;
-  driverId?: string | undefined;
-  driver?: Driver | undefined;
-  status?: WalletEntryStatus | undefined;
-  createDateTime?: Date | undefined;
-  amount?: number | undefined;
-  currency?: WalletEntryCurrency | undefined;
-}
-
-export class CreateTrackingEventRequest implements ICreateTrackingEventRequest {
-  deviceId?: string | undefined;
-  altitude?: number | undefined;
-  longitude?: number | undefined;
-  latitude?: number | undefined;
-
-  constructor(data?: ICreateTrackingEventRequest) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(data?: any) {
-    if (data) {
-      this.deviceId = data["deviceId"];
-      this.altitude = data["altitude"];
-      this.longitude = data["longitude"];
-      this.latitude = data["latitude"];
-    }
-  }
-
-  static fromJS(data: any): CreateTrackingEventRequest {
-    data = typeof data === 'object' ? data : {};
-    let result = new CreateTrackingEventRequest();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["deviceId"] = this.deviceId;
-    data["altitude"] = this.altitude;
-    data["longitude"] = this.longitude;
-    data["latitude"] = this.latitude;
-    return data;
-  }
-}
-
-export interface ICreateTrackingEventRequest {
-  deviceId?: string | undefined;
-  altitude?: number | undefined;
-  longitude?: number | undefined;
-  latitude?: number | undefined;
 }
 
 export class PricingRequest implements IPricingRequest {
@@ -3966,6 +3459,114 @@ export interface IVehicleCategory {
   vehicleClasses?: VehicleCategoryClass[] | undefined;
 }
 
+export class WalletResponse implements IWalletResponse {
+  canWithdraw?: boolean | undefined;
+  amountAvailible?: number | undefined;
+  walletEntries?: WalletEntryResponse[] | undefined;
+
+  constructor(data?: IWalletResponse) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property))
+          (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(data?: any) {
+    if (data) {
+      this.canWithdraw = data["canWithdraw"];
+      this.amountAvailible = data["amountAvailible"];
+      if (data["walletEntries"] && data["walletEntries"].constructor === Array) {
+        this.walletEntries = [];
+        for (let item of data["walletEntries"])
+          this.walletEntries.push(WalletEntryResponse.fromJS(item));
+      }
+    }
+  }
+
+  static fromJS(data: any): WalletResponse {
+    data = typeof data === 'object' ? data : {};
+    let result = new WalletResponse();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data["canWithdraw"] = this.canWithdraw;
+    data["amountAvailible"] = this.amountAvailible;
+    if (this.walletEntries && this.walletEntries.constructor === Array) {
+      data["walletEntries"] = [];
+      for (let item of this.walletEntries)
+        data["walletEntries"].push(item.toJSON());
+    }
+    return data;
+  }
+}
+
+export interface IWalletResponse {
+  canWithdraw?: boolean | undefined;
+  amountAvailible?: number | undefined;
+  walletEntries?: WalletEntryResponse[] | undefined;
+}
+
+export class WalletEntryResponse implements IWalletEntryResponse {
+  id?: number | undefined;
+  status?: string | undefined;
+  amount?: number | undefined;
+  createDateTime?: Date | undefined;
+  paidDateTime?: Date | undefined;
+  currency?: string | undefined;
+
+  constructor(data?: IWalletEntryResponse) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property))
+          (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(data?: any) {
+    if (data) {
+      this.id = data["id"];
+      this.status = data["status"];
+      this.amount = data["amount"];
+      this.createDateTime = data["createDateTime"] ? new Date(data["createDateTime"].toString()) : <any>undefined;
+      this.paidDateTime = data["paidDateTime"] ? new Date(data["paidDateTime"].toString()) : <any>undefined;
+      this.currency = data["currency"];
+    }
+  }
+
+  static fromJS(data: any): WalletEntryResponse {
+    data = typeof data === 'object' ? data : {};
+    let result = new WalletEntryResponse();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data["id"] = this.id;
+    data["status"] = this.status;
+    data["amount"] = this.amount;
+    data["createDateTime"] = this.createDateTime ? this.createDateTime.toISOString() : <any>undefined;
+    data["paidDateTime"] = this.paidDateTime ? this.paidDateTime.toISOString() : <any>undefined;
+    data["currency"] = this.currency;
+    return data;
+  }
+}
+
+export interface IWalletEntryResponse {
+  id?: number | undefined;
+  status?: string | undefined;
+  amount?: number | undefined;
+  createDateTime?: Date | undefined;
+  paidDateTime?: Date | undefined;
+  currency?: string | undefined;
+}
+
 export enum DriverInfoResponseStatus {
   _1 = 1,
   _2 = 2,
@@ -4007,34 +3608,6 @@ export enum JobOfferStatus {
   _2 = 2,
   _3 = 3,
   _4 = 4,
-}
-
-export enum ApplicationUserUserType {
-  _1 = 1,
-  _2 = 2,
-  _3 = 3,
-}
-
-export enum DriverIdentityDocumentType {
-  _1 = 1,
-  _2 = 2,
-}
-
-export enum DriverStatus {
-  _1 = 1,
-  _2 = 2,
-  _3 = 3,
-  _4 = 4,
-}
-
-export enum WalletEntryStatus {
-  _1 = 1,
-  _2 = 2,
-}
-
-export enum WalletEntryCurrency {
-  _1 = 1,
-  _2 = 2,
 }
 
 export class SwaggerException extends Error {

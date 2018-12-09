@@ -2,7 +2,7 @@ import {Component} from '@angular/core';
 import {NavController} from 'ionic-angular';
 import {TransactionService} from '../../services/transaction-service';
 import {Observable} from "rxjs";
-import {WalletEntry} from "../../services/beon-api";
+import {WalletResponse} from "../../services/beon-api";
 import {AlertController} from 'ionic-angular';
 
 /*
@@ -17,7 +17,7 @@ import {AlertController} from 'ionic-angular';
 })
 export class WalletPage {
   // list of transactions
-  public records: Observable<WalletEntry[]>;
+  public records: Observable<WalletResponse>;
 
   public canWithdraw: boolean = false;
 

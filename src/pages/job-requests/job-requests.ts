@@ -1,8 +1,9 @@
 import {Component} from '@angular/core';
-import {NavController} from 'ionic-angular';
+import {AlertController, NavController} from 'ionic-angular';
 import {JobService} from '../../services/job-service';
 import {Observable} from "rxjs";
-import {JobOffer, WalletEntry} from "../../services/beon-api";
+import {JobOffersResponse} from "../../services/beon-api";
+import {TransactionService} from "../../services/transaction-service";
 
 /*
   Generated class for the JobHistoryPage page.
@@ -16,20 +17,61 @@ import {JobOffer, WalletEntry} from "../../services/beon-api";
 })
 export class JobRequestsPage {
 
-  public records: Observable<JobOffer[]>;
+  public records: Observable<JobOffersResponse[]>;
 
-  constructor(public nav: NavController, public jobService: JobService) {
+  constructor(public nav: NavController, public jobService: JobService, private alertCtrl: AlertController) {
     jobService.getAll().then(a => {
       this.records = a;
     });
   }
 
-  accept()
-  {
-
+  accept(id: number) {
+    this.jobService.accept(id).subscribe(a => {
+        this.jobService.getAll().then(a => {
+          this.records = a;
+        });
+        this.showSuccessAlert('accepted');
+      },
+      e => this.showErrorAlert()
+    );
   }
 
-  reject(){
+  reject(id: number) {
+    this.jobService.reject(id).subscribe(a => {
+        this.jobService.getAll().then(a => {
+          this.records = a;
+        });
+        this.showSuccessAlert('rejected');
+      },
+      e => this.showErrorAlert()
+    );
+  }
 
+  showSuccessAlert(type: string) {
+    if (type == 'accepted') {
+      let alert = this.alertCtrl.create({
+        title: 'Successfully accepted job!',
+        subTitle: 'We will get in contact with you within the next two days, to discuss installation',
+        buttons: ['Dismiss']
+      });
+      alert.present();
+    }
+    else if (type == 'rejected') {
+      let alert = this.alertCtrl.create({
+        title: 'Successfully rejected job :(',
+        subTitle: 'This job will be allocated to one of our other drivers, stay active to get more offers',
+        buttons: ['Dismiss']
+      });
+      alert.present();
+    }
+  }
+
+  showErrorAlert() {
+    let alert = this.alertCtrl.create({
+      title: 'Error',
+      subTitle: 'Something went wrong, please get in contact with us as soon as possible',
+      buttons: ['Dismiss']
+    });
+    alert.present();
   }
 }

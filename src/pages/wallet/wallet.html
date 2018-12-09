@@ -19,13 +19,13 @@
 <ion-content class=" secondary-bg">
   <div class="top-balance light-bg" padding text-center>
     <span class="label" ion-text color="secondary">Current balance (HKD)</span>
-    <h2 no-margin ion-text color="secondary">10.0</h2>
-    <button ion-button block color="secondary" [disabled]="canWithdraw" (click)="withDraw()">WITHDRAW</button>
+    <h2 no-margin ion-text color="secondary">{{(records | async)?.amountAvailible}}</h2>
+    <button ion-button block color="secondary" [disabled]="!(records | async)?.canWithdraw" (click)="withDraw()">WITHDRAW</button>
   </div>
 
   <!-- list of transaction records -->
   <ion-list class="dark-list list-full-border">
-    <ion-item class="secondary-bg " *ngFor="let record of (records | async)">
+    <ion-item class="secondary-bg " *ngFor="let record of (records | async)?.walletEntries">
       <div class="{{ record.status.toLowerCase() }}">
       <ion-row>
         <ion-col>

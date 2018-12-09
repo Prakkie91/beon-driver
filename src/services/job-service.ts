@@ -18,9 +18,11 @@ export class JobService {
     );
   }
 
-  accept() {
+  accept(id:number) {
+    return this.apiClient.acceptJobOffer(id);
   }
 
-  reject() {
+  reject(id:number) {
+    return this.apiClient.rejectJobOffer(id);
   }
 }

@@ -19,29 +19,29 @@
 <ion-content class=" primary-bg">
   <!-- list of history records -->
   <ion-grid class="dark-list list-border">
-    <ion-row class="primary-bg" *ngFor="let record of (records | async)">
+    <ion-row class="primary-bg" *ngFor="let record of (records | async)?.jobOffers">
       <ion-col>
         <ion-row>
           <ion-col text-center>
-            <h1 ion-text color="light">{{ record.creative.campaign.account.companyName }}</h1>
+            <h1 ion-text color="light">{{ record.advertiser }}</h1>
 
           </ion-col>
           <ion-col text-right class="job-status">
             <span ion-text color="gray">Status</span>
             <span ion-text color="light">{{ record.status }}</span>
             <div class="uppercase">
-              <span ion-text color="light">{{ record.creative.startDate.toLocaleDateString() }} - {{ record.creative.campaignLength }} Months</span>
+              <span ion-text color="light">{{ record.startDate.toLocaleDateString() }} - {{ record.campaignLength }} Months</span>
             </div>
           </ion-col>
         </ion-row>
         <ion-row class="light-bg padding-job">
           <ion-col>
-            <span ion-text color="dark">{{record.creative.campaign.name}}</span>
+            <span ion-text color="dark">{{record.campaignName}}</span>
             <br/>
-            <span ion-text color="dark">{{record.driverVehiclePlacementArea.placementArea?.name}}</span>
+            <span ion-text color="dark">{{record.placementArea}}</span>
           </ion-col>
           <ion-col>
-            <span ion-text color="dark">{{record.creative.costPerVehiclePerMonth*record.creative.campaignLength*0.70 }} HKD</span>
+            <span ion-text color="dark">{{record.totalAmount }} HKD</span>
           </ion-col>
         </ion-row>
         <ion-row class="light-bg">
