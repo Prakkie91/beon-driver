@@ -10,36 +10,14 @@
 </div>
 <ion-content>
   <div class="auth-content">
-    <div class="light-bg" *ngIf="!(vehicleCategories | async)?.length || !(countries | async)?.length || !(vehicleBrands | async)?.length ">
-      <div padding text-center>
-        <div class="logo">
-          <img
-            src="https://res.cloudinary.com/dbwpvgyrn/image/upload/c_pad,h_200,q_auto:best,w_200/v1539865458/logo_black-style-2_z1aw7f_szaoom.png"/>
-        </div>
-        <h2 ion-text color="dark">
-          BEON DRIVER APP
-        </h2>
-        <p ion-text color="dark">If you’re driving anyway, why not make some easy extra cash?</p>
-      </div>
-      <div style="padding: 100px 40px;">
-        <div class="custom-spinner-container">
-          <div class="custom-spinner-box"></div>
-        </div>
-      </div>
-    </div>
-
     <div class="light-bg" *ngIf="(vehicleCategories | async)?.length && (countries | async)?.length && (vehicleBrands | async)?.length ">
 
       <section *ngIf="signupPage===1" >
         <!-- Logo -->
         <div padding text-center>
           <div class="logo">
-            <img
-              src="https://res.cloudinary.com/dbwpvgyrn/image/upload/c_pad,h_200,q_auto:best,w_200/v1539865458/logo_black-style-2_z1aw7f_szaoom.png"/>
+            <img src="https://res.cloudinary.com/dbwpvgyrn/image/upload/c_scale,w_500/v1539702962/logo_black_ybky2b.png"/>
           </div>
-          <h2 ion-text color="dark">
-            BEON DRIVER APP
-          </h2>
           <p ion-text color="dark">If you’re driving anyway, why not make some easy extra cash?</p>
         </div>
         <form [formGroup]="userBasicInfo" padding>

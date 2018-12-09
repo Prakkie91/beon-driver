@@ -4,6 +4,11 @@
   See http://ionicframework.com/docs/v2/components/#navigation for more info on
   Ionic pages and navigation.
 -->
+<div class="loading" *ngIf="loading">
+  <img src="/assets/img/loader.svg" class="loading-img"/>
+  <img class="loading-img-center" src="/assets/img/beon-logo-white.png" />
+</div>
+
 <ion-header>
 
   <ion-navbar color="primary">
@@ -19,7 +24,7 @@
 <ion-content class=" primary-bg">
   <!-- list of history records -->
   <ion-grid class="dark-list list-border">
-    <ion-row class="primary-bg" *ngFor="let record of (records | async)?.jobOffers">
+    <ion-row class="{{record.status}}" *ngFor="let record of (records | async)?.jobOffers">
       <ion-col>
         <ion-row>
           <ion-col text-center>
@@ -27,24 +32,36 @@
 
           </ion-col>
           <ion-col text-right class="job-status">
-            <span ion-text color="gray">Status</span>
             <span ion-text color="light">{{ record.status }}</span>
             <div class="uppercase">
-              <span ion-text color="light">{{ record.startDate.toLocaleDateString() }} - {{ record.campaignLength }} Months</span>
+              <span ion-text color="light">{{ record.startDate.toLocaleDateString() }}</span>
             </div>
           </ion-col>
         </ion-row>
         <ion-row class="light-bg padding-job">
           <ion-col>
-            <span ion-text color="dark">{{record.campaignName}}</span>
+            <span class="job-spec-key" ion-text color="grey">Campaign Name:</span>
             <br/>
-            <span ion-text color="dark">{{record.placementArea}}</span>
+            <span class="job-spec-value" ion-text color="dark">{{record.campaignName}}</span>
+            <br/>
+            <span class="job-spec-key" ion-text color="grey">Placement Area:</span>
+            <br/>
+            <span class="job-spec-value" ion-text color="dark">{{record.placementArea}}</span>
+            <br/>
+            <span class="job-spec-key" ion-text color="grey">Campaign Length:</span>
+            <br/>
+            <span class="job-spec-value" ion-text color="dark"><strong>{{ record.campaignLength }}</strong> Months</span>
           </ion-col>
-          <ion-col>
-            <span ion-text color="dark">{{record.totalAmount }} HKD</span>
+          <ion-col class="amount-col">
+            <span ion-text color="gray">TOTAL</span>
+            <br/>
+            <span ion-text color="dark">
+              <strong class="amount-text">{{record.totalAmount }}</strong>
+              HKD</span>
+
           </ion-col>
         </ion-row>
-        <ion-row class="light-bg">
+        <ion-row class="light-bg" *ngIf="record.status == 'Pending'">
           <ion-col text-center>
             <button ion-button block color="danger" (click)="reject(record.id)">Reject</button>
           </ion-col>

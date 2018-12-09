@@ -18,10 +18,23 @@ import {TransactionService} from "../../services/transaction-service";
 export class JobRequestsPage {
 
   public records: Observable<JobOffersResponse[]>;
+  public loading: boolean = true;
 
   constructor(public nav: NavController, public jobService: JobService, private alertCtrl: AlertController) {
     jobService.getAll().then(a => {
       this.records = a;
+      this.records.subscribe(a => {
+          setTimeout(() => {
+            this.loading = false;
+          }, 500);
+        },
+        e => {
+          this.showErrorAlert();
+          setTimeout(() => {
+            this.loading = false;
+          }, 500);
+        }
+      );
     });
   }
 

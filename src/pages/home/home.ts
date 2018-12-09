@@ -70,33 +70,4 @@ export class HomePage {
       console.log(err);
     });
   }
-
-
-  // make array with range is n
-  range(n) {
-    return new Array(n);
-  }
-
-  // confirm a job
-  confirmJob() {
-    let confirm = this.alertCtrl.create({
-      title: 'Are you sure?',
-      buttons: [
-        {
-          text: 'No',
-          handler: () => {
-            console.log('Disagree clicked');
-          }
-        },
-        {
-          text: 'Yes',
-          handler: () => {
-            // go to pickup page
-            this.nav.setRoot(PickUpPage);
-          }
-        }
-      ]
-    });
-    confirm.present();
-  }
 }

@@ -10,7 +10,13 @@ page-wallet,
   }
 }
 .pending{
-  background-color: darkgrey;
+  padding: 5px;
+  background-color: darkgoldenrod;
+}
+
+.paid{
+  padding: 5px;
+  background-color: darkgreen;
 }
 
 .status{

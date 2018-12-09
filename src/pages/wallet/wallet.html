@@ -4,6 +4,10 @@
   See http://ionicframework.com/docs/v2/components/#navigation for more info on
   Ionic pages and navigation.
 -->
+<div class="loading" *ngIf="loading">
+  <img src="/assets/img/loader.svg" class="loading-img"/>
+  <img class="loading-img-center" src="/assets/img/beon-logo-white.png" />
+</div>
 <ion-header>
 
   <ion-navbar color="primary">
@@ -18,30 +22,36 @@
 
 <ion-content class=" secondary-bg">
   <div class="top-balance light-bg" padding text-center>
-    <span class="label" ion-text color="secondary">Current balance (HKD)</span>
+    <span class="label" ion-text color="secondary">Current balance ({{(records | async)?.currency}})</span>
     <h2 no-margin ion-text color="secondary">{{(records | async)?.amountAvailible}}</h2>
-    <button ion-button block color="secondary" [disabled]="!(records | async)?.canWithdraw" (click)="withDraw()">WITHDRAW</button>
+    <button ion-button block color="secondary" [disabled]="!(records | async)?.canWithdraw" (click)="withDraw()">
+      WITHDRAW
+    </button>
   </div>
-
-  <!-- list of transaction records -->
-  <ion-list class="dark-list list-full-border">
-    <ion-item class="secondary-bg " *ngFor="let record of (records | async)?.walletEntries">
-      <div class="{{ record.status.toLowerCase() }}">
-      <ion-row>
-        <ion-col>
-          <span ion-text class="create-time">{{ record.createDateTime.toLocaleDateString() }}</span>
-        </ion-col>
-      </ion-row>
-      <ion-row>
-        <ion-col>
-          <span class="status" ion-text color="light">{{ record.status }}</span>
-        </ion-col>
-        <ion-col class="amount-col">
-          <span class="amount" ion-text color="light">{{ record.amount }}</span>
-          <span class="currency" ion-text color="light">{{ record.currency }}</span>
-        </ion-col>
-      </ion-row>
-      </div>
-    </ion-item>
-  </ion-list>
+  <div padding *ngIf="!(records | async)?.walletEntries.length">
+    <h3 ion-text color="light">No withdrawals yet</h3>
+  </div>
+  <div *ngIf="(records | async)?.walletEntries.length">
+    <!-- list of transaction records -->
+    <ion-list class="dark-list list-full-border">
+      <ion-item class="secondary-bg " *ngFor="let record of (records | async)?.walletEntries">
+        <div class="{{ record.status.toLowerCase() }}">
+          <ion-row>
+            <ion-col>
+              <span ion-text class="create-time">{{ record.createDateTime.toLocaleDateString() }}</span>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col>
+              <span class="status" ion-text color="light">{{ record.status }}</span>
+            </ion-col>
+            <ion-col class="amount-col">
+              <span class="amount" ion-text color="light">{{ record.amount }}</span>
+              <span class="currency" ion-text color="light">{{ record.currency }}</span>
+            </ion-col>
+          </ion-row>
+        </div>
+      </ion-item>
+    </ion-list>
+  </div>
 </ion-content>

@@ -20,11 +20,24 @@ export class WalletPage {
   public records: Observable<WalletResponse>;
 
   public canWithdraw: boolean = false;
+  public loading: boolean = true;
 
   constructor(public nav: NavController, public transactionService: TransactionService, private alertCtrl: AlertController) {
     // get transactions from service
     transactionService.getAll().then(a => {
       this.records = a;
+      this.records.subscribe(a => {
+          setTimeout(() => {
+            this.loading = false;
+          }, 500);
+        },
+        e => {
+          this.showErrorAlert();
+          setTimeout(() => {
+            this.loading = false;
+          }, 500);
+        }
+      );
     });
   }
 

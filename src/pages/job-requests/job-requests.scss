@@ -9,10 +9,45 @@ page-job-history,
   padding-bottom: 10px;
 }
 
-
 .padding-job {
   padding: 20px 20px;
 }
 .job-status{
   margin: 15px;
+}
+
+.Pending{
+  background-color: darkviolet;
+}
+
+.Accepted{
+  background-color: mediumseagreen;
+}
+.Active{
+  background-color: lightseagreen;
+}
+
+.Completed{
+  background-color: darkseagreen;
+}
+
+.Rejected{
+  background-color: darkred;
+}
+.amount-col{
+  text-align: right;
+}
+
+.amount-text{
+  font-size: 40px;
+  line-height: 80px;
+}
+
+.job-spec-key{
+line-height: 30px;
+  font-size: 10px;
+}
+.job-spec-value{
+  font-weight: bold;
+  line-height: 15px;
 }
