@@ -1316,7 +1316,7 @@ export class VehicleModel implements IVehicleModel {
   name?: string | undefined;
   registrationNumber?: string | undefined;
   brand?: VehicleBrand | undefined;
-  categoryClass?: VehicleCategoryClass | undefined;
+  categoryClass?: VehicleCategory | undefined;
   vehicleCondition?: VehicleModelVehicleCondition | undefined;
 
   constructor(data?: IVehicleModel) {
@@ -1334,7 +1334,7 @@ export class VehicleModel implements IVehicleModel {
       this.name = data["name"];
       this.registrationNumber = data["registrationNumber"];
       this.brand = data["brand"] ? VehicleBrand.fromJS(data["brand"]) : <any>undefined;
-      this.categoryClass = data["categoryClass"] ? VehicleCategoryClass.fromJS(data["categoryClass"]) : <any>undefined;
+      this.categoryClass = data["categoryClass"] ? VehicleCategory.fromJS(data["categoryClass"]) : <any>undefined;
       this.vehicleCondition = data["vehicleCondition"];
     }
   }
@@ -1363,7 +1363,7 @@ export interface IVehicleModel {
   name?: string | undefined;
   registrationNumber?: string | undefined;
   brand?: VehicleBrand | undefined;
-  categoryClass?: VehicleCategoryClass | undefined;
+  categoryClass?: VehicleCategory | undefined;
   vehicleCondition?: VehicleModelVehicleCondition | undefined;
 }
 
@@ -1445,6 +1445,58 @@ export class VehicleBrand implements IVehicleBrand {
 export interface IVehicleBrand {
   id?: number | undefined;
   name: string;
+}
+
+export class VehicleCategory implements IVehicleCategory {
+  id?: number | undefined;
+  name: string;
+  vehicleClasses?: VehicleCategoryClass[] | undefined;
+
+  constructor(data?: IVehicleCategory) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property))
+          (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(data?: any) {
+    if (data) {
+      this.id = data["id"];
+      this.name = data["name"];
+      if (data["vehicleClasses"] && data["vehicleClasses"].constructor === Array) {
+        this.vehicleClasses = [];
+        for (let item of data["vehicleClasses"])
+          this.vehicleClasses.push(VehicleCategoryClass.fromJS(item));
+      }
+    }
+  }
+
+  static fromJS(data: any): VehicleCategory {
+    data = typeof data === 'object' ? data : {};
+    let result = new VehicleCategory();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data["id"] = this.id;
+    data["name"] = this.name;
+    if (this.vehicleClasses && this.vehicleClasses.constructor === Array) {
+      data["vehicleClasses"] = [];
+      for (let item of this.vehicleClasses)
+        data["vehicleClasses"].push(item.toJSON());
+    }
+    return data;
+  }
+}
+
+export interface IVehicleCategory {
+  id?: number | undefined;
+  name: string;
+  vehicleClasses?: VehicleCategoryClass[] | undefined;
 }
 
 export class VehicleCategoryClass implements IVehicleCategoryClass {
@@ -1568,7 +1620,7 @@ export class DriverSignUpRequest implements IDriverSignUpRequest {
   phoneNumber?: string | undefined;
   email?: string | undefined;
   countryId?: number | undefined;
-  vehicleCategoryClassId?: number | undefined;
+  vehicleCategoryId?: number | undefined;
   vehicleBrandId?: number | undefined;
   vehicleModel?: string | undefined;
   vehiclePlateNumber?: string | undefined;
@@ -1593,7 +1645,7 @@ export class DriverSignUpRequest implements IDriverSignUpRequest {
       this.phoneNumber = data["phoneNumber"];
       this.email = data["email"];
       this.countryId = data["countryId"];
-      this.vehicleCategoryClassId = data["vehicleCategoryClassId"];
+      this.vehicleCategoryId = data["vehicleCategoryId"];
       this.vehicleBrandId = data["vehicleBrandId"];
       this.vehicleModel = data["vehicleModel"];
       this.vehiclePlateNumber = data["vehiclePlateNumber"];
@@ -1618,7 +1670,7 @@ export class DriverSignUpRequest implements IDriverSignUpRequest {
     data["phoneNumber"] = this.phoneNumber;
     data["email"] = this.email;
     data["countryId"] = this.countryId;
-    data["vehicleCategoryClassId"] = this.vehicleCategoryClassId;
+    data["vehicleCategoryId"] = this.vehicleCategoryId;
     data["vehicleBrandId"] = this.vehicleBrandId;
     data["vehicleModel"] = this.vehicleModel;
     data["vehiclePlateNumber"] = this.vehiclePlateNumber;
@@ -1636,7 +1688,7 @@ export interface IDriverSignUpRequest {
   phoneNumber?: string | undefined;
   email?: string | undefined;
   countryId?: number | undefined;
-  vehicleCategoryClassId?: number | undefined;
+  vehicleCategoryId?: number | undefined;
   vehicleBrandId?: number | undefined;
   vehicleModel?: string | undefined;
   vehiclePlateNumber?: string | undefined;
@@ -1733,23 +1785,25 @@ export interface IUpdateVehicleDeviceIdRequest {
 
 export class DriverVehicle implements IDriverVehicle {
   id?: number | undefined;
-  driverId?: number | undefined;
+  driverId?: string | undefined;
   trackingDeviceUID?: string | undefined;
   registrationNumber: string;
   vehicleBrandId: number;
   vehicleBrand?: VehicleBrand | undefined;
-  vehicleCategoryClassId: number;
-  vehicleCategoryClass?: VehicleCategoryClass | undefined;
+  vehicleCategoryId: number;
+  vehicleCategory?: VehicleCategory | undefined;
   vehicleModel: string;
   condition: DriverVehicleCondition;
   driverVehiclePlacementAreas?: DriverVehiclePlacementArea[] | undefined;
   status: DriverVehicleStatus;
   driverVehicleTrackingEvents?: DriverVehicleTrackingEvent[] | undefined;
   impressionMetrics?: ImpressionMetric[] | undefined;
-  driverMetricsId?: number | undefined;
+  driverMetricId?: number | undefined;
   driverMetric?: DriverMetric | undefined;
   calculatedDriverMetricsId?: number | undefined;
   calculatedDriverMetrics?: CalculatedDriverMetrics | undefined;
+  trackingDeviceId?: number | undefined;
+  trackingDevice?: TrackingDevice | undefined;
 
   constructor(data?: IDriverVehicle) {
     if (data) {
@@ -1768,8 +1822,8 @@ export class DriverVehicle implements IDriverVehicle {
       this.registrationNumber = data["registrationNumber"];
       this.vehicleBrandId = data["vehicleBrandId"];
       this.vehicleBrand = data["vehicleBrand"] ? VehicleBrand.fromJS(data["vehicleBrand"]) : <any>undefined;
-      this.vehicleCategoryClassId = data["vehicleCategoryClassId"];
-      this.vehicleCategoryClass = data["vehicleCategoryClass"] ? VehicleCategoryClass.fromJS(data["vehicleCategoryClass"]) : <any>undefined;
+      this.vehicleCategoryId = data["vehicleCategoryId"];
+      this.vehicleCategory = data["vehicleCategory"] ? VehicleCategory.fromJS(data["vehicleCategory"]) : <any>undefined;
       this.vehicleModel = data["vehicleModel"];
       this.condition = data["condition"];
       if (data["driverVehiclePlacementAreas"] && data["driverVehiclePlacementAreas"].constructor === Array) {
@@ -1788,10 +1842,12 @@ export class DriverVehicle implements IDriverVehicle {
         for (let item of data["impressionMetrics"])
           this.impressionMetrics.push(ImpressionMetric.fromJS(item));
       }
-      this.driverMetricsId = data["driverMetricsId"];
+      this.driverMetricId = data["driverMetricId"];
       this.driverMetric = data["driverMetric"] ? DriverMetric.fromJS(data["driverMetric"]) : <any>undefined;
       this.calculatedDriverMetricsId = data["calculatedDriverMetricsId"];
       this.calculatedDriverMetrics = data["calculatedDriverMetrics"] ? CalculatedDriverMetrics.fromJS(data["calculatedDriverMetrics"]) : <any>undefined;
+      this.trackingDeviceId = data["trackingDeviceId"];
+      this.trackingDevice = data["trackingDevice"] ? TrackingDevice.fromJS(data["trackingDevice"]) : <any>undefined;
     }
   }
 
@@ -1810,8 +1866,8 @@ export class DriverVehicle implements IDriverVehicle {
     data["registrationNumber"] = this.registrationNumber;
     data["vehicleBrandId"] = this.vehicleBrandId;
     data["vehicleBrand"] = this.vehicleBrand ? this.vehicleBrand.toJSON() : <any>undefined;
-    data["vehicleCategoryClassId"] = this.vehicleCategoryClassId;
-    data["vehicleCategoryClass"] = this.vehicleCategoryClass ? this.vehicleCategoryClass.toJSON() : <any>undefined;
+    data["vehicleCategoryId"] = this.vehicleCategoryId;
+    data["vehicleCategory"] = this.vehicleCategory ? this.vehicleCategory.toJSON() : <any>undefined;
     data["vehicleModel"] = this.vehicleModel;
     data["condition"] = this.condition;
     if (this.driverVehiclePlacementAreas && this.driverVehiclePlacementAreas.constructor === Array) {
@@ -1830,33 +1886,37 @@ export class DriverVehicle implements IDriverVehicle {
       for (let item of this.impressionMetrics)
         data["impressionMetrics"].push(item.toJSON());
     }
-    data["driverMetricsId"] = this.driverMetricsId;
+    data["driverMetricId"] = this.driverMetricId;
     data["driverMetric"] = this.driverMetric ? this.driverMetric.toJSON() : <any>undefined;
     data["calculatedDriverMetricsId"] = this.calculatedDriverMetricsId;
     data["calculatedDriverMetrics"] = this.calculatedDriverMetrics ? this.calculatedDriverMetrics.toJSON() : <any>undefined;
+    data["trackingDeviceId"] = this.trackingDeviceId;
+    data["trackingDevice"] = this.trackingDevice ? this.trackingDevice.toJSON() : <any>undefined;
     return data;
   }
 }
 
 export interface IDriverVehicle {
   id?: number | undefined;
-  driverId?: number | undefined;
+  driverId?: string | undefined;
   trackingDeviceUID?: string | undefined;
   registrationNumber: string;
   vehicleBrandId: number;
   vehicleBrand?: VehicleBrand | undefined;
-  vehicleCategoryClassId: number;
-  vehicleCategoryClass?: VehicleCategoryClass | undefined;
+  vehicleCategoryId: number;
+  vehicleCategory?: VehicleCategory | undefined;
   vehicleModel: string;
   condition: DriverVehicleCondition;
   driverVehiclePlacementAreas?: DriverVehiclePlacementArea[] | undefined;
   status: DriverVehicleStatus;
   driverVehicleTrackingEvents?: DriverVehicleTrackingEvent[] | undefined;
   impressionMetrics?: ImpressionMetric[] | undefined;
-  driverMetricsId?: number | undefined;
+  driverMetricId?: number | undefined;
   driverMetric?: DriverMetric | undefined;
   calculatedDriverMetricsId?: number | undefined;
   calculatedDriverMetrics?: CalculatedDriverMetrics | undefined;
+  trackingDeviceId?: number | undefined;
+  trackingDevice?: TrackingDevice | undefined;
 }
 
 export class DriverVehiclePlacementArea implements IDriverVehiclePlacementArea {
@@ -2261,6 +2321,54 @@ export interface ICalculatedDriverMetrics {
   totalEarning?: number | undefined;
   totalDriveTime?: number | undefined;
   totalDriveDistance?: number | undefined;
+}
+
+export class TrackingDevice implements ITrackingDevice {
+  id?: number | undefined;
+  uniqueId?: string | undefined;
+  phoneNumber?: string | undefined;
+  isActive?: boolean | undefined;
+
+  constructor(data?: ITrackingDevice) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property))
+          (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(data?: any) {
+    if (data) {
+      this.id = data["id"];
+      this.uniqueId = data["uniqueId"];
+      this.phoneNumber = data["phoneNumber"];
+      this.isActive = data["isActive"];
+    }
+  }
+
+  static fromJS(data: any): TrackingDevice {
+    data = typeof data === 'object' ? data : {};
+    let result = new TrackingDevice();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === 'object' ? data : {};
+    data["id"] = this.id;
+    data["uniqueId"] = this.uniqueId;
+    data["phoneNumber"] = this.phoneNumber;
+    data["isActive"] = this.isActive;
+    return data;
+  }
+}
+
+export interface ITrackingDevice {
+  id?: number | undefined;
+  uniqueId?: string | undefined;
+  phoneNumber?: string | undefined;
+  isActive?: boolean | undefined;
 }
 
 export class PlacementArea implements IPlacementArea {
@@ -3407,61 +3515,10 @@ export interface IPricingRequest {
   campaignLength?: number | undefined;
 }
 
-export class VehicleCategory implements IVehicleCategory {
-  id?: number | undefined;
-  name: string;
-  vehicleClasses?: VehicleCategoryClass[] | undefined;
-
-  constructor(data?: IVehicleCategory) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
-    }
-  }
-
-  init(data?: any) {
-    if (data) {
-      this.id = data["id"];
-      this.name = data["name"];
-      if (data["vehicleClasses"] && data["vehicleClasses"].constructor === Array) {
-        this.vehicleClasses = [];
-        for (let item of data["vehicleClasses"])
-          this.vehicleClasses.push(VehicleCategoryClass.fromJS(item));
-      }
-    }
-  }
-
-  static fromJS(data: any): VehicleCategory {
-    data = typeof data === 'object' ? data : {};
-    let result = new VehicleCategory();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["id"] = this.id;
-    data["name"] = this.name;
-    if (this.vehicleClasses && this.vehicleClasses.constructor === Array) {
-      data["vehicleClasses"] = [];
-      for (let item of this.vehicleClasses)
-        data["vehicleClasses"].push(item.toJSON());
-    }
-    return data;
-  }
-}
-
-export interface IVehicleCategory {
-  id?: number | undefined;
-  name: string;
-  vehicleClasses?: VehicleCategoryClass[] | undefined;
-}
-
 export class WalletResponse implements IWalletResponse {
   canWithdraw?: boolean | undefined;
   amountAvailible?: number | undefined;
+  totalEarnings?: number | undefined;
   walletEntries?: WalletEntryResponse[] | undefined;
 
   constructor(data?: IWalletResponse) {
@@ -3477,6 +3534,7 @@ export class WalletResponse implements IWalletResponse {
     if (data) {
       this.canWithdraw = data["canWithdraw"];
       this.amountAvailible = data["amountAvailible"];
+      this.totalEarnings = data["totalEarnings"];
       if (data["walletEntries"] && data["walletEntries"].constructor === Array) {
         this.walletEntries = [];
         for (let item of data["walletEntries"])
@@ -3496,6 +3554,7 @@ export class WalletResponse implements IWalletResponse {
     data = typeof data === 'object' ? data : {};
     data["canWithdraw"] = this.canWithdraw;
     data["amountAvailible"] = this.amountAvailible;
+    data["totalEarnings"] = this.totalEarnings;
     if (this.walletEntries && this.walletEntries.constructor === Array) {
       data["walletEntries"] = [];
       for (let item of this.walletEntries)
@@ -3508,6 +3567,7 @@ export class WalletResponse implements IWalletResponse {
 export interface IWalletResponse {
   canWithdraw?: boolean | undefined;
   amountAvailible?: number | undefined;
+  totalEarnings?: number | undefined;
   walletEntries?: WalletEntryResponse[] | undefined;
 }
 
