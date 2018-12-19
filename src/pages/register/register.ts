@@ -1,5 +1,5 @@
 import {Component} from '@angular/core';
-import {NavController} from 'ionic-angular';
+import {AlertController, NavController} from 'ionic-angular';
 import {LoginPage} from '../login/login';
 import {HomePage} from "../home/home";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
@@ -38,7 +38,7 @@ export class RegisterPage {
   countries: Observable<Country>;
   public loading: boolean = true;
 
-  constructor(public nav: NavController, public formBuilder: FormBuilder, public vehicleService: VehicleService, public userService: UserService, private storage: Storage) {
+  constructor(public nav: NavController, public formBuilder: FormBuilder, public vehicleService: VehicleService, public userService: UserService, private storage: Storage, private alertCtrl: AlertController) {
 
     this.checkIfLoggedIn();
     this.userBasicInfo = formBuilder.group({
@@ -108,7 +108,15 @@ export class RegisterPage {
       let request = this.userService.signUp(signUpRequest);
       request.then((value) =>
           this.loginUser(this.userBasicInfo.value.email),
-        (err: SwaggerException) => alert(err.response));
+        (err: SwaggerException) => {
+          let alert = this.alertCtrl.create({
+            title: 'Error',
+            subTitle: JSON.parse(err.response).messages.join(),
+            buttons: ['Dismiss']
+          });
+          alert.present();
+        }
+      );
     }
   }
 

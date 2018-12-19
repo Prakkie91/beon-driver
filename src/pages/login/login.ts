@@ -1,11 +1,12 @@
 import {Component} from '@angular/core';
-import {NavController} from 'ionic-angular';
+import {AlertController, NavController} from 'ionic-angular';
 import {RegisterPage} from '../register/register';
 import {HomePage} from '../home/home'
 import {Storage} from '@ionic/storage';
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {UserService} from "../../services/user-service";
 import {SwaggerException} from "../../services/beon-api";
+import {TransactionService} from "../../services/transaction-service";
 
 /*
   Generated class for the LoginPage page.
@@ -21,7 +22,11 @@ export class LoginPage {
 
   userBasicInfo: FormGroup;
   public loading: boolean = true;
-  constructor(public nav: NavController, private storage: Storage, public formBuilder: FormBuilder, public userService: UserService) {
+  constructor(public nav: NavController,
+              private storage: Storage,
+              public formBuilder: FormBuilder,
+              public userService: UserService,
+              private alertCtrl: AlertController) {
     this.checkIfLoggedIn();
 
     this.userBasicInfo = formBuilder.group({
@@ -51,7 +56,15 @@ export class LoginPage {
     this.userService.login(this.userBasicInfo.value.email,
       this.userBasicInfo.value.password).then(
       (value) => this.nav.setRoot(HomePage),
-      (err:SwaggerException) => alert(err.response)
+      (err:SwaggerException) => {
+        let alert = this.alertCtrl.create({
+          title: 'Error',
+          subTitle: JSON.parse(err.response).messages.join(),
+          buttons: ['Dismiss']
+        });
+        alert.present();
+      }
+
     );
   }
 }
