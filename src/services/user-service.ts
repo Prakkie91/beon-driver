@@ -9,7 +9,7 @@ export class UserService {
   private apiClient: any;
 
   constructor(private http: HttpClient, private storage: Storage, private locationTrackingService: LocationTrackingService) {
-    this.apiClient = new Client(http, "http://beonadvertising.com");
+    this.apiClient = new Client(http, "https://beonadvertising.com");
   }
 
   getCountries() {

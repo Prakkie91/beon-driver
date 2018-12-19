@@ -10,7 +10,7 @@ export class DriverService {
   private driver: Observable<DriverInfoResponse>;
 
   constructor(private http: HttpClient, private storage: Storage) {
-    this.apiClient = new Client(http, "http://beonadvertising.com");
+    this.apiClient = new Client(http, "https://beonadvertising.com");
   }
 
   getCurrentDriver(): Observable<DriverInfoResponse>  {

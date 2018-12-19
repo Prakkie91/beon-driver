@@ -7,7 +7,7 @@ export class VehicleService {
   private apiClient: any;
 
   constructor(private http: HttpClient) {
-    this.apiClient = new Client(http, "http://beonadvertising.com");
+    this.apiClient = new Client(http, "https://beonadvertising.com");
   }
 
   getVehicleCategories() {

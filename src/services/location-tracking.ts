@@ -15,6 +15,9 @@ export class LocationTrackingService {
   public lat: number = 0;
   public lng: number = 0;
 
+  public request =[];
+  public uuid:string;
+
   private apiClient: any;
 
   constructor(public http: HttpClient,
@@ -24,9 +27,10 @@ export class LocationTrackingService {
               private storage: Storage,
               private device: Device,
               private platform: Platform) {
-    this.apiClient = new Client(http, "http://beonadvertising.com");
+    this.apiClient = new Client(http, "https://beonadvertising.com");
 
     platform.ready().then(() => {
+      this.uuid = this.device.uuid;
       this.startTracking();
     });
   }
@@ -74,24 +78,33 @@ export class LocationTrackingService {
       stationaryRadius: 20,
       distanceFilter: 30,
       debug: false,
-      stopOnStillActivity:false,
+      stopOnStillActivity: false,
       interval: 10000,
       stopOnTerminate: false,
       startOnBoot: true,
-      syncThreshold:20,
-      url: 'http://beonadvertising.com/api/DriverVehicleTrackingEvents/DriverVehicleTrackingEvent/' + this.device.uuid,
-      syncUrl: 'http://beonadvertising.com/api/DriverVehicleTrackingEvents/DriverVehicleTrackingEvent/' + this.device.uuid
     };
 
     this.backgroundGeolocation.configure(config).subscribe((location: BackgroundGeolocationResponse) => {
+
+      let singleRequest = new CreateTrackingEventRequest();
+      singleRequest.longitude = location.longitude;
+      singleRequest.latitude = location.latitude;
+      singleRequest.time = location.time;
+
+      this.request.push(singleRequest);
+
+      if(this.request.length>=10) {
+        this.apiClient.driverVehicleTrackingEvent(this.uuid, this.request).subscribe(a => this.request = []);
+      }
+      
       // IMPORTANT:  You must execute the finish method here to inform the native plugin that you're finished,
       // and the background-task may be completed.  You must do this regardless if your HTTP request is successful or not.
       // IF YOU DON'T, ios will CRASH YOUR APP for spending too much time in the background.
-      this.backgroundGeolocation.finish().then(a=>console.log(a)); // FOR IOS ONLY
+      this.backgroundGeolocation.finish().then(a => console.log(a)); // FOR IOS ONLY
 
     });
     // Turn ON the background-geolocation system.
-    this.backgroundGeolocation.start().then(a=>console.log(a));
+    this.backgroundGeolocation.start().then(a => console.log(a));
   }
 
 }
