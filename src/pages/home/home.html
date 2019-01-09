@@ -20,8 +20,8 @@
         <div #map id="map"></div>
       </ion-row>
       <ion-row class="status-container">
-        {{ (driver | async)?.vehicleModel?.brand?.name }} - {{ (driver |
-        async)?.vehicleModel?.name }} - ({{ (driver | async)?.vehicleModel?.registrationNumber }})
+        {{ (driver | async)?.vehicleInfo?.vehicleModel?.vehicleBrand?.name }} - {{ (driver |
+        async)?.vehicleInfo?.vehicleModel?.name }} - ({{ (driver | async)?.vehicleInfo?.registrationNumber }})
       </ion-row>
 
 

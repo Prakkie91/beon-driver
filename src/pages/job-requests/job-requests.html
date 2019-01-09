@@ -10,14 +10,12 @@
 </div>
 
 <ion-header>
-
   <ion-navbar color="primary">
     <button ion-button menuToggle>
       <ion-icon name="menu"></ion-icon>
     </button>
     <ion-title>Job Requests</ion-title>
   </ion-navbar>
-
 </ion-header>
 
 
@@ -27,13 +25,11 @@
     <div padding *ngIf="!(records | async)?.jobOffers.length">
       <h5 ion-text color="dark">No job offers yet, we will let you know when we have a job for you!</h5>
     </div>
-    <div *ngIf="(records | async)?.jobOffers.length">
     <ion-row class="{{record.status}}" *ngFor="let record of (records | async)?.jobOffers">
       <ion-col>
         <ion-row>
           <ion-col text-center>
             <h1 ion-text color="light">{{ record.advertiser }}</h1>
-
           </ion-col>
           <ion-col text-right class="job-status">
             <span ion-text color="light">{{ record.status }}</span>
@@ -47,10 +43,6 @@
             <span class="job-spec-key" ion-text color="grey">Campaign Name:</span>
             <br/>
             <span class="job-spec-value" ion-text color="dark">{{record.campaignName}}</span>
-            <br/>
-            <span class="job-spec-key" ion-text color="grey">Placement Area:</span>
-            <br/>
-            <span class="job-spec-value" ion-text color="dark">{{record.placementArea}}</span>
             <br/>
             <span class="job-spec-key" ion-text color="grey">Campaign Length:</span>
             <br/>
@@ -75,7 +67,6 @@
         </ion-row>
       </ion-col>
     </ion-row>
-    </div>
   </ion-grid>
 
 </ion-content>

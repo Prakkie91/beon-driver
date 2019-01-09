@@ -10,11 +10,7 @@ export class VehicleService {
     this.apiClient = new Client(http, "https://beonadvertising.com");
   }
 
-  getVehicleCategories() {
-    return this.apiClient.getVehicleCategories();
-  }
-
-  getVehicleBrands() {
-    return this.apiClient.getVehicleBrands(1);
+  getVehicleModels() {
+    return this.apiClient.getVehicleModels();
   }
 }

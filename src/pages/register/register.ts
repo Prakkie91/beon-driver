@@ -6,11 +6,9 @@ import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {VehicleService} from "../../services/vehicle-service";
 import {Observable} from "rxjs";
 import {
-  Country,
   DriverSignUpRequest,
   SwaggerException,
-  VehicleBrand,
-  VehicleCategory
+  VehicleModel
 } from "../../services/beon-api";
 import {UserService} from "../../services/user-service";
 import {Storage} from "@ionic/storage";
@@ -30,47 +28,33 @@ export class RegisterPage {
   signupPage: number = 1;
   userBasicInfo: FormGroup;
   userVehicleInfo: FormGroup;
-  userAddressInfo: FormGroup;
   submitAttempt: boolean = false;
 
-  vehicleCategories: Observable<VehicleCategory>;
-  vehicleBrands: Observable<VehicleBrand>;
-  countries: Observable<Country>;
+  vehicleModels: Observable<VehicleModel>;
   public loading: boolean = true;
 
   constructor(public nav: NavController, public formBuilder: FormBuilder, public vehicleService: VehicleService, public userService: UserService, private storage: Storage, private alertCtrl: AlertController) {
 
     this.checkIfLoggedIn();
+
     this.userBasicInfo = formBuilder.group({
       name: ['', Validators.compose([Validators.required, Validators.minLength(4)])],
       phone: ['', Validators.compose([Validators.required, Validators.minLength(10)])],
       email: ['', Validators.compose([Validators.required, Validators.email])],
+      identityNumber:['', Validators.compose([Validators.required, Validators.minLength(10)])],
       password: ['', Validators.compose([Validators.required, Validators.minLength(5)])]
     });
 
     this.userVehicleInfo = formBuilder.group({
-      type: ['', Validators.compose([Validators.required])],
-      brand: ['', Validators.compose([Validators.required])],
       model: ['', Validators.compose([Validators.required])],
       numberPlate: ['', Validators.compose([Validators.required, Validators.minLength(5)])]
     });
 
-    this.userAddressInfo = formBuilder.group({
-      address: ['', Validators.compose([Validators.required])],
-      country: ['', Validators.compose([Validators.required])],
-      state: ['', Validators.compose([Validators.required])],
-      zipCode: ['', Validators.compose([Validators.required, Validators.maxLength(5)])]
-    });
-
-    this.vehicleCategories = vehicleService.getVehicleCategories();
-    this.vehicleBrands = vehicleService.getVehicleBrands();
-    this.countries = userService.getCountries();
+    this.vehicleModels = vehicleService.getVehicleModels();
 
     let self = this;
     Promise.all([
-      self.vehicleCategories.toPromise(),
-      self.vehicleBrands.toPromise(),
-      self.countries.toPromise(),
+      self.vehicleModels.toPromise(),
     ]).then(a =>
       setTimeout(() => {
         this.loading = false;
@@ -94,15 +78,9 @@ export class RegisterPage {
       signUpRequest.password = this.userBasicInfo.value.password;
       signUpRequest.fullName = this.userBasicInfo.value.name;
       signUpRequest.phoneNumber = this.userBasicInfo.value.phone;
+      signUpRequest.identityNumber = this.userBasicInfo.value.identityNumber;
 
-      signUpRequest.address = this.userAddressInfo.value.address;
-      signUpRequest.countryId = this.userAddressInfo.value.country;
-      signUpRequest.state = this.userAddressInfo.value.state;
-      signUpRequest.zipcode = this.userAddressInfo.value.zipcode;
-
-      signUpRequest.vehicleBrandId = this.userVehicleInfo.value.brand;
-      signUpRequest.vehicleModel = this.userVehicleInfo.value.model;
-      signUpRequest.vehicleCategoryId = this.userVehicleInfo.value.type;
+      signUpRequest.vehicleModelId = this.userVehicleInfo.value.model;
       signUpRequest.vehiclePlateNumber = this.userVehicleInfo.value.numberPlate;
 
       let request = this.userService.signUp(signUpRequest);

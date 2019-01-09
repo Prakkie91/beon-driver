@@ -46,7 +46,7 @@
               <span class="status" ion-text color="light">{{ record.status }}</span>
             </ion-col>
             <ion-col class="amount-col">
-              <span class="amount" ion-text color="light">{{ record.amount }}</span>
+              <span class="amount" ion-text color="light">{{ record.amount | number:'1.2-2' }}</span>
               <span class="currency" ion-text color="light">{{ record.currency }}</span>
             </ion-col>
           </ion-row>

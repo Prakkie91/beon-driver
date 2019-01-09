@@ -12,10 +12,6 @@ export class UserService {
     this.apiClient = new Client(http, "https://beonadvertising.com");
   }
 
-  getCountries() {
-    return this.apiClient.getCountries();
-  }
-
   signUp(data: DriverSignUpRequest) {
 
     let request = this.apiClient.signUp(data);

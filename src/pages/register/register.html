@@ -10,7 +10,7 @@
 </div>
 <ion-content>
   <div class="auth-content">
-    <div class="light-bg" *ngIf="(vehicleCategories | async)?.length && (countries | async)?.length && (vehicleBrands | async)?.length ">
+    <div class="light-bg" *ngIf="(vehicleModels | async)?.length ">
 
       <section *ngIf="signupPage===1" >
         <!-- Logo -->
@@ -38,6 +38,13 @@
               <p>Please enter a valid phone number.</p>
             </ion-item>
             <ion-item>
+              <ion-input formControlName="identityNumber" type="text" placeholder="HKId Number"></ion-input>
+            </ion-item>
+            <ion-item
+              *ngIf="!userBasicInfo.controls.identityNumber.valid  && (userBasicInfo.controls.identityNumber.dirty || submitAttempt)">
+              <p>Please enter a valid HKId Number of at least 7 characters.</p>
+            </ion-item>
+            <ion-item>
               <ion-input formControlName="email" type="text" placeholder="Email"></ion-input>
             </ion-item>
             <ion-item
@@ -51,7 +58,6 @@
               *ngIf="!userBasicInfo.controls.password.valid  && (userBasicInfo.controls.password.dirty || submitAttempt)">
               <p>Please enter a valid password of at least 5 characters.</p>
             </ion-item>
-
           </ion-list>
         </form>
         <div padding>
@@ -72,34 +78,16 @@
           <ion-list class="list-form">
             <!-- Login form -->
             <ion-item>
-              <ion-label>Vehicle Type</ion-label>
-              <ion-select class="item-input"  formControlName="type" type="text" >
-                <ion-option *ngFor="let key of (vehicleCategories| async)" value="{{key.id}}">{{key.name}}</ion-option>
-              </ion-select>
-            </ion-item>
-            <ion-item
-              *ngIf="!userVehicleInfo.controls.type.valid  && (userVehicleInfo.controls.type.dirty || submitAttempt)">
-              <p>Please select vehicle type.</p>
-            </ion-item>
-            <ion-item *ngIf="userVehicleInfo.controls.type.valid" >
-              <ion-label>Brand</ion-label>
-              <ion-select class="item-input" formControlName="brand" type="text">
-                <ion-option *ngFor="let key of (vehicleBrands| async)" value="{{key.id}}">{{key.name}}</ion-option>
-              </ion-select>
-            </ion-item>
-            <ion-item
-              *ngIf="!userVehicleInfo.controls.brand.valid  && (userVehicleInfo.controls.brand.dirty || submitAttempt)">
-              <p>Please select vehicle brand.</p>
-            </ion-item>
-            <ion-item *ngIf="userVehicleInfo.controls.brand.valid" >
               <ion-label>Model</ion-label>
-              <ion-input formControlName="model" type="text" >
-              </ion-input>
+              <ion-select class="item-input"  formControlName="model" type="text" >
+                <ion-option *ngFor="let key of (vehicleModels| async)" value="{{key.id}}">{{key.name}} - ({{key.vehicleBrand.name}})</ion-option>
+              </ion-select>
             </ion-item>
             <ion-item
               *ngIf="!userVehicleInfo.controls.model.valid  && (userVehicleInfo.controls.model.dirty || submitAttempt)">
               <p>Please select vehicle model.</p>
             </ion-item>
+
             <ion-item>
               <ion-label>Plate Number</ion-label>
               <ion-input formControlName="numberPlate" type="text" ></ion-input>
@@ -107,61 +95,6 @@
             <ion-item
               *ngIf="!userVehicleInfo.controls.numberPlate.valid  && (userVehicleInfo.controls.numberPlate.dirty || submitAttempt)">
               <p>Please enter a valid plate number of at least 5 characters.</p>
-            </ion-item>
-
-          </ion-list>
-        </form>
-        <div padding>
-          <button ion-button color="secondary" block (click)="next(3)">
-            Next
-          </button>
-        </div>
-      </section>
-      <section *ngIf="signupPage===3">
-        <div padding text-center>
-          <div class="logo">
-            <img src="https://res.cloudinary.com/dbwpvgyrn/image/upload/c_scale,w_500/v1539702962/logo_black_ybky2b.png"/>
-          </div>
-          <p ion-text color="dark">Your address information</p>
-        </div>
-
-        <form [formGroup]="userAddressInfo" padding>
-          <ion-list class="list-form">
-            <!-- Login form -->
-            <ion-item>
-              <ion-label>Address</ion-label>
-              <ion-input formControlName="address" type="address"></ion-input>
-            </ion-item>
-            <ion-item
-              *ngIf="!userAddressInfo.controls.address.valid  && (userAddressInfo.controls.address.dirty || submitAttempt)">
-              <p>Please enter address.</p>
-            </ion-item>
-            <ion-item >
-              <ion-label>Country</ion-label>
-              <ion-select class="item-input" formControlName="country" type="text">
-                <ion-option *ngFor="let key of (countries| async)" value="{{key.id}}">{{key.name}}</ion-option>
-              </ion-select>
-            </ion-item>
-            <ion-item
-              *ngIf="!userAddressInfo.controls.country.valid  && (userAddressInfo.controls.country.dirty || submitAttempt)">
-              <p>Please select your country.</p>
-            </ion-item>
-            <ion-item>
-              <ion-label>State</ion-label>
-              <ion-input formControlName="state" type="text" >
-              </ion-input>
-            </ion-item>
-            <ion-item
-              *ngIf="!userAddressInfo.controls.state.valid  && (userAddressInfo.controls.state.dirty || submitAttempt)">
-              <p>Please select vehicle model.</p>
-            </ion-item>
-            <ion-item>
-              <ion-label>Zip Code</ion-label>
-              <ion-input formControlName="zipCode" type="text" ></ion-input>
-            </ion-item>
-            <ion-item
-              *ngIf="!userAddressInfo.controls.zipCode.valid  && (userAddressInfo.controls.zipCode.dirty || submitAttempt)">
-              <p>Please enter a valid zip-code.</p>
             </ion-item>
 
           </ion-list>

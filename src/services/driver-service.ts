@@ -14,7 +14,7 @@ export class DriverService {
   }
 
   getCurrentDriver(): Observable<DriverInfoResponse>  {
-    return this.driver ? this.driver: Observable
+    return Observable
       .fromPromise(this.storage.get("userName"))
       .flatMap(a => {
         let request = this.apiClient.getDriverInfo(a, true);
