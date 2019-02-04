@@ -27,7 +27,6 @@ export class RegisterPage {
 
   signupPage: number = 1;
   userBasicInfo: FormGroup;
-  userVehicleInfo: FormGroup;
   submitAttempt: boolean = false;
 
   vehicleModels: Observable<VehicleModel>;
@@ -42,10 +41,7 @@ export class RegisterPage {
       phone: ['', Validators.compose([Validators.required, Validators.minLength(10)])],
       email: ['', Validators.compose([Validators.required, Validators.email])],
       identityNumber:['', Validators.compose([Validators.required, Validators.minLength(10)])],
-      password: ['', Validators.compose([Validators.required, Validators.minLength(5)])]
-    });
-
-    this.userVehicleInfo = formBuilder.group({
+      password: ['', Validators.compose([Validators.required, Validators.minLength(5)])],
       model: ['', Validators.compose([Validators.required])],
       numberPlate: ['', Validators.compose([Validators.required, Validators.minLength(5)])]
     });
@@ -61,15 +57,6 @@ export class RegisterPage {
       }, 500));
   }
 
-  next(page: number) {
-    this.submitAttempt = true;
-
-    if (this.userBasicInfo.valid || this.userVehicleInfo.valid) {
-      this.signupPage = page;
-      this.submitAttempt = false;
-    }
-  }
-
   signup() {
     this.submitAttempt = true;
     if (this.userBasicInfo.valid) {
@@ -80,8 +67,8 @@ export class RegisterPage {
       signUpRequest.phoneNumber = this.userBasicInfo.value.phone;
       signUpRequest.identityNumber = this.userBasicInfo.value.identityNumber;
 
-      signUpRequest.vehicleModelId = this.userVehicleInfo.value.model;
-      signUpRequest.vehiclePlateNumber = this.userVehicleInfo.value.numberPlate;
+      signUpRequest.vehicleModelId = this.userBasicInfo.value.model;
+      signUpRequest.vehiclePlateNumber = this.userBasicInfo.value.numberPlate;
 
       let request = this.userService.signUp(signUpRequest);
       request.then((value) =>

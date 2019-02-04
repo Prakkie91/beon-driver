@@ -7,7 +7,7 @@ import {Observable} from "rxjs";
 @Injectable()
 export class DriverService {
   private apiClient: any;
-  private driver: Observable<DriverInfoResponse>;
+  public driver: Observable<DriverInfoResponse>;
 
   constructor(private http: HttpClient, private storage: Storage) {
     this.apiClient = new Client(http, "https://beonadvertising.com");

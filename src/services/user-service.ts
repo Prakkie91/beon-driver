@@ -1,8 +1,10 @@
+import { UpdateInfo } from './../../plugins/cordova-plugin-ionic/www/definitions';
 import {Injectable} from '@angular/core';
-import {Client, DriverSignUpRequest, LoginResponse, SignUpResponse} from './beon-api';
+import {Client, DriverSignUpRequest, LoginResponse, SignUpResponse, DriverInfoUpdateRequest} from './beon-api';
 import {HttpClient} from "@angular/common/http";
 import {Storage} from "@ionic/storage";
 import {LocationTrackingService} from "./location-tracking";
+import {Observable} from "rxjs";
 
 @Injectable()
 export class UserService {
@@ -39,6 +41,16 @@ export class UserService {
         ];
       }
     );
+  }
+
+  updateSettings(data: DriverInfoUpdateRequest)
+  {
+    return this.storage.get("userName")
+      .then(a => {
+      data.userName = a;
+      let request = this.apiClient.updateSettings(data);
+      return request.toPromise();
+    });
   }
 
 }

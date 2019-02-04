@@ -24,8 +24,25 @@
         async)?.vehicleInfo?.vehicleModel?.name }} - ({{ (driver | async)?.vehicleInfo?.registrationNumber }})
       </ion-row>
 
-
-      <ion-row ng-hide="driver == null" class="overview-container">
+<ion-row *ngIf="(driver | async)?.status == 'Analyzing'"  >
+    <ion-col>
+  <h6>Campaign Matching</h6>
+  <p>Keep Driving! we are analysing your drive pattern to determine which campaigns to assign to you.</p>
+</ion-col>
+</ion-row>
+<ion-row *ngIf="(driver | async)?.status == 'Reviewing'"  >
+    <ion-col>
+  <h6>Reviewing</h6>
+  <p>One of your representatives are reviewing your profile and will activate, your profile soon!</p>
+</ion-col>
+</ion-row>
+<ion-row *ngIf="(driver | async)?.status == 'Rejected'"  >
+    <ion-col>
+        <h6>Rejected</h6>
+        <p>Your vehicle has been rejected, please contact support@beonadvertising.com for more info. </p>
+      </ion-col>
+</ion-row>
+<ion-row *ngIf="(driver | async)?.status == 'Approved'" class="overview-container">
         <ion-col>
           <p>Total Earnings</p>
           <p>
@@ -41,7 +58,7 @@
           <p>Hours</p>
         </ion-col>
       </ion-row>
-      <ion-row ng-hide="driver == null" class="hours-container">
+      <ion-row *ngIf="(driver | async)?.status == 'Approved'" class="hours-container">
         <ion-col>
           <p class="billable-hour-text" color="white">Billable Hours</p>
         </ion-col>

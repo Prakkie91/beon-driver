@@ -94,7 +94,9 @@ export class LocationTrackingService {
         this.request.push(singleRequest);
 
         if (this.request.length >= 10) {
-          this.apiClient.driverVehicleTrackingEvent(this.uuid, this.request).subscribe(a => this.request = []);
+          this.apiClient.driverVehicleTrackingEvent(this.uuid, this.request).subscribe(a => {
+            this.request = [];
+          });
         }
       }
       catch (e) {

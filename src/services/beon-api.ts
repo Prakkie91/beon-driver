@@ -22,3579 +22,3873 @@ export const API_BASE_URL = new InjectionToken<string>('API_BASE_URL');
 
 @Injectable()
 export class Client {
-  private http: HttpClient;
-  private baseUrl: string;
-  protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
 
-  constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
-    this.http = http;
-    this.baseUrl = baseUrl ? baseUrl : "";
-  }
-
-  /**
-   * @param userName (optional)
-   * @param password (optional)
-   * @return Success
-   */
-  login(userName: string | null | undefined, password: string | null | undefined): Observable<LoginResponse> {
-    let url_ = this.baseUrl + "/api/Driver/Login?";
-    if (userName !== undefined)
-      url_ += "userName=" + encodeURIComponent("" + userName) + "&";
-    if (password !== undefined)
-      url_ += "password=" + encodeURIComponent("" + password) + "&";
-    url_ = url_.replace(/[?&]$/, "");
-
-    let options_ : any = {
-      observe: "response",
-      responseType: "blob",
-      headers: new HttpHeaders({
-        "Accept": "application/json"
-      })
-    };
-
-    return this.http.request("post", url_, options_).flatMap((response_ : any) => {
-      return this.processLogin(response_);
-    }).catch((response_: any) => {
-      if (response_ instanceof HttpResponseBase) {
-        try {
-          return this.processLogin(<any>response_);
-        } catch (e) {
-          return <Observable<LoginResponse>><any>Observable.throw(e);
-        }
-      } else
-        return <Observable<LoginResponse>><any>Observable.throw(response_);
-    });
-  }
-
-  protected processLogin(response: HttpResponseBase): Observable<LoginResponse> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse ? response.body :
-        (<any>response).error instanceof Blob ? (<any>response).error : undefined;
-
-    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
-    if (status === 200) {
-      return blobToText(responseBlob).flatMap(_responseText => {
-        let result200: any = null;
-        let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result200 = resultData200 ? LoginResponse.fromJS(resultData200) : new LoginResponse();
-        return Observable.of(result200);
-      });
-    } else if (status === 500) {
-      return blobToText(responseBlob).flatMap(_responseText => {
-        let result500: any = null;
-        let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result500 = resultData500 ? ErrorModel.fromJS(resultData500) : new ErrorModel();
-        return throwException("A server error occurred.", status, _responseText, _headers, result500);
-      });
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).flatMap(_responseText => {
-        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-      });
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ? baseUrl : "";
     }
-    return Observable.of<LoginResponse>(<any>null);
-  }
 
-  /**
-   * @param userName (optional)
-   * @param isFull (optional)
-   * @return Success
-   */
-  getDriverInfo(userName: string | null | undefined, isFull: boolean | null | undefined): Observable<DriverInfoResponse> {
-    let url_ = this.baseUrl + "/api/Driver/GetDriverInfo?";
-    if (userName !== undefined)
-      url_ += "userName=" + encodeURIComponent("" + userName) + "&";
-    if (isFull !== undefined)
-      url_ += "isFull=" + encodeURIComponent("" + isFull) + "&";
-    url_ = url_.replace(/[?&]$/, "");
+    /**
+     * @param userName (optional) 
+     * @param password (optional) 
+     * @return Success
+     */
+    login(userName: string | null | undefined, password: string | null | undefined): Observable<LoginResponse> {
+        let url_ = this.baseUrl + "/api/Driver/Login?";
+        if (userName !== undefined)
+            url_ += "userName=" + encodeURIComponent("" + userName) + "&"; 
+        if (password !== undefined)
+            url_ += "password=" + encodeURIComponent("" + password) + "&"; 
+        url_ = url_.replace(/[?&]$/, "");
 
-    let options_ : any = {
-      observe: "response",
-      responseType: "blob",
-      headers: new HttpHeaders({
-        "Accept": "application/json"
-      })
-    };
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
 
-    return this.http.request("get", url_, options_).flatMap((response_ : any) => {
-      return this.processGetDriverInfo(response_);
-    }).catch((response_: any) => {
-      if (response_ instanceof HttpResponseBase) {
-        try {
-          return this.processGetDriverInfo(<any>response_);
-        } catch (e) {
-          return <Observable<DriverInfoResponse>><any>Observable.throw(e);
-        }
-      } else
-        return <Observable<DriverInfoResponse>><any>Observable.throw(response_);
-    });
-  }
-
-  protected processGetDriverInfo(response: HttpResponseBase): Observable<DriverInfoResponse> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse ? response.body :
-        (<any>response).error instanceof Blob ? (<any>response).error : undefined;
-
-    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
-    if (status === 200) {
-      return blobToText(responseBlob).flatMap(_responseText => {
-        let result200: any = null;
-        let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result200 = resultData200 ? DriverInfoResponse.fromJS(resultData200) : new DriverInfoResponse();
-        return Observable.of(result200);
-      });
-    } else if (status === 500) {
-      return blobToText(responseBlob).flatMap(_responseText => {
-        let result500: any = null;
-        let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result500 = resultData500 ? ErrorModel.fromJS(resultData500) : new ErrorModel();
-        return throwException("A server error occurred.", status, _responseText, _headers, result500);
-      });
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).flatMap(_responseText => {
-        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-      });
+        return this.http.request("post", url_, options_).flatMap((response_ : any) => {
+            return this.processLogin(response_);
+        }).catch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processLogin(<any>response_);
+                } catch (e) {
+                    return <Observable<LoginResponse>><any>Observable.throw(e);
+                }
+            } else
+                return <Observable<LoginResponse>><any>Observable.throw(response_);
+        });
     }
-    return Observable.of<DriverInfoResponse>(<any>null);
-  }
 
-  /**
-   * @param data (optional)
-   * @return Success
-   */
-  updateSettings(data: DriverInfoUpdateRequest | null | undefined): Observable<DriverInfoResponse> {
-    let url_ = this.baseUrl + "/api/Driver/UpdateSetting";
-    url_ = url_.replace(/[?&]$/, "");
+    protected processLogin(response: HttpResponseBase): Observable<LoginResponse> {
+        const status = response.status;
+        const responseBlob = 
+            response instanceof HttpResponse ? response.body : 
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
 
-    const content_ = JSON.stringify(data);
-
-    let options_ : any = {
-      body: content_,
-      observe: "response",
-      responseType: "blob",
-      headers: new HttpHeaders({
-        "Content-Type": "application/json",
-        "Accept": "application/json"
-      })
-    };
-
-    return this.http.request("post", url_, options_).flatMap((response_ : any) => {
-      return this.processUpdateSettings(response_);
-    }).catch((response_: any) => {
-      if (response_ instanceof HttpResponseBase) {
-        try {
-          return this.processUpdateSettings(<any>response_);
-        } catch (e) {
-          return <Observable<DriverInfoResponse>><any>Observable.throw(e);
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
+        if (status === 200) {
+            return blobToText(responseBlob).flatMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = resultData200 ? LoginResponse.fromJS(resultData200) : new LoginResponse();
+            return Observable.of(result200);
+            });
+        } else if (status === 500) {
+            return blobToText(responseBlob).flatMap(_responseText => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = resultData500 ? ErrorModel.fromJS(resultData500) : new ErrorModel();
+            return throwException("A server error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).flatMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
         }
-      } else
-        return <Observable<DriverInfoResponse>><any>Observable.throw(response_);
-    });
-  }
-
-  protected processUpdateSettings(response: HttpResponseBase): Observable<DriverInfoResponse> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse ? response.body :
-        (<any>response).error instanceof Blob ? (<any>response).error : undefined;
-
-    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
-    if (status === 200) {
-      return blobToText(responseBlob).flatMap(_responseText => {
-        let result200: any = null;
-        let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result200 = resultData200 ? DriverInfoResponse.fromJS(resultData200) : new DriverInfoResponse();
-        return Observable.of(result200);
-      });
-    } else if (status === 500) {
-      return blobToText(responseBlob).flatMap(_responseText => {
-        let result500: any = null;
-        let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result500 = resultData500 ? ErrorModel.fromJS(resultData500) : new ErrorModel();
-        return throwException("A server error occurred.", status, _responseText, _headers, result500);
-      });
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).flatMap(_responseText => {
-        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-      });
+        return Observable.of<LoginResponse>(<any>null);
     }
-    return Observable.of<DriverInfoResponse>(<any>null);
-  }
 
-  /**
-   * @param data (optional)
-   * @return Success
-   */
-  signUp(data: DriverSignUpRequest | null | undefined): Observable<SignUpResponse> {
-    let url_ = this.baseUrl + "/api/Driver/SignUp";
-    url_ = url_.replace(/[?&]$/, "");
+    /**
+     * @param userName (optional) 
+     * @param isFull (optional) 
+     * @return Success
+     */
+    getDriverInfo(userName: string | null | undefined, isFull: boolean | null | undefined): Observable<DriverInfoResponse> {
+        let url_ = this.baseUrl + "/api/Driver/GetDriverInfo?";
+        if (userName !== undefined)
+            url_ += "userName=" + encodeURIComponent("" + userName) + "&"; 
+        if (isFull !== undefined)
+            url_ += "isFull=" + encodeURIComponent("" + isFull) + "&"; 
+        url_ = url_.replace(/[?&]$/, "");
 
-    const content_ = JSON.stringify(data);
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
 
-    let options_ : any = {
-      body: content_,
-      observe: "response",
-      responseType: "blob",
-      headers: new HttpHeaders({
-        "Content-Type": "application/json",
-        "Accept": "application/json"
-      })
-    };
-
-    return this.http.request("post", url_, options_).flatMap((response_ : any) => {
-      return this.processSignUp(response_);
-    }).catch((response_: any) => {
-      if (response_ instanceof HttpResponseBase) {
-        try {
-          return this.processSignUp(<any>response_);
-        } catch (e) {
-          return <Observable<SignUpResponse>><any>Observable.throw(e);
-        }
-      } else
-        return <Observable<SignUpResponse>><any>Observable.throw(response_);
-    });
-  }
-
-  protected processSignUp(response: HttpResponseBase): Observable<SignUpResponse> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse ? response.body :
-        (<any>response).error instanceof Blob ? (<any>response).error : undefined;
-
-    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
-    if (status === 200) {
-      return blobToText(responseBlob).flatMap(_responseText => {
-        let result200: any = null;
-        let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result200 = resultData200 ? SignUpResponse.fromJS(resultData200) : new SignUpResponse();
-        return Observable.of(result200);
-      });
-    } else if (status === 500) {
-      return blobToText(responseBlob).flatMap(_responseText => {
-        let result500: any = null;
-        let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result500 = resultData500 ? ErrorModel.fromJS(resultData500) : new ErrorModel();
-        return throwException("A server error occurred.", status, _responseText, _headers, result500);
-      });
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).flatMap(_responseText => {
-        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-      });
+        return this.http.request("get", url_, options_).flatMap((response_ : any) => {
+            return this.processGetDriverInfo(response_);
+        }).catch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetDriverInfo(<any>response_);
+                } catch (e) {
+                    return <Observable<DriverInfoResponse>><any>Observable.throw(e);
+                }
+            } else
+                return <Observable<DriverInfoResponse>><any>Observable.throw(response_);
+        });
     }
-    return Observable.of<SignUpResponse>(<any>null);
-  }
 
-  /**
-   * @param data (optional)
-   * @return Success
-   */
-  updateVehicleDeviceId(data: UpdateVehicleDeviceIdRequest | null | undefined): Observable<DriverVehicle> {
-    let url_ = this.baseUrl + "/api/DriverVehicleTrackingEvents/UpdateVehicleDeviceId";
-    url_ = url_.replace(/[?&]$/, "");
+    protected processGetDriverInfo(response: HttpResponseBase): Observable<DriverInfoResponse> {
+        const status = response.status;
+        const responseBlob = 
+            response instanceof HttpResponse ? response.body : 
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
 
-    const content_ = JSON.stringify(data);
-
-    let options_ : any = {
-      body: content_,
-      observe: "response",
-      responseType: "blob",
-      headers: new HttpHeaders({
-        "Content-Type": "application/json",
-        "Accept": "application/json"
-      })
-    };
-
-    return this.http.request("post", url_, options_).flatMap((response_ : any) => {
-      return this.processUpdateVehicleDeviceId(response_);
-    }).catch((response_: any) => {
-      if (response_ instanceof HttpResponseBase) {
-        try {
-          return this.processUpdateVehicleDeviceId(<any>response_);
-        } catch (e) {
-          return <Observable<DriverVehicle>><any>Observable.throw(e);
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
+        if (status === 200) {
+            return blobToText(responseBlob).flatMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = resultData200 ? DriverInfoResponse.fromJS(resultData200) : new DriverInfoResponse();
+            return Observable.of(result200);
+            });
+        } else if (status === 500) {
+            return blobToText(responseBlob).flatMap(_responseText => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = resultData500 ? ErrorModel.fromJS(resultData500) : new ErrorModel();
+            return throwException("A server error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).flatMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
         }
-      } else
-        return <Observable<DriverVehicle>><any>Observable.throw(response_);
-    });
-  }
-
-  protected processUpdateVehicleDeviceId(response: HttpResponseBase): Observable<DriverVehicle> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse ? response.body :
-        (<any>response).error instanceof Blob ? (<any>response).error : undefined;
-
-    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
-    if (status === 200) {
-      return blobToText(responseBlob).flatMap(_responseText => {
-        let result200: any = null;
-        let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result200 = resultData200 ? DriverVehicle.fromJS(resultData200) : new DriverVehicle();
-        return Observable.of(result200);
-      });
-    } else if (status === 500) {
-      return blobToText(responseBlob).flatMap(_responseText => {
-        let result500: any = null;
-        let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result500 = resultData500 ? ErrorModel.fromJS(resultData500) : new ErrorModel();
-        return throwException("A server error occurred.", status, _responseText, _headers, result500);
-      });
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).flatMap(_responseText => {
-        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-      });
+        return Observable.of<DriverInfoResponse>(<any>null);
     }
-    return Observable.of<DriverVehicle>(<any>null);
-  }
 
-  /**
-   * @param data (optional)
-   * @return Success
-   */
-  driverVehicleTrackingEvent(deviceId: string, data: CreateTrackingEventRequest[] | null | undefined): Observable<DriverVehicleTrackingEvent> {
-    let url_ = this.baseUrl + "/api/DriverVehicleTrackingEvents/DriverVehicleTrackingEvent/{deviceId}";
-    if (deviceId === undefined || deviceId === null)
-      throw new Error("The parameter 'deviceId' must be defined.");
-    url_ = url_.replace("{deviceId}", encodeURIComponent("" + deviceId));
-    url_ = url_.replace(/[?&]$/, "");
+    /**
+     * @param data (optional) 
+     * @return Success
+     */
+    updateSettings(data: DriverInfoUpdateRequest | null | undefined): Observable<DriverInfoResponse> {
+        let url_ = this.baseUrl + "/api/Driver/UpdateSetting";
+        url_ = url_.replace(/[?&]$/, "");
 
-    const content_ = JSON.stringify(data);
+        const content_ = JSON.stringify(data);
 
-    let options_ : any = {
-      body: content_,
-      observe: "response",
-      responseType: "blob",
-      headers: new HttpHeaders({
-        "Content-Type": "application/json",
-        "Accept": "application/json"
-      })
-    };
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json", 
+                "Accept": "application/json"
+            })
+        };
 
-    return this.http.request("post", url_, options_).flatMap((response_ : any) => {
-      return this.processDriverVehicleTrackingEvent(response_);
-    }).catch((response_: any) => {
-      if (response_ instanceof HttpResponseBase) {
-        try {
-          return this.processDriverVehicleTrackingEvent(<any>response_);
-        } catch (e) {
-          return <Observable<DriverVehicleTrackingEvent>><any>Observable.throw(e);
-        }
-      } else
-        return <Observable<DriverVehicleTrackingEvent>><any>Observable.throw(response_);
-    });
-  }
-
-  protected processDriverVehicleTrackingEvent(response: HttpResponseBase): Observable<DriverVehicleTrackingEvent> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse ? response.body :
-        (<any>response).error instanceof Blob ? (<any>response).error : undefined;
-
-    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
-    if (status === 200) {
-      return blobToText(responseBlob).flatMap(_responseText => {
-        let result200: any = null;
-        let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result200 = resultData200 ? DriverVehicleTrackingEvent.fromJS(resultData200) : new DriverVehicleTrackingEvent();
-        return Observable.of(result200);
-      });
-    } else if (status === 500) {
-      return blobToText(responseBlob).flatMap(_responseText => {
-        let result500: any = null;
-        let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result500 = resultData500 ? ErrorModel.fromJS(resultData500) : new ErrorModel();
-        return throwException("A server error occurred.", status, _responseText, _headers, result500);
-      });
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).flatMap(_responseText => {
-        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-      });
+        return this.http.request("post", url_, options_).flatMap((response_ : any) => {
+            return this.processUpdateSettings(response_);
+        }).catch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdateSettings(<any>response_);
+                } catch (e) {
+                    return <Observable<DriverInfoResponse>><any>Observable.throw(e);
+                }
+            } else
+                return <Observable<DriverInfoResponse>><any>Observable.throw(response_);
+        });
     }
-    return Observable.of<DriverVehicleTrackingEvent>(<any>null);
-  }
 
-  /**
-   * @return Success
-   */
-  getCountries(): Observable<Country[]> {
-    let url_ = this.baseUrl + "/api/Info/GetCountries";
-    url_ = url_.replace(/[?&]$/, "");
+    protected processUpdateSettings(response: HttpResponseBase): Observable<DriverInfoResponse> {
+        const status = response.status;
+        const responseBlob = 
+            response instanceof HttpResponse ? response.body : 
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
 
-    let options_ : any = {
-      observe: "response",
-      responseType: "blob",
-      headers: new HttpHeaders({
-        "Accept": "application/json"
-      })
-    };
-
-    return this.http.request("get", url_, options_).flatMap((response_ : any) => {
-      return this.processGetCountries(response_);
-    }).catch((response_: any) => {
-      if (response_ instanceof HttpResponseBase) {
-        try {
-          return this.processGetCountries(<any>response_);
-        } catch (e) {
-          return <Observable<Country[]>><any>Observable.throw(e);
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
+        if (status === 200) {
+            return blobToText(responseBlob).flatMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = resultData200 ? DriverInfoResponse.fromJS(resultData200) : new DriverInfoResponse();
+            return Observable.of(result200);
+            });
+        } else if (status === 500) {
+            return blobToText(responseBlob).flatMap(_responseText => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = resultData500 ? ErrorModel.fromJS(resultData500) : new ErrorModel();
+            return throwException("A server error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).flatMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
         }
-      } else
-        return <Observable<Country[]>><any>Observable.throw(response_);
-    });
-  }
-
-  protected processGetCountries(response: HttpResponseBase): Observable<Country[]> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse ? response.body :
-        (<any>response).error instanceof Blob ? (<any>response).error : undefined;
-
-    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
-    if (status === 200) {
-      return blobToText(responseBlob).flatMap(_responseText => {
-        let result200: any = null;
-        let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        if (resultData200 && resultData200.constructor === Array) {
-          result200 = [];
-          for (let item of resultData200)
-            result200.push(Country.fromJS(item));
-        }
-        return Observable.of(result200);
-      });
-    } else if (status === 500) {
-      return blobToText(responseBlob).flatMap(_responseText => {
-        let result500: any = null;
-        let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result500 = resultData500 ? ErrorModel.fromJS(resultData500) : new ErrorModel();
-        return throwException("A server error occurred.", status, _responseText, _headers, result500);
-      });
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).flatMap(_responseText => {
-        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-      });
+        return Observable.of<DriverInfoResponse>(<any>null);
     }
-    return Observable.of<Country[]>(<any>null);
-  }
 
-  /**
-   * @param id (optional)
-   * @return Success
-   */
-  getJobOffers(id: string | null | undefined): Observable<JobOffersResponse> {
-    let url_ = this.baseUrl + "/api/JobOffers/GetJobOffers?";
-    if (id !== undefined)
-      url_ += "Id=" + encodeURIComponent("" + id) + "&";
-    url_ = url_.replace(/[?&]$/, "");
+    /**
+     * @param data (optional) 
+     * @return Success
+     */
+    signUp(data: DriverSignUpRequest | null | undefined): Observable<SignUpResponse> {
+        let url_ = this.baseUrl + "/api/Driver/SignUp";
+        url_ = url_.replace(/[?&]$/, "");
 
-    let options_ : any = {
-      observe: "response",
-      responseType: "blob",
-      headers: new HttpHeaders({
-        "Accept": "application/json"
-      })
-    };
+        const content_ = JSON.stringify(data);
 
-    return this.http.request("get", url_, options_).flatMap((response_ : any) => {
-      return this.processGetJobOffers(response_);
-    }).catch((response_: any) => {
-      if (response_ instanceof HttpResponseBase) {
-        try {
-          return this.processGetJobOffers(<any>response_);
-        } catch (e) {
-          return <Observable<JobOffersResponse>><any>Observable.throw(e);
-        }
-      } else
-        return <Observable<JobOffersResponse>><any>Observable.throw(response_);
-    });
-  }
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json", 
+                "Accept": "application/json"
+            })
+        };
 
-  protected processGetJobOffers(response: HttpResponseBase): Observable<JobOffersResponse> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse ? response.body :
-        (<any>response).error instanceof Blob ? (<any>response).error : undefined;
-
-    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
-    if (status === 200) {
-      return blobToText(responseBlob).flatMap(_responseText => {
-        let result200: any = null;
-        let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result200 = resultData200 ? JobOffersResponse.fromJS(resultData200) : new JobOffersResponse();
-        return Observable.of(result200);
-      });
-    } else if (status === 500) {
-      return blobToText(responseBlob).flatMap(_responseText => {
-        let result500: any = null;
-        let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result500 = resultData500 ? ErrorModel.fromJS(resultData500) : new ErrorModel();
-        return throwException("A server error occurred.", status, _responseText, _headers, result500);
-      });
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).flatMap(_responseText => {
-        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-      });
+        return this.http.request("post", url_, options_).flatMap((response_ : any) => {
+            return this.processSignUp(response_);
+        }).catch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processSignUp(<any>response_);
+                } catch (e) {
+                    return <Observable<SignUpResponse>><any>Observable.throw(e);
+                }
+            } else
+                return <Observable<SignUpResponse>><any>Observable.throw(response_);
+        });
     }
-    return Observable.of<JobOffersResponse>(<any>null);
-  }
 
-  /**
-   * @param jobOfferId (optional)
-   * @return Success
-   */
-  acceptJobOffer(jobOfferId: number | null | undefined): Observable<SuccessModel> {
-    let url_ = this.baseUrl + "/api/JobOffers/AcceptJobOffer?";
-    if (jobOfferId !== undefined)
-      url_ += "JobOfferId=" + encodeURIComponent("" + jobOfferId) + "&";
-    url_ = url_.replace(/[?&]$/, "");
+    protected processSignUp(response: HttpResponseBase): Observable<SignUpResponse> {
+        const status = response.status;
+        const responseBlob = 
+            response instanceof HttpResponse ? response.body : 
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
 
-    let options_ : any = {
-      observe: "response",
-      responseType: "blob",
-      headers: new HttpHeaders({
-        "Accept": "application/json"
-      })
-    };
-
-    return this.http.request("post", url_, options_).flatMap((response_ : any) => {
-      return this.processAcceptJobOffer(response_);
-    }).catch((response_: any) => {
-      if (response_ instanceof HttpResponseBase) {
-        try {
-          return this.processAcceptJobOffer(<any>response_);
-        } catch (e) {
-          return <Observable<SuccessModel>><any>Observable.throw(e);
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
+        if (status === 200) {
+            return blobToText(responseBlob).flatMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = resultData200 ? SignUpResponse.fromJS(resultData200) : new SignUpResponse();
+            return Observable.of(result200);
+            });
+        } else if (status === 500) {
+            return blobToText(responseBlob).flatMap(_responseText => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = resultData500 ? ErrorModel.fromJS(resultData500) : new ErrorModel();
+            return throwException("A server error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).flatMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
         }
-      } else
-        return <Observable<SuccessModel>><any>Observable.throw(response_);
-    });
-  }
-
-  protected processAcceptJobOffer(response: HttpResponseBase): Observable<SuccessModel> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse ? response.body :
-        (<any>response).error instanceof Blob ? (<any>response).error : undefined;
-
-    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
-    if (status === 200) {
-      return blobToText(responseBlob).flatMap(_responseText => {
-        let result200: any = null;
-        let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result200 = resultData200 ? SuccessModel.fromJS(resultData200) : new SuccessModel();
-        return Observable.of(result200);
-      });
-    } else if (status === 500) {
-      return blobToText(responseBlob).flatMap(_responseText => {
-        let result500: any = null;
-        let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result500 = resultData500 ? ErrorModel.fromJS(resultData500) : new ErrorModel();
-        return throwException("A server error occurred.", status, _responseText, _headers, result500);
-      });
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).flatMap(_responseText => {
-        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-      });
+        return Observable.of<SignUpResponse>(<any>null);
     }
-    return Observable.of<SuccessModel>(<any>null);
-  }
 
-  /**
-   * @param jobOfferId (optional)
-   * @return Success
-   */
-  rejectJobOffer(jobOfferId: number | null | undefined): Observable<SuccessModel> {
-    let url_ = this.baseUrl + "/api/JobOffers/RejectJobOffer?";
-    if (jobOfferId !== undefined)
-      url_ += "JobOfferId=" + encodeURIComponent("" + jobOfferId) + "&";
-    url_ = url_.replace(/[?&]$/, "");
+    /**
+     * @param data (optional) 
+     * @return Success
+     */
+    updateVehicleDeviceId(data: UpdateVehicleDeviceIdRequest | null | undefined): Observable<DriverVehicle> {
+        let url_ = this.baseUrl + "/api/DriverVehicleTrackingEvents/UpdateVehicleDeviceId";
+        url_ = url_.replace(/[?&]$/, "");
 
-    let options_ : any = {
-      observe: "response",
-      responseType: "blob",
-      headers: new HttpHeaders({
-        "Accept": "application/json"
-      })
-    };
+        const content_ = JSON.stringify(data);
 
-    return this.http.request("post", url_, options_).flatMap((response_ : any) => {
-      return this.processRejectJobOffer(response_);
-    }).catch((response_: any) => {
-      if (response_ instanceof HttpResponseBase) {
-        try {
-          return this.processRejectJobOffer(<any>response_);
-        } catch (e) {
-          return <Observable<SuccessModel>><any>Observable.throw(e);
-        }
-      } else
-        return <Observable<SuccessModel>><any>Observable.throw(response_);
-    });
-  }
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json", 
+                "Accept": "application/json"
+            })
+        };
 
-  protected processRejectJobOffer(response: HttpResponseBase): Observable<SuccessModel> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse ? response.body :
-        (<any>response).error instanceof Blob ? (<any>response).error : undefined;
-
-    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
-    if (status === 200) {
-      return blobToText(responseBlob).flatMap(_responseText => {
-        let result200: any = null;
-        let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result200 = resultData200 ? SuccessModel.fromJS(resultData200) : new SuccessModel();
-        return Observable.of(result200);
-      });
-    } else if (status === 500) {
-      return blobToText(responseBlob).flatMap(_responseText => {
-        let result500: any = null;
-        let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result500 = resultData500 ? ErrorModel.fromJS(resultData500) : new ErrorModel();
-        return throwException("A server error occurred.", status, _responseText, _headers, result500);
-      });
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).flatMap(_responseText => {
-        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-      });
+        return this.http.request("post", url_, options_).flatMap((response_ : any) => {
+            return this.processUpdateVehicleDeviceId(response_);
+        }).catch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdateVehicleDeviceId(<any>response_);
+                } catch (e) {
+                    return <Observable<DriverVehicle>><any>Observable.throw(e);
+                }
+            } else
+                return <Observable<DriverVehicle>><any>Observable.throw(response_);
+        });
     }
-    return Observable.of<SuccessModel>(<any>null);
-  }
 
-  /**
-   * @return Success
-   */
-  getJobOffer(id: number): Observable<JobOffer> {
-    let url_ = this.baseUrl + "/api/JobOffers/GetJobOffer/{id}";
-    if (id === undefined || id === null)
-      throw new Error("The parameter 'id' must be defined.");
-    url_ = url_.replace("{id}", encodeURIComponent("" + id));
-    url_ = url_.replace(/[?&]$/, "");
+    protected processUpdateVehicleDeviceId(response: HttpResponseBase): Observable<DriverVehicle> {
+        const status = response.status;
+        const responseBlob = 
+            response instanceof HttpResponse ? response.body : 
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
 
-    let options_ : any = {
-      observe: "response",
-      responseType: "blob",
-      headers: new HttpHeaders({
-        "Accept": "application/json"
-      })
-    };
-
-    return this.http.request("get", url_, options_).flatMap((response_ : any) => {
-      return this.processGetJobOffer(response_);
-    }).catch((response_: any) => {
-      if (response_ instanceof HttpResponseBase) {
-        try {
-          return this.processGetJobOffer(<any>response_);
-        } catch (e) {
-          return <Observable<JobOffer>><any>Observable.throw(e);
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
+        if (status === 200) {
+            return blobToText(responseBlob).flatMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = resultData200 ? DriverVehicle.fromJS(resultData200) : new DriverVehicle();
+            return Observable.of(result200);
+            });
+        } else if (status === 500) {
+            return blobToText(responseBlob).flatMap(_responseText => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = resultData500 ? ErrorModel.fromJS(resultData500) : new ErrorModel();
+            return throwException("A server error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).flatMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
         }
-      } else
-        return <Observable<JobOffer>><any>Observable.throw(response_);
-    });
-  }
-
-  protected processGetJobOffer(response: HttpResponseBase): Observable<JobOffer> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse ? response.body :
-        (<any>response).error instanceof Blob ? (<any>response).error : undefined;
-
-    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
-    if (status === 200) {
-      return blobToText(responseBlob).flatMap(_responseText => {
-        let result200: any = null;
-        let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result200 = resultData200 ? JobOffer.fromJS(resultData200) : new JobOffer();
-        return Observable.of(result200);
-      });
-    } else if (status === 500) {
-      return blobToText(responseBlob).flatMap(_responseText => {
-        let result500: any = null;
-        let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result500 = resultData500 ? ErrorModel.fromJS(resultData500) : new ErrorModel();
-        return throwException("A server error occurred.", status, _responseText, _headers, result500);
-      });
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).flatMap(_responseText => {
-        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-      });
+        return Observable.of<DriverVehicle>(<any>null);
     }
-    return Observable.of<JobOffer>(<any>null);
-  }
 
-  /**
-   * @param data (optional)
-   * @return Success
-   */
-  calculate(data: PricingRequest | null | undefined): Observable<void> {
-    let url_ = this.baseUrl + "/api/Pricing";
-    url_ = url_.replace(/[?&]$/, "");
+    /**
+     * @param data (optional) 
+     * @return Success
+     */
+    driverVehicleTrackingEvent(deviceId: string, data: CreateTrackingEventRequest[] | null | undefined): Observable<DriverVehicleTrackingEvent> {
+        let url_ = this.baseUrl + "/api/DriverVehicleTrackingEvents/DriverVehicleTrackingEvent/{deviceId}";
+        if (deviceId === undefined || deviceId === null)
+            throw new Error("The parameter 'deviceId' must be defined.");
+        url_ = url_.replace("{deviceId}", encodeURIComponent("" + deviceId)); 
+        url_ = url_.replace(/[?&]$/, "");
 
-    const content_ = JSON.stringify(data);
+        const content_ = JSON.stringify(data);
 
-    let options_ : any = {
-      body: content_,
-      observe: "response",
-      responseType: "blob",
-      headers: new HttpHeaders({
-        "Content-Type": "application/json",
-      })
-    };
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json", 
+                "Accept": "application/json"
+            })
+        };
 
-    return this.http.request("post", url_, options_).flatMap((response_ : any) => {
-      return this.processCalculate(response_);
-    }).catch((response_: any) => {
-      if (response_ instanceof HttpResponseBase) {
-        try {
-          return this.processCalculate(<any>response_);
-        } catch (e) {
-          return <Observable<void>><any>Observable.throw(e);
+        return this.http.request("post", url_, options_).flatMap((response_ : any) => {
+            return this.processDriverVehicleTrackingEvent(response_);
+        }).catch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDriverVehicleTrackingEvent(<any>response_);
+                } catch (e) {
+                    return <Observable<DriverVehicleTrackingEvent>><any>Observable.throw(e);
+                }
+            } else
+                return <Observable<DriverVehicleTrackingEvent>><any>Observable.throw(response_);
+        });
+    }
+
+    protected processDriverVehicleTrackingEvent(response: HttpResponseBase): Observable<DriverVehicleTrackingEvent> {
+        const status = response.status;
+        const responseBlob = 
+            response instanceof HttpResponse ? response.body : 
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
+        if (status === 200) {
+            return blobToText(responseBlob).flatMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = resultData200 ? DriverVehicleTrackingEvent.fromJS(resultData200) : new DriverVehicleTrackingEvent();
+            return Observable.of(result200);
+            });
+        } else if (status === 500) {
+            return blobToText(responseBlob).flatMap(_responseText => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = resultData500 ? ErrorModel.fromJS(resultData500) : new ErrorModel();
+            return throwException("A server error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).flatMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
         }
-      } else
-        return <Observable<void>><any>Observable.throw(response_);
-    });
-  }
+        return Observable.of<DriverVehicleTrackingEvent>(<any>null);
+    }
 
-  protected processCalculate(response: HttpResponseBase): Observable<void> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse ? response.body :
-        (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+    /**
+     * @return Success
+     */
+    getCountries(): Observable<Country[]> {
+        let url_ = this.baseUrl + "/api/Info/GetCountries";
+        url_ = url_.replace(/[?&]$/, "");
 
-    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
-    if (status === 200) {
-      return blobToText(responseBlob).flatMap(_responseText => {
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).flatMap((response_ : any) => {
+            return this.processGetCountries(response_);
+        }).catch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetCountries(<any>response_);
+                } catch (e) {
+                    return <Observable<Country[]>><any>Observable.throw(e);
+                }
+            } else
+                return <Observable<Country[]>><any>Observable.throw(response_);
+        });
+    }
+
+    protected processGetCountries(response: HttpResponseBase): Observable<Country[]> {
+        const status = response.status;
+        const responseBlob = 
+            response instanceof HttpResponse ? response.body : 
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
+        if (status === 200) {
+            return blobToText(responseBlob).flatMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (resultData200 && resultData200.constructor === Array) {
+                result200 = [];
+                for (let item of resultData200)
+                    result200.push(Country.fromJS(item));
+            }
+            return Observable.of(result200);
+            });
+        } else if (status === 500) {
+            return blobToText(responseBlob).flatMap(_responseText => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = resultData500 ? ErrorModel.fromJS(resultData500) : new ErrorModel();
+            return throwException("A server error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).flatMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Observable.of<Country[]>(<any>null);
+    }
+
+    /**
+     * @param id (optional) 
+     * @return Success
+     */
+    getJobOffers(id: string | null | undefined): Observable<JobOffersResponse> {
+        let url_ = this.baseUrl + "/api/JobOffers/GetJobOffers?";
+        if (id !== undefined)
+            url_ += "Id=" + encodeURIComponent("" + id) + "&"; 
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).flatMap((response_ : any) => {
+            return this.processGetJobOffers(response_);
+        }).catch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetJobOffers(<any>response_);
+                } catch (e) {
+                    return <Observable<JobOffersResponse>><any>Observable.throw(e);
+                }
+            } else
+                return <Observable<JobOffersResponse>><any>Observable.throw(response_);
+        });
+    }
+
+    protected processGetJobOffers(response: HttpResponseBase): Observable<JobOffersResponse> {
+        const status = response.status;
+        const responseBlob = 
+            response instanceof HttpResponse ? response.body : 
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
+        if (status === 200) {
+            return blobToText(responseBlob).flatMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = resultData200 ? JobOffersResponse.fromJS(resultData200) : new JobOffersResponse();
+            return Observable.of(result200);
+            });
+        } else if (status === 500) {
+            return blobToText(responseBlob).flatMap(_responseText => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = resultData500 ? ErrorModel.fromJS(resultData500) : new ErrorModel();
+            return throwException("A server error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).flatMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Observable.of<JobOffersResponse>(<any>null);
+    }
+
+    /**
+     * @param jobOfferId (optional) 
+     * @return Success
+     */
+    acceptJobOffer(jobOfferId: number | null | undefined): Observable<SuccessModel> {
+        let url_ = this.baseUrl + "/api/JobOffers/AcceptJobOffer?";
+        if (jobOfferId !== undefined)
+            url_ += "JobOfferId=" + encodeURIComponent("" + jobOfferId) + "&"; 
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).flatMap((response_ : any) => {
+            return this.processAcceptJobOffer(response_);
+        }).catch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processAcceptJobOffer(<any>response_);
+                } catch (e) {
+                    return <Observable<SuccessModel>><any>Observable.throw(e);
+                }
+            } else
+                return <Observable<SuccessModel>><any>Observable.throw(response_);
+        });
+    }
+
+    protected processAcceptJobOffer(response: HttpResponseBase): Observable<SuccessModel> {
+        const status = response.status;
+        const responseBlob = 
+            response instanceof HttpResponse ? response.body : 
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
+        if (status === 200) {
+            return blobToText(responseBlob).flatMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = resultData200 ? SuccessModel.fromJS(resultData200) : new SuccessModel();
+            return Observable.of(result200);
+            });
+        } else if (status === 500) {
+            return blobToText(responseBlob).flatMap(_responseText => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = resultData500 ? ErrorModel.fromJS(resultData500) : new ErrorModel();
+            return throwException("A server error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).flatMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Observable.of<SuccessModel>(<any>null);
+    }
+
+    /**
+     * @param jobOfferId (optional) 
+     * @return Success
+     */
+    rejectJobOffer(jobOfferId: number | null | undefined): Observable<SuccessModel> {
+        let url_ = this.baseUrl + "/api/JobOffers/RejectJobOffer?";
+        if (jobOfferId !== undefined)
+            url_ += "JobOfferId=" + encodeURIComponent("" + jobOfferId) + "&"; 
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).flatMap((response_ : any) => {
+            return this.processRejectJobOffer(response_);
+        }).catch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processRejectJobOffer(<any>response_);
+                } catch (e) {
+                    return <Observable<SuccessModel>><any>Observable.throw(e);
+                }
+            } else
+                return <Observable<SuccessModel>><any>Observable.throw(response_);
+        });
+    }
+
+    protected processRejectJobOffer(response: HttpResponseBase): Observable<SuccessModel> {
+        const status = response.status;
+        const responseBlob = 
+            response instanceof HttpResponse ? response.body : 
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
+        if (status === 200) {
+            return blobToText(responseBlob).flatMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = resultData200 ? SuccessModel.fromJS(resultData200) : new SuccessModel();
+            return Observable.of(result200);
+            });
+        } else if (status === 500) {
+            return blobToText(responseBlob).flatMap(_responseText => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = resultData500 ? ErrorModel.fromJS(resultData500) : new ErrorModel();
+            return throwException("A server error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).flatMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Observable.of<SuccessModel>(<any>null);
+    }
+
+    /**
+     * @return Success
+     */
+    getJobOffer(id: number): Observable<JobOffer> {
+        let url_ = this.baseUrl + "/api/JobOffers/GetJobOffer/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id)); 
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).flatMap((response_ : any) => {
+            return this.processGetJobOffer(response_);
+        }).catch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetJobOffer(<any>response_);
+                } catch (e) {
+                    return <Observable<JobOffer>><any>Observable.throw(e);
+                }
+            } else
+                return <Observable<JobOffer>><any>Observable.throw(response_);
+        });
+    }
+
+    protected processGetJobOffer(response: HttpResponseBase): Observable<JobOffer> {
+        const status = response.status;
+        const responseBlob = 
+            response instanceof HttpResponse ? response.body : 
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
+        if (status === 200) {
+            return blobToText(responseBlob).flatMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = resultData200 ? JobOffer.fromJS(resultData200) : new JobOffer();
+            return Observable.of(result200);
+            });
+        } else if (status === 500) {
+            return blobToText(responseBlob).flatMap(_responseText => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = resultData500 ? ErrorModel.fromJS(resultData500) : new ErrorModel();
+            return throwException("A server error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).flatMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Observable.of<JobOffer>(<any>null);
+    }
+
+    /**
+     * @param data (optional) 
+     * @return Success
+     */
+    calculate(data: PricingRequest | null | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/Pricing";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(data);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json", 
+            })
+        };
+
+        return this.http.request("post", url_, options_).flatMap((response_ : any) => {
+            return this.processCalculate(response_);
+        }).catch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCalculate(<any>response_);
+                } catch (e) {
+                    return <Observable<void>><any>Observable.throw(e);
+                }
+            } else
+                return <Observable<void>><any>Observable.throw(response_);
+        });
+    }
+
+    protected processCalculate(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob = 
+            response instanceof HttpResponse ? response.body : 
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
+        if (status === 200) {
+            return blobToText(responseBlob).flatMap(_responseText => {
+            return Observable.of<void>(<any>null);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).flatMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
         return Observable.of<void>(<any>null);
-      });
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).flatMap(_responseText => {
-        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-      });
     }
-    return Observable.of<void>(<any>null);
-  }
 
-  /**
-   * @return Success
-   */
-  getVehicleModels(): Observable<VehicleModel[]> {
-    let url_ = this.baseUrl + "/api/Vehicles/GetVehicleModels";
-    url_ = url_.replace(/[?&]$/, "");
+    /**
+     * @return Success
+     */
+    getVehicleModels(): Observable<VehicleModel[]> {
+        let url_ = this.baseUrl + "/api/Vehicles/GetVehicleModels";
+        url_ = url_.replace(/[?&]$/, "");
 
-    let options_ : any = {
-      observe: "response",
-      responseType: "blob",
-      headers: new HttpHeaders({
-        "Accept": "application/json"
-      })
-    };
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
 
-    return this.http.request("get", url_, options_).flatMap((response_ : any) => {
-      return this.processGetVehicleModels(response_);
-    }).catch((response_: any) => {
-      if (response_ instanceof HttpResponseBase) {
-        try {
-          return this.processGetVehicleModels(<any>response_);
-        } catch (e) {
-          return <Observable<VehicleModel[]>><any>Observable.throw(e);
-        }
-      } else
-        return <Observable<VehicleModel[]>><any>Observable.throw(response_);
-    });
-  }
-
-  protected processGetVehicleModels(response: HttpResponseBase): Observable<VehicleModel[]> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse ? response.body :
-        (<any>response).error instanceof Blob ? (<any>response).error : undefined;
-
-    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
-    if (status === 200) {
-      return blobToText(responseBlob).flatMap(_responseText => {
-        let result200: any = null;
-        let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        if (resultData200 && resultData200.constructor === Array) {
-          result200 = [];
-          for (let item of resultData200)
-            result200.push(VehicleModel.fromJS(item));
-        }
-        return Observable.of(result200);
-      });
-    } else if (status === 500) {
-      return blobToText(responseBlob).flatMap(_responseText => {
-        let result500: any = null;
-        let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result500 = resultData500 ? ErrorModel.fromJS(resultData500) : new ErrorModel();
-        return throwException("A server error occurred.", status, _responseText, _headers, result500);
-      });
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).flatMap(_responseText => {
-        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-      });
+        return this.http.request("get", url_, options_).flatMap((response_ : any) => {
+            return this.processGetVehicleModels(response_);
+        }).catch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetVehicleModels(<any>response_);
+                } catch (e) {
+                    return <Observable<VehicleModel[]>><any>Observable.throw(e);
+                }
+            } else
+                return <Observable<VehicleModel[]>><any>Observable.throw(response_);
+        });
     }
-    return Observable.of<VehicleModel[]>(<any>null);
-  }
 
-  /**
-   * @return Success
-   */
-  getVehicleBrands(): Observable<VehicleBrand[]> {
-    let url_ = this.baseUrl + "/api/Vehicles/GetVehicleBrands";
-    url_ = url_.replace(/[?&]$/, "");
+    protected processGetVehicleModels(response: HttpResponseBase): Observable<VehicleModel[]> {
+        const status = response.status;
+        const responseBlob = 
+            response instanceof HttpResponse ? response.body : 
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
 
-    let options_ : any = {
-      observe: "response",
-      responseType: "blob",
-      headers: new HttpHeaders({
-        "Accept": "application/json"
-      })
-    };
-
-    return this.http.request("get", url_, options_).flatMap((response_ : any) => {
-      return this.processGetVehicleBrands(response_);
-    }).catch((response_: any) => {
-      if (response_ instanceof HttpResponseBase) {
-        try {
-          return this.processGetVehicleBrands(<any>response_);
-        } catch (e) {
-          return <Observable<VehicleBrand[]>><any>Observable.throw(e);
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
+        if (status === 200) {
+            return blobToText(responseBlob).flatMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (resultData200 && resultData200.constructor === Array) {
+                result200 = [];
+                for (let item of resultData200)
+                    result200.push(VehicleModel.fromJS(item));
+            }
+            return Observable.of(result200);
+            });
+        } else if (status === 500) {
+            return blobToText(responseBlob).flatMap(_responseText => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = resultData500 ? ErrorModel.fromJS(resultData500) : new ErrorModel();
+            return throwException("A server error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).flatMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
         }
-      } else
-        return <Observable<VehicleBrand[]>><any>Observable.throw(response_);
-    });
-  }
-
-  protected processGetVehicleBrands(response: HttpResponseBase): Observable<VehicleBrand[]> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse ? response.body :
-        (<any>response).error instanceof Blob ? (<any>response).error : undefined;
-
-    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
-    if (status === 200) {
-      return blobToText(responseBlob).flatMap(_responseText => {
-        let result200: any = null;
-        let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        if (resultData200 && resultData200.constructor === Array) {
-          result200 = [];
-          for (let item of resultData200)
-            result200.push(VehicleBrand.fromJS(item));
-        }
-        return Observable.of(result200);
-      });
-    } else if (status === 500) {
-      return blobToText(responseBlob).flatMap(_responseText => {
-        let result500: any = null;
-        let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result500 = resultData500 ? ErrorModel.fromJS(resultData500) : new ErrorModel();
-        return throwException("A server error occurred.", status, _responseText, _headers, result500);
-      });
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).flatMap(_responseText => {
-        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-      });
+        return Observable.of<VehicleModel[]>(<any>null);
     }
-    return Observable.of<VehicleBrand[]>(<any>null);
-  }
 
-  /**
-   * @return Success
-   */
-  getVehicleCategories(): Observable<VehicleCategory[]> {
-    let url_ = this.baseUrl + "/api/Vehicles/GetVehicleCategories";
-    url_ = url_.replace(/[?&]$/, "");
+    /**
+     * @return Success
+     */
+    getVehicleBrands(): Observable<VehicleBrand[]> {
+        let url_ = this.baseUrl + "/api/Vehicles/GetVehicleBrands";
+        url_ = url_.replace(/[?&]$/, "");
 
-    let options_ : any = {
-      observe: "response",
-      responseType: "blob",
-      headers: new HttpHeaders({
-        "Accept": "application/json"
-      })
-    };
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
 
-    return this.http.request("get", url_, options_).flatMap((response_ : any) => {
-      return this.processGetVehicleCategories(response_);
-    }).catch((response_: any) => {
-      if (response_ instanceof HttpResponseBase) {
-        try {
-          return this.processGetVehicleCategories(<any>response_);
-        } catch (e) {
-          return <Observable<VehicleCategory[]>><any>Observable.throw(e);
-        }
-      } else
-        return <Observable<VehicleCategory[]>><any>Observable.throw(response_);
-    });
-  }
-
-  protected processGetVehicleCategories(response: HttpResponseBase): Observable<VehicleCategory[]> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse ? response.body :
-        (<any>response).error instanceof Blob ? (<any>response).error : undefined;
-
-    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
-    if (status === 200) {
-      return blobToText(responseBlob).flatMap(_responseText => {
-        let result200: any = null;
-        let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        if (resultData200 && resultData200.constructor === Array) {
-          result200 = [];
-          for (let item of resultData200)
-            result200.push(VehicleCategory.fromJS(item));
-        }
-        return Observable.of(result200);
-      });
-    } else if (status === 500) {
-      return blobToText(responseBlob).flatMap(_responseText => {
-        let result500: any = null;
-        let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result500 = resultData500 ? ErrorModel.fromJS(resultData500) : new ErrorModel();
-        return throwException("A server error occurred.", status, _responseText, _headers, result500);
-      });
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).flatMap(_responseText => {
-        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-      });
+        return this.http.request("get", url_, options_).flatMap((response_ : any) => {
+            return this.processGetVehicleBrands(response_);
+        }).catch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetVehicleBrands(<any>response_);
+                } catch (e) {
+                    return <Observable<VehicleBrand[]>><any>Observable.throw(e);
+                }
+            } else
+                return <Observable<VehicleBrand[]>><any>Observable.throw(response_);
+        });
     }
-    return Observable.of<VehicleCategory[]>(<any>null);
-  }
 
-  /**
-   * @param userName (optional)
-   * @return Success
-   */
-  withdraw(userName: string | null | undefined): Observable<SuccessModel> {
-    let url_ = this.baseUrl + "/api/Wallet/Withdraw?";
-    if (userName !== undefined)
-      url_ += "UserName=" + encodeURIComponent("" + userName) + "&";
-    url_ = url_.replace(/[?&]$/, "");
+    protected processGetVehicleBrands(response: HttpResponseBase): Observable<VehicleBrand[]> {
+        const status = response.status;
+        const responseBlob = 
+            response instanceof HttpResponse ? response.body : 
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
 
-    let options_ : any = {
-      observe: "response",
-      responseType: "blob",
-      headers: new HttpHeaders({
-        "Accept": "application/json"
-      })
-    };
-
-    return this.http.request("post", url_, options_).flatMap((response_ : any) => {
-      return this.processWithdraw(response_);
-    }).catch((response_: any) => {
-      if (response_ instanceof HttpResponseBase) {
-        try {
-          return this.processWithdraw(<any>response_);
-        } catch (e) {
-          return <Observable<SuccessModel>><any>Observable.throw(e);
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
+        if (status === 200) {
+            return blobToText(responseBlob).flatMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (resultData200 && resultData200.constructor === Array) {
+                result200 = [];
+                for (let item of resultData200)
+                    result200.push(VehicleBrand.fromJS(item));
+            }
+            return Observable.of(result200);
+            });
+        } else if (status === 500) {
+            return blobToText(responseBlob).flatMap(_responseText => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = resultData500 ? ErrorModel.fromJS(resultData500) : new ErrorModel();
+            return throwException("A server error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).flatMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
         }
-      } else
-        return <Observable<SuccessModel>><any>Observable.throw(response_);
-    });
-  }
-
-  protected processWithdraw(response: HttpResponseBase): Observable<SuccessModel> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse ? response.body :
-        (<any>response).error instanceof Blob ? (<any>response).error : undefined;
-
-    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
-    if (status === 200) {
-      return blobToText(responseBlob).flatMap(_responseText => {
-        let result200: any = null;
-        let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result200 = resultData200 ? SuccessModel.fromJS(resultData200) : new SuccessModel();
-        return Observable.of(result200);
-      });
-    } else if (status === 500) {
-      return blobToText(responseBlob).flatMap(_responseText => {
-        let result500: any = null;
-        let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result500 = resultData500 ? ErrorModel.fromJS(resultData500) : new ErrorModel();
-        return throwException("A server error occurred.", status, _responseText, _headers, result500);
-      });
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).flatMap(_responseText => {
-        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-      });
+        return Observable.of<VehicleBrand[]>(<any>null);
     }
-    return Observable.of<SuccessModel>(<any>null);
-  }
 
-  /**
-   * @param userName (optional)
-   * @return Success
-   */
-  getWallet(userName: string | null | undefined): Observable<WalletResponse> {
-    let url_ = this.baseUrl + "/api/Wallet/GetWalletEntries?";
-    if (userName !== undefined)
-      url_ += "UserName=" + encodeURIComponent("" + userName) + "&";
-    url_ = url_.replace(/[?&]$/, "");
+    /**
+     * @return Success
+     */
+    getVehicleCategories(): Observable<VehicleCategory[]> {
+        let url_ = this.baseUrl + "/api/Vehicles/GetVehicleCategories";
+        url_ = url_.replace(/[?&]$/, "");
 
-    let options_ : any = {
-      observe: "response",
-      responseType: "blob",
-      headers: new HttpHeaders({
-        "Accept": "application/json"
-      })
-    };
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
 
-    return this.http.request("get", url_, options_).flatMap((response_ : any) => {
-      return this.processGetWallet(response_);
-    }).catch((response_: any) => {
-      if (response_ instanceof HttpResponseBase) {
-        try {
-          return this.processGetWallet(<any>response_);
-        } catch (e) {
-          return <Observable<WalletResponse>><any>Observable.throw(e);
+        return this.http.request("get", url_, options_).flatMap((response_ : any) => {
+            return this.processGetVehicleCategories(response_);
+        }).catch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetVehicleCategories(<any>response_);
+                } catch (e) {
+                    return <Observable<VehicleCategory[]>><any>Observable.throw(e);
+                }
+            } else
+                return <Observable<VehicleCategory[]>><any>Observable.throw(response_);
+        });
+    }
+
+    protected processGetVehicleCategories(response: HttpResponseBase): Observable<VehicleCategory[]> {
+        const status = response.status;
+        const responseBlob = 
+            response instanceof HttpResponse ? response.body : 
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
+        if (status === 200) {
+            return blobToText(responseBlob).flatMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (resultData200 && resultData200.constructor === Array) {
+                result200 = [];
+                for (let item of resultData200)
+                    result200.push(VehicleCategory.fromJS(item));
+            }
+            return Observable.of(result200);
+            });
+        } else if (status === 500) {
+            return blobToText(responseBlob).flatMap(_responseText => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = resultData500 ? ErrorModel.fromJS(resultData500) : new ErrorModel();
+            return throwException("A server error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).flatMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
         }
-      } else
-        return <Observable<WalletResponse>><any>Observable.throw(response_);
-    });
-  }
-
-  protected processGetWallet(response: HttpResponseBase): Observable<WalletResponse> {
-    const status = response.status;
-    const responseBlob =
-      response instanceof HttpResponse ? response.body :
-        (<any>response).error instanceof Blob ? (<any>response).error : undefined;
-
-    let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
-    if (status === 200) {
-      return blobToText(responseBlob).flatMap(_responseText => {
-        let result200: any = null;
-        let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result200 = resultData200 ? WalletResponse.fromJS(resultData200) : new WalletResponse();
-        return Observable.of(result200);
-      });
-    } else if (status === 500) {
-      return blobToText(responseBlob).flatMap(_responseText => {
-        let result500: any = null;
-        let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result500 = resultData500 ? ErrorModel.fromJS(resultData500) : new ErrorModel();
-        return throwException("A server error occurred.", status, _responseText, _headers, result500);
-      });
-    } else if (status !== 200 && status !== 204) {
-      return blobToText(responseBlob).flatMap(_responseText => {
-        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-      });
+        return Observable.of<VehicleCategory[]>(<any>null);
     }
-    return Observable.of<WalletResponse>(<any>null);
-  }
+
+    /**
+     * @param userName (optional) 
+     * @return Success
+     */
+    withdraw(userName: string | null | undefined): Observable<SuccessModel> {
+        let url_ = this.baseUrl + "/api/Wallet/Withdraw?";
+        if (userName !== undefined)
+            url_ += "UserName=" + encodeURIComponent("" + userName) + "&"; 
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).flatMap((response_ : any) => {
+            return this.processWithdraw(response_);
+        }).catch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processWithdraw(<any>response_);
+                } catch (e) {
+                    return <Observable<SuccessModel>><any>Observable.throw(e);
+                }
+            } else
+                return <Observable<SuccessModel>><any>Observable.throw(response_);
+        });
+    }
+
+    protected processWithdraw(response: HttpResponseBase): Observable<SuccessModel> {
+        const status = response.status;
+        const responseBlob = 
+            response instanceof HttpResponse ? response.body : 
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
+        if (status === 200) {
+            return blobToText(responseBlob).flatMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = resultData200 ? SuccessModel.fromJS(resultData200) : new SuccessModel();
+            return Observable.of(result200);
+            });
+        } else if (status === 500) {
+            return blobToText(responseBlob).flatMap(_responseText => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = resultData500 ? ErrorModel.fromJS(resultData500) : new ErrorModel();
+            return throwException("A server error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).flatMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Observable.of<SuccessModel>(<any>null);
+    }
+
+    /**
+     * @param userName (optional) 
+     * @return Success
+     */
+    getWallet(userName: string | null | undefined): Observable<WalletResponse> {
+        let url_ = this.baseUrl + "/api/Wallet/GetWalletEntries?";
+        if (userName !== undefined)
+            url_ += "UserName=" + encodeURIComponent("" + userName) + "&"; 
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).flatMap((response_ : any) => {
+            return this.processGetWallet(response_);
+        }).catch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetWallet(<any>response_);
+                } catch (e) {
+                    return <Observable<WalletResponse>><any>Observable.throw(e);
+                }
+            } else
+                return <Observable<WalletResponse>><any>Observable.throw(response_);
+        });
+    }
+
+    protected processGetWallet(response: HttpResponseBase): Observable<WalletResponse> {
+        const status = response.status;
+        const responseBlob = 
+            response instanceof HttpResponse ? response.body : 
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
+        if (status === 200) {
+            return blobToText(responseBlob).flatMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = resultData200 ? WalletResponse.fromJS(resultData200) : new WalletResponse();
+            return Observable.of(result200);
+            });
+        } else if (status === 500) {
+            return blobToText(responseBlob).flatMap(_responseText => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = resultData500 ? ErrorModel.fromJS(resultData500) : new ErrorModel();
+            return throwException("A server error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).flatMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Observable.of<WalletResponse>(<any>null);
+    }
 }
 
 export class LoginResponse implements ILoginResponse {
-  userName?: string | undefined;
-  fullName?: string | undefined;
-  profileCloudinaryImage?: CloudinaryImage | undefined;
-  primaryVehicleId?: number | undefined;
+    userName?: string | undefined;
+    fullName?: string | undefined;
+    profileCloudinaryImage?: CloudinaryImage | undefined;
+    primaryVehicleId?: number | undefined;
 
-  constructor(data?: ILoginResponse) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: ILoginResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(data?: any) {
-    if (data) {
-      this.userName = data["userName"];
-      this.fullName = data["fullName"];
-      this.profileCloudinaryImage = data["profileCloudinaryImage"] ? CloudinaryImage.fromJS(data["profileCloudinaryImage"]) : <any>undefined;
-      this.primaryVehicleId = data["primaryVehicleId"];
+    init(data?: any) {
+        if (data) {
+            this.userName = data["userName"];
+            this.fullName = data["fullName"];
+            this.profileCloudinaryImage = data["profileCloudinaryImage"] ? CloudinaryImage.fromJS(data["profileCloudinaryImage"]) : <any>undefined;
+            this.primaryVehicleId = data["primaryVehicleId"];
+        }
     }
-  }
 
-  static fromJS(data: any): LoginResponse {
-    data = typeof data === 'object' ? data : {};
-    let result = new LoginResponse();
-    result.init(data);
-    return result;
-  }
+    static fromJS(data: any): LoginResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new LoginResponse();
+        result.init(data);
+        return result;
+    }
 
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["userName"] = this.userName;
-    data["fullName"] = this.fullName;
-    data["profileCloudinaryImage"] = this.profileCloudinaryImage ? this.profileCloudinaryImage.toJSON() : <any>undefined;
-    data["primaryVehicleId"] = this.primaryVehicleId;
-    return data;
-  }
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["userName"] = this.userName;
+        data["fullName"] = this.fullName;
+        data["profileCloudinaryImage"] = this.profileCloudinaryImage ? this.profileCloudinaryImage.toJSON() : <any>undefined;
+        data["primaryVehicleId"] = this.primaryVehicleId;
+        return data; 
+    }
 }
 
 export interface ILoginResponse {
-  userName?: string | undefined;
-  fullName?: string | undefined;
-  profileCloudinaryImage?: CloudinaryImage | undefined;
-  primaryVehicleId?: number | undefined;
+    userName?: string | undefined;
+    fullName?: string | undefined;
+    profileCloudinaryImage?: CloudinaryImage | undefined;
+    primaryVehicleId?: number | undefined;
 }
 
 export class CloudinaryImage implements ICloudinaryImage {
-  baseUrl?: string | undefined;
-  relativePath?: string | undefined;
+    baseUrl?: string | undefined;
+    relativePath?: string | undefined;
 
-  constructor(data?: ICloudinaryImage) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: ICloudinaryImage) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(data?: any) {
-    if (data) {
-      this.baseUrl = data["baseUrl"];
-      this.relativePath = data["relativePath"];
+    init(data?: any) {
+        if (data) {
+            this.baseUrl = data["baseUrl"];
+            this.relativePath = data["relativePath"];
+        }
     }
-  }
 
-  static fromJS(data: any): CloudinaryImage {
-    data = typeof data === 'object' ? data : {};
-    let result = new CloudinaryImage();
-    result.init(data);
-    return result;
-  }
+    static fromJS(data: any): CloudinaryImage {
+        data = typeof data === 'object' ? data : {};
+        let result = new CloudinaryImage();
+        result.init(data);
+        return result;
+    }
 
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["baseUrl"] = this.baseUrl;
-    data["relativePath"] = this.relativePath;
-    return data;
-  }
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["baseUrl"] = this.baseUrl;
+        data["relativePath"] = this.relativePath;
+        return data; 
+    }
 }
 
 export interface ICloudinaryImage {
-  baseUrl?: string | undefined;
-  relativePath?: string | undefined;
+    baseUrl?: string | undefined;
+    relativePath?: string | undefined;
 }
 
 export class ErrorModel implements IErrorModel {
-  messages?: string[] | undefined;
+    messages?: string[] | undefined;
 
-  constructor(data?: IErrorModel) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: IErrorModel) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(data?: any) {
-    if (data) {
-      if (data["messages"] && data["messages"].constructor === Array) {
-        this.messages = [];
-        for (let item of data["messages"])
-          this.messages.push(item);
-      }
+    init(data?: any) {
+        if (data) {
+            if (data["messages"] && data["messages"].constructor === Array) {
+                this.messages = [];
+                for (let item of data["messages"])
+                    this.messages.push(item);
+            }
+        }
     }
-  }
 
-  static fromJS(data: any): ErrorModel {
-    data = typeof data === 'object' ? data : {};
-    let result = new ErrorModel();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    if (this.messages && this.messages.constructor === Array) {
-      data["messages"] = [];
-      for (let item of this.messages)
-        data["messages"].push(item);
+    static fromJS(data: any): ErrorModel {
+        data = typeof data === 'object' ? data : {};
+        let result = new ErrorModel();
+        result.init(data);
+        return result;
     }
-    return data;
-  }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (this.messages && this.messages.constructor === Array) {
+            data["messages"] = [];
+            for (let item of this.messages)
+                data["messages"].push(item);
+        }
+        return data; 
+    }
 }
 
 export interface IErrorModel {
-  messages?: string[] | undefined;
+    messages?: string[] | undefined;
 }
 
 export class DriverInfoResponse implements IDriverInfoResponse {
-  userName?: string | undefined;
-  phoneNumber?: string | undefined;
-  fullName?: string | undefined;
-  email?: string | undefined;
-  status?: DriverInfoResponseStatus | undefined;
-  earnings?: Earnings | undefined;
-  vehicleInfo?: VehicleInfo | undefined;
+    userName?: string | undefined;
+    phoneNumber?: string | undefined;
+    fullName?: string | undefined;
+    email?: string | undefined;
+    isActive?: boolean | undefined;
+    status?: DriverInfoResponseStatus | undefined;
+    earnings?: Earnings | undefined;
+    vehicleInfo?: VehicleInfo | undefined;
 
-  constructor(data?: IDriverInfoResponse) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: IDriverInfoResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(data?: any) {
-    if (data) {
-      this.userName = data["userName"];
-      this.phoneNumber = data["phoneNumber"];
-      this.fullName = data["fullName"];
-      this.email = data["email"];
-      this.status = data["status"];
-      this.earnings = data["earnings"] ? Earnings.fromJS(data["earnings"]) : <any>undefined;
-      this.vehicleInfo = data["vehicleInfo"] ? VehicleInfo.fromJS(data["vehicleInfo"]) : <any>undefined;
+    init(data?: any) {
+        if (data) {
+            this.userName = data["userName"];
+            this.phoneNumber = data["phoneNumber"];
+            this.fullName = data["fullName"];
+            this.email = data["email"];
+            this.isActive = data["isActive"];
+            this.status = data["status"];
+            this.earnings = data["earnings"] ? Earnings.fromJS(data["earnings"]) : <any>undefined;
+            this.vehicleInfo = data["vehicleInfo"] ? VehicleInfo.fromJS(data["vehicleInfo"]) : <any>undefined;
+        }
     }
-  }
 
-  static fromJS(data: any): DriverInfoResponse {
-    data = typeof data === 'object' ? data : {};
-    let result = new DriverInfoResponse();
-    result.init(data);
-    return result;
-  }
+    static fromJS(data: any): DriverInfoResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new DriverInfoResponse();
+        result.init(data);
+        return result;
+    }
 
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["userName"] = this.userName;
-    data["phoneNumber"] = this.phoneNumber;
-    data["fullName"] = this.fullName;
-    data["email"] = this.email;
-    data["status"] = this.status;
-    data["earnings"] = this.earnings ? this.earnings.toJSON() : <any>undefined;
-    data["vehicleInfo"] = this.vehicleInfo ? this.vehicleInfo.toJSON() : <any>undefined;
-    return data;
-  }
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["userName"] = this.userName;
+        data["phoneNumber"] = this.phoneNumber;
+        data["fullName"] = this.fullName;
+        data["email"] = this.email;
+        data["isActive"] = this.isActive;
+        data["status"] = this.status;
+        data["earnings"] = this.earnings ? this.earnings.toJSON() : <any>undefined;
+        data["vehicleInfo"] = this.vehicleInfo ? this.vehicleInfo.toJSON() : <any>undefined;
+        return data; 
+    }
 }
 
 export interface IDriverInfoResponse {
-  userName?: string | undefined;
-  phoneNumber?: string | undefined;
-  fullName?: string | undefined;
-  email?: string | undefined;
-  status?: DriverInfoResponseStatus | undefined;
-  earnings?: Earnings | undefined;
-  vehicleInfo?: VehicleInfo | undefined;
+    userName?: string | undefined;
+    phoneNumber?: string | undefined;
+    fullName?: string | undefined;
+    email?: string | undefined;
+    isActive?: boolean | undefined;
+    status?: DriverInfoResponseStatus | undefined;
+    earnings?: Earnings | undefined;
+    vehicleInfo?: VehicleInfo | undefined;
 }
 
 export class Earnings implements IEarnings {
-  currentEarning?: number | undefined;
-  currentDriveTime?: number | undefined;
-  currentDriveDistance?: number | undefined;
-  totalEarning?: number | undefined;
-  totalDriveTime?: number | undefined;
-  totalDriveDistance?: number | undefined;
+    currentEarning?: number | undefined;
+    currentDriveTime?: number | undefined;
+    currentDriveDistance?: number | undefined;
+    totalEarning?: number | undefined;
+    totalDriveTime?: number | undefined;
+    totalDriveDistance?: number | undefined;
 
-  constructor(data?: IEarnings) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: IEarnings) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(data?: any) {
-    if (data) {
-      this.currentEarning = data["currentEarning"];
-      this.currentDriveTime = data["currentDriveTime"];
-      this.currentDriveDistance = data["currentDriveDistance"];
-      this.totalEarning = data["totalEarning"];
-      this.totalDriveTime = data["totalDriveTime"];
-      this.totalDriveDistance = data["totalDriveDistance"];
+    init(data?: any) {
+        if (data) {
+            this.currentEarning = data["currentEarning"];
+            this.currentDriveTime = data["currentDriveTime"];
+            this.currentDriveDistance = data["currentDriveDistance"];
+            this.totalEarning = data["totalEarning"];
+            this.totalDriveTime = data["totalDriveTime"];
+            this.totalDriveDistance = data["totalDriveDistance"];
+        }
     }
-  }
 
-  static fromJS(data: any): Earnings {
-    data = typeof data === 'object' ? data : {};
-    let result = new Earnings();
-    result.init(data);
-    return result;
-  }
+    static fromJS(data: any): Earnings {
+        data = typeof data === 'object' ? data : {};
+        let result = new Earnings();
+        result.init(data);
+        return result;
+    }
 
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["currentEarning"] = this.currentEarning;
-    data["currentDriveTime"] = this.currentDriveTime;
-    data["currentDriveDistance"] = this.currentDriveDistance;
-    data["totalEarning"] = this.totalEarning;
-    data["totalDriveTime"] = this.totalDriveTime;
-    data["totalDriveDistance"] = this.totalDriveDistance;
-    return data;
-  }
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["currentEarning"] = this.currentEarning;
+        data["currentDriveTime"] = this.currentDriveTime;
+        data["currentDriveDistance"] = this.currentDriveDistance;
+        data["totalEarning"] = this.totalEarning;
+        data["totalDriveTime"] = this.totalDriveTime;
+        data["totalDriveDistance"] = this.totalDriveDistance;
+        return data; 
+    }
 }
 
 export interface IEarnings {
-  currentEarning?: number | undefined;
-  currentDriveTime?: number | undefined;
-  currentDriveDistance?: number | undefined;
-  totalEarning?: number | undefined;
-  totalDriveTime?: number | undefined;
-  totalDriveDistance?: number | undefined;
+    currentEarning?: number | undefined;
+    currentDriveTime?: number | undefined;
+    currentDriveDistance?: number | undefined;
+    totalEarning?: number | undefined;
+    totalDriveTime?: number | undefined;
+    totalDriveDistance?: number | undefined;
 }
 
 export class VehicleInfo implements IVehicleInfo {
-  id?: number | undefined;
-  registrationNumber?: string | undefined;
-  vehicleModel?: VehicleModel | undefined;
-  vehicleCondition?: VehicleInfoVehicleCondition | undefined;
+    id?: number | undefined;
+    registrationNumber?: string | undefined;
+    vehicleModel?: VehicleModel | undefined;
+    vehicleCondition?: VehicleInfoVehicleCondition | undefined;
 
-  constructor(data?: IVehicleInfo) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: IVehicleInfo) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(data?: any) {
-    if (data) {
-      this.id = data["id"];
-      this.registrationNumber = data["registrationNumber"];
-      this.vehicleModel = data["vehicleModel"] ? VehicleModel.fromJS(data["vehicleModel"]) : <any>undefined;
-      this.vehicleCondition = data["vehicleCondition"];
+    init(data?: any) {
+        if (data) {
+            this.id = data["id"];
+            this.registrationNumber = data["registrationNumber"];
+            this.vehicleModel = data["vehicleModel"] ? VehicleModel.fromJS(data["vehicleModel"]) : <any>undefined;
+            this.vehicleCondition = data["vehicleCondition"];
+        }
     }
-  }
 
-  static fromJS(data: any): VehicleInfo {
-    data = typeof data === 'object' ? data : {};
-    let result = new VehicleInfo();
-    result.init(data);
-    return result;
-  }
+    static fromJS(data: any): VehicleInfo {
+        data = typeof data === 'object' ? data : {};
+        let result = new VehicleInfo();
+        result.init(data);
+        return result;
+    }
 
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["id"] = this.id;
-    data["registrationNumber"] = this.registrationNumber;
-    data["vehicleModel"] = this.vehicleModel ? this.vehicleModel.toJSON() : <any>undefined;
-    data["vehicleCondition"] = this.vehicleCondition;
-    return data;
-  }
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["registrationNumber"] = this.registrationNumber;
+        data["vehicleModel"] = this.vehicleModel ? this.vehicleModel.toJSON() : <any>undefined;
+        data["vehicleCondition"] = this.vehicleCondition;
+        return data; 
+    }
 }
 
 export interface IVehicleInfo {
-  id?: number | undefined;
-  registrationNumber?: string | undefined;
-  vehicleModel?: VehicleModel | undefined;
-  vehicleCondition?: VehicleInfoVehicleCondition | undefined;
+    id?: number | undefined;
+    registrationNumber?: string | undefined;
+    vehicleModel?: VehicleModel | undefined;
+    vehicleCondition?: VehicleInfoVehicleCondition | undefined;
 }
 
 export class VehicleModel implements IVehicleModel {
-  id?: number | undefined;
-  name: string;
-  vehicleBrandId: number;
-  vehicleBrand?: VehicleBrand | undefined;
-  vehicleCategoryId: number;
-  vehicleCategory?: VehicleCategory | undefined;
+    id?: number | undefined;
+    name: string;
+    vehicleBrandId: number;
+    vehicleBrand?: VehicleBrand | undefined;
+    vehicleCategoryId: number;
+    vehicleCategory?: VehicleCategory | undefined;
+    leftSideImageTemplate?: string | undefined;
+    rightSideImageTemplate?: string | undefined;
+    frontImageTemplate?: string | undefined;
+    backImageTemplate?: string | undefined;
 
-  constructor(data?: IVehicleModel) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: IVehicleModel) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(data?: any) {
-    if (data) {
-      this.id = data["id"];
-      this.name = data["name"];
-      this.vehicleBrandId = data["vehicleBrandId"];
-      this.vehicleBrand = data["vehicleBrand"] ? VehicleBrand.fromJS(data["vehicleBrand"]) : <any>undefined;
-      this.vehicleCategoryId = data["vehicleCategoryId"];
-      this.vehicleCategory = data["vehicleCategory"] ? VehicleCategory.fromJS(data["vehicleCategory"]) : <any>undefined;
+    init(data?: any) {
+        if (data) {
+            this.id = data["id"];
+            this.name = data["name"];
+            this.vehicleBrandId = data["vehicleBrandId"];
+            this.vehicleBrand = data["vehicleBrand"] ? VehicleBrand.fromJS(data["vehicleBrand"]) : <any>undefined;
+            this.vehicleCategoryId = data["vehicleCategoryId"];
+            this.vehicleCategory = data["vehicleCategory"] ? VehicleCategory.fromJS(data["vehicleCategory"]) : <any>undefined;
+            this.leftSideImageTemplate = data["leftSideImageTemplate"];
+            this.rightSideImageTemplate = data["rightSideImageTemplate"];
+            this.frontImageTemplate = data["frontImageTemplate"];
+            this.backImageTemplate = data["backImageTemplate"];
+        }
     }
-  }
 
-  static fromJS(data: any): VehicleModel {
-    data = typeof data === 'object' ? data : {};
-    let result = new VehicleModel();
-    result.init(data);
-    return result;
-  }
+    static fromJS(data: any): VehicleModel {
+        data = typeof data === 'object' ? data : {};
+        let result = new VehicleModel();
+        result.init(data);
+        return result;
+    }
 
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["id"] = this.id;
-    data["name"] = this.name;
-    data["vehicleBrandId"] = this.vehicleBrandId;
-    data["vehicleBrand"] = this.vehicleBrand ? this.vehicleBrand.toJSON() : <any>undefined;
-    data["vehicleCategoryId"] = this.vehicleCategoryId;
-    data["vehicleCategory"] = this.vehicleCategory ? this.vehicleCategory.toJSON() : <any>undefined;
-    return data;
-  }
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["vehicleBrandId"] = this.vehicleBrandId;
+        data["vehicleBrand"] = this.vehicleBrand ? this.vehicleBrand.toJSON() : <any>undefined;
+        data["vehicleCategoryId"] = this.vehicleCategoryId;
+        data["vehicleCategory"] = this.vehicleCategory ? this.vehicleCategory.toJSON() : <any>undefined;
+        data["leftSideImageTemplate"] = this.leftSideImageTemplate;
+        data["rightSideImageTemplate"] = this.rightSideImageTemplate;
+        data["frontImageTemplate"] = this.frontImageTemplate;
+        data["backImageTemplate"] = this.backImageTemplate;
+        return data; 
+    }
 }
 
 export interface IVehicleModel {
-  id?: number | undefined;
-  name: string;
-  vehicleBrandId: number;
-  vehicleBrand?: VehicleBrand | undefined;
-  vehicleCategoryId: number;
-  vehicleCategory?: VehicleCategory | undefined;
+    id?: number | undefined;
+    name: string;
+    vehicleBrandId: number;
+    vehicleBrand?: VehicleBrand | undefined;
+    vehicleCategoryId: number;
+    vehicleCategory?: VehicleCategory | undefined;
+    leftSideImageTemplate?: string | undefined;
+    rightSideImageTemplate?: string | undefined;
+    frontImageTemplate?: string | undefined;
+    backImageTemplate?: string | undefined;
 }
 
 export class VehicleBrand implements IVehicleBrand {
-  id?: number | undefined;
-  name: string;
+    id?: number | undefined;
+    name: string;
 
-  constructor(data?: IVehicleBrand) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: IVehicleBrand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(data?: any) {
-    if (data) {
-      this.id = data["id"];
-      this.name = data["name"];
+    init(data?: any) {
+        if (data) {
+            this.id = data["id"];
+            this.name = data["name"];
+        }
     }
-  }
 
-  static fromJS(data: any): VehicleBrand {
-    data = typeof data === 'object' ? data : {};
-    let result = new VehicleBrand();
-    result.init(data);
-    return result;
-  }
+    static fromJS(data: any): VehicleBrand {
+        data = typeof data === 'object' ? data : {};
+        let result = new VehicleBrand();
+        result.init(data);
+        return result;
+    }
 
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["id"] = this.id;
-    data["name"] = this.name;
-    return data;
-  }
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        return data; 
+    }
 }
 
 export interface IVehicleBrand {
-  id?: number | undefined;
-  name: string;
+    id?: number | undefined;
+    name: string;
 }
 
 export class VehicleCategory implements IVehicleCategory {
-  id?: number | undefined;
-  name: string;
-  vehicleClasses?: VehicleCategoryClass[] | undefined;
+    id?: number | undefined;
+    name: string;
+    vehicleClasses?: VehicleCategoryClass[] | undefined;
 
-  constructor(data?: IVehicleCategory) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: IVehicleCategory) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(data?: any) {
-    if (data) {
-      this.id = data["id"];
-      this.name = data["name"];
-      if (data["vehicleClasses"] && data["vehicleClasses"].constructor === Array) {
-        this.vehicleClasses = [];
-        for (let item of data["vehicleClasses"])
-          this.vehicleClasses.push(VehicleCategoryClass.fromJS(item));
-      }
+    init(data?: any) {
+        if (data) {
+            this.id = data["id"];
+            this.name = data["name"];
+            if (data["vehicleClasses"] && data["vehicleClasses"].constructor === Array) {
+                this.vehicleClasses = [];
+                for (let item of data["vehicleClasses"])
+                    this.vehicleClasses.push(VehicleCategoryClass.fromJS(item));
+            }
+        }
     }
-  }
 
-  static fromJS(data: any): VehicleCategory {
-    data = typeof data === 'object' ? data : {};
-    let result = new VehicleCategory();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["id"] = this.id;
-    data["name"] = this.name;
-    if (this.vehicleClasses && this.vehicleClasses.constructor === Array) {
-      data["vehicleClasses"] = [];
-      for (let item of this.vehicleClasses)
-        data["vehicleClasses"].push(item.toJSON());
+    static fromJS(data: any): VehicleCategory {
+        data = typeof data === 'object' ? data : {};
+        let result = new VehicleCategory();
+        result.init(data);
+        return result;
     }
-    return data;
-  }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        if (this.vehicleClasses && this.vehicleClasses.constructor === Array) {
+            data["vehicleClasses"] = [];
+            for (let item of this.vehicleClasses)
+                data["vehicleClasses"].push(item.toJSON());
+        }
+        return data; 
+    }
 }
 
 export interface IVehicleCategory {
-  id?: number | undefined;
-  name: string;
-  vehicleClasses?: VehicleCategoryClass[] | undefined;
+    id?: number | undefined;
+    name: string;
+    vehicleClasses?: VehicleCategoryClass[] | undefined;
 }
 
 export class VehicleCategoryClass implements IVehicleCategoryClass {
-  id?: number | undefined;
-  name: string;
-  categoryName?: string | undefined;
-  vehicleCategoryId?: number | undefined;
+    id?: number | undefined;
+    name: string;
+    categoryName?: string | undefined;
+    vehicleCategoryId?: number | undefined;
+    image?: string | undefined;
 
-  constructor(data?: IVehicleCategoryClass) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: IVehicleCategoryClass) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(data?: any) {
-    if (data) {
-      this.id = data["id"];
-      this.name = data["name"];
-      this.categoryName = data["categoryName"];
-      this.vehicleCategoryId = data["vehicleCategoryId"];
+    init(data?: any) {
+        if (data) {
+            this.id = data["id"];
+            this.name = data["name"];
+            this.categoryName = data["categoryName"];
+            this.vehicleCategoryId = data["vehicleCategoryId"];
+            this.image = data["image"];
+        }
     }
-  }
 
-  static fromJS(data: any): VehicleCategoryClass {
-    data = typeof data === 'object' ? data : {};
-    let result = new VehicleCategoryClass();
-    result.init(data);
-    return result;
-  }
+    static fromJS(data: any): VehicleCategoryClass {
+        data = typeof data === 'object' ? data : {};
+        let result = new VehicleCategoryClass();
+        result.init(data);
+        return result;
+    }
 
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["id"] = this.id;
-    data["name"] = this.name;
-    data["categoryName"] = this.categoryName;
-    data["vehicleCategoryId"] = this.vehicleCategoryId;
-    return data;
-  }
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["categoryName"] = this.categoryName;
+        data["vehicleCategoryId"] = this.vehicleCategoryId;
+        data["image"] = this.image;
+        return data; 
+    }
 }
 
 export interface IVehicleCategoryClass {
-  id?: number | undefined;
-  name: string;
-  categoryName?: string | undefined;
-  vehicleCategoryId?: number | undefined;
+    id?: number | undefined;
+    name: string;
+    categoryName?: string | undefined;
+    vehicleCategoryId?: number | undefined;
+    image?: string | undefined;
 }
 
 export class DriverInfoUpdateRequest implements IDriverInfoUpdateRequest {
-  userName?: string | undefined;
-  fullName?: string | undefined;
-  phoneNumber?: string | undefined;
-  email?: string | undefined;
+    userName?: string | undefined;
+    isActive?: boolean | undefined;
+    fullName?: string | undefined;
+    phoneNumber?: string | undefined;
+    email?: string | undefined;
 
-  constructor(data?: IDriverInfoUpdateRequest) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: IDriverInfoUpdateRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(data?: any) {
-    if (data) {
-      this.userName = data["userName"];
-      this.fullName = data["fullName"];
-      this.phoneNumber = data["phoneNumber"];
-      this.email = data["email"];
+    init(data?: any) {
+        if (data) {
+            this.userName = data["userName"];
+            this.isActive = data["isActive"];
+            this.fullName = data["fullName"];
+            this.phoneNumber = data["phoneNumber"];
+            this.email = data["email"];
+        }
     }
-  }
 
-  static fromJS(data: any): DriverInfoUpdateRequest {
-    data = typeof data === 'object' ? data : {};
-    let result = new DriverInfoUpdateRequest();
-    result.init(data);
-    return result;
-  }
+    static fromJS(data: any): DriverInfoUpdateRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new DriverInfoUpdateRequest();
+        result.init(data);
+        return result;
+    }
 
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["userName"] = this.userName;
-    data["fullName"] = this.fullName;
-    data["phoneNumber"] = this.phoneNumber;
-    data["email"] = this.email;
-    return data;
-  }
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["userName"] = this.userName;
+        data["isActive"] = this.isActive;
+        data["fullName"] = this.fullName;
+        data["phoneNumber"] = this.phoneNumber;
+        data["email"] = this.email;
+        return data; 
+    }
 }
 
 export interface IDriverInfoUpdateRequest {
-  userName?: string | undefined;
-  fullName?: string | undefined;
-  phoneNumber?: string | undefined;
-  email?: string | undefined;
+    userName?: string | undefined;
+    isActive?: boolean | undefined;
+    fullName?: string | undefined;
+    phoneNumber?: string | undefined;
+    email?: string | undefined;
 }
 
 export class DriverSignUpRequest implements IDriverSignUpRequest {
-  password?: string | undefined;
-  fullName?: string | undefined;
-  phoneNumber?: string | undefined;
-  email?: string | undefined;
-  vehicleModelId?: number | undefined;
-  vehiclePlateNumber?: string | undefined;
-  identityNumber?: string | undefined;
+    password?: string | undefined;
+    fullName?: string | undefined;
+    phoneNumber?: string | undefined;
+    email?: string | undefined;
+    vehicleModelId?: number | undefined;
+    vehiclePlateNumber?: string | undefined;
+    identityNumber?: string | undefined;
 
-  constructor(data?: IDriverSignUpRequest) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: IDriverSignUpRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(data?: any) {
-    if (data) {
-      this.password = data["password"];
-      this.fullName = data["fullName"];
-      this.phoneNumber = data["phoneNumber"];
-      this.email = data["email"];
-      this.vehicleModelId = data["vehicleModelId"];
-      this.vehiclePlateNumber = data["vehiclePlateNumber"];
-      this.identityNumber = data["identityNumber"];
+    init(data?: any) {
+        if (data) {
+            this.password = data["password"];
+            this.fullName = data["fullName"];
+            this.phoneNumber = data["phoneNumber"];
+            this.email = data["email"];
+            this.vehicleModelId = data["vehicleModelId"];
+            this.vehiclePlateNumber = data["vehiclePlateNumber"];
+            this.identityNumber = data["identityNumber"];
+        }
     }
-  }
 
-  static fromJS(data: any): DriverSignUpRequest {
-    data = typeof data === 'object' ? data : {};
-    let result = new DriverSignUpRequest();
-    result.init(data);
-    return result;
-  }
+    static fromJS(data: any): DriverSignUpRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new DriverSignUpRequest();
+        result.init(data);
+        return result;
+    }
 
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["password"] = this.password;
-    data["fullName"] = this.fullName;
-    data["phoneNumber"] = this.phoneNumber;
-    data["email"] = this.email;
-    data["vehicleModelId"] = this.vehicleModelId;
-    data["vehiclePlateNumber"] = this.vehiclePlateNumber;
-    data["identityNumber"] = this.identityNumber;
-    return data;
-  }
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["password"] = this.password;
+        data["fullName"] = this.fullName;
+        data["phoneNumber"] = this.phoneNumber;
+        data["email"] = this.email;
+        data["vehicleModelId"] = this.vehicleModelId;
+        data["vehiclePlateNumber"] = this.vehiclePlateNumber;
+        data["identityNumber"] = this.identityNumber;
+        return data; 
+    }
 }
 
 export interface IDriverSignUpRequest {
-  password?: string | undefined;
-  fullName?: string | undefined;
-  phoneNumber?: string | undefined;
-  email?: string | undefined;
-  vehicleModelId?: number | undefined;
-  vehiclePlateNumber?: string | undefined;
-  identityNumber?: string | undefined;
+    password?: string | undefined;
+    fullName?: string | undefined;
+    phoneNumber?: string | undefined;
+    email?: string | undefined;
+    vehicleModelId?: number | undefined;
+    vehiclePlateNumber?: string | undefined;
+    identityNumber?: string | undefined;
 }
 
 export class SignUpResponse implements ISignUpResponse {
-  userName?: string | undefined;
-  fullName?: string | undefined;
-  profileCloudinaryImage?: CloudinaryImage | undefined;
-  primaryVehicleId?: number | undefined;
+    userName?: string | undefined;
+    fullName?: string | undefined;
+    profileCloudinaryImage?: CloudinaryImage | undefined;
+    primaryVehicleId?: number | undefined;
 
-  constructor(data?: ISignUpResponse) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: ISignUpResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(data?: any) {
-    if (data) {
-      this.userName = data["userName"];
-      this.fullName = data["fullName"];
-      this.profileCloudinaryImage = data["profileCloudinaryImage"] ? CloudinaryImage.fromJS(data["profileCloudinaryImage"]) : <any>undefined;
-      this.primaryVehicleId = data["primaryVehicleId"];
+    init(data?: any) {
+        if (data) {
+            this.userName = data["userName"];
+            this.fullName = data["fullName"];
+            this.profileCloudinaryImage = data["profileCloudinaryImage"] ? CloudinaryImage.fromJS(data["profileCloudinaryImage"]) : <any>undefined;
+            this.primaryVehicleId = data["primaryVehicleId"];
+        }
     }
-  }
 
-  static fromJS(data: any): SignUpResponse {
-    data = typeof data === 'object' ? data : {};
-    let result = new SignUpResponse();
-    result.init(data);
-    return result;
-  }
+    static fromJS(data: any): SignUpResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new SignUpResponse();
+        result.init(data);
+        return result;
+    }
 
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["userName"] = this.userName;
-    data["fullName"] = this.fullName;
-    data["profileCloudinaryImage"] = this.profileCloudinaryImage ? this.profileCloudinaryImage.toJSON() : <any>undefined;
-    data["primaryVehicleId"] = this.primaryVehicleId;
-    return data;
-  }
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["userName"] = this.userName;
+        data["fullName"] = this.fullName;
+        data["profileCloudinaryImage"] = this.profileCloudinaryImage ? this.profileCloudinaryImage.toJSON() : <any>undefined;
+        data["primaryVehicleId"] = this.primaryVehicleId;
+        return data; 
+    }
 }
 
 export interface ISignUpResponse {
-  userName?: string | undefined;
-  fullName?: string | undefined;
-  profileCloudinaryImage?: CloudinaryImage | undefined;
-  primaryVehicleId?: number | undefined;
+    userName?: string | undefined;
+    fullName?: string | undefined;
+    profileCloudinaryImage?: CloudinaryImage | undefined;
+    primaryVehicleId?: number | undefined;
 }
 
 export class UpdateVehicleDeviceIdRequest implements IUpdateVehicleDeviceIdRequest {
-  vehicleId?: number | undefined;
-  deviceId?: string | undefined;
+    vehicleId?: number | undefined;
+    deviceId?: string | undefined;
 
-  constructor(data?: IUpdateVehicleDeviceIdRequest) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: IUpdateVehicleDeviceIdRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(data?: any) {
-    if (data) {
-      this.vehicleId = data["vehicleId"];
-      this.deviceId = data["deviceId"];
+    init(data?: any) {
+        if (data) {
+            this.vehicleId = data["vehicleId"];
+            this.deviceId = data["deviceId"];
+        }
     }
-  }
 
-  static fromJS(data: any): UpdateVehicleDeviceIdRequest {
-    data = typeof data === 'object' ? data : {};
-    let result = new UpdateVehicleDeviceIdRequest();
-    result.init(data);
-    return result;
-  }
+    static fromJS(data: any): UpdateVehicleDeviceIdRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateVehicleDeviceIdRequest();
+        result.init(data);
+        return result;
+    }
 
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["vehicleId"] = this.vehicleId;
-    data["deviceId"] = this.deviceId;
-    return data;
-  }
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["vehicleId"] = this.vehicleId;
+        data["deviceId"] = this.deviceId;
+        return data; 
+    }
 }
 
 export interface IUpdateVehicleDeviceIdRequest {
-  vehicleId?: number | undefined;
-  deviceId?: string | undefined;
+    vehicleId?: number | undefined;
+    deviceId?: string | undefined;
 }
 
 export class DriverVehicle implements IDriverVehicle {
-  id?: number | undefined;
-  driverId?: string | undefined;
-  trackingDeviceUID?: string | undefined;
-  registrationNumber: string;
-  vehicleModelId: number;
-  vehicleModel?: VehicleModel | undefined;
-  condition: DriverVehicleCondition;
-  status: DriverVehicleStatus;
-  driverVehicleTrackingEvents?: DriverVehicleTrackingEvent[] | undefined;
-  impressionMetrics?: ImpressionMetric[] | undefined;
-  driverMetricId?: number | undefined;
-  driverMetric?: DriverMetric | undefined;
-  calculatedDriverMetricsId?: number | undefined;
-  calculatedDriverMetrics?: CalculatedDriverMetrics | undefined;
-  trackingDeviceId?: number | undefined;
-  trackingDevice?: TrackingDevice | undefined;
+    id?: number | undefined;
+    driverId?: string | undefined;
+    trackingDeviceUID?: string | undefined;
+    registrationNumber: string;
+    vehicleModelId: number;
+    vehicleModel?: VehicleModel | undefined;
+    condition: DriverVehicleCondition;
+    status: DriverVehicleStatus;
+    driverVehicleTrackingEvents?: DriverVehicleTrackingEvent[] | undefined;
+    impressionMetrics?: ImpressionMetric[] | undefined;
+    driverMetricId?: number | undefined;
+    driverMetric?: DriverMetric | undefined;
+    calculatedDriverMetricsId?: number | undefined;
+    calculatedDriverMetrics?: CalculatedDriverMetrics | undefined;
+    trackingDeviceId?: number | undefined;
+    trackingDevice?: TrackingDevice | undefined;
 
-  constructor(data?: IDriverVehicle) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: IDriverVehicle) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(data?: any) {
-    if (data) {
-      this.id = data["id"];
-      this.driverId = data["driverId"];
-      this.trackingDeviceUID = data["trackingDeviceUID"];
-      this.registrationNumber = data["registrationNumber"];
-      this.vehicleModelId = data["vehicleModelId"];
-      this.vehicleModel = data["vehicleModel"] ? VehicleModel.fromJS(data["vehicleModel"]) : <any>undefined;
-      this.condition = data["condition"];
-      this.status = data["status"];
-      if (data["driverVehicleTrackingEvents"] && data["driverVehicleTrackingEvents"].constructor === Array) {
-        this.driverVehicleTrackingEvents = [];
-        for (let item of data["driverVehicleTrackingEvents"])
-          this.driverVehicleTrackingEvents.push(DriverVehicleTrackingEvent.fromJS(item));
-      }
-      if (data["impressionMetrics"] && data["impressionMetrics"].constructor === Array) {
-        this.impressionMetrics = [];
-        for (let item of data["impressionMetrics"])
-          this.impressionMetrics.push(ImpressionMetric.fromJS(item));
-      }
-      this.driverMetricId = data["driverMetricId"];
-      this.driverMetric = data["driverMetric"] ? DriverMetric.fromJS(data["driverMetric"]) : <any>undefined;
-      this.calculatedDriverMetricsId = data["calculatedDriverMetricsId"];
-      this.calculatedDriverMetrics = data["calculatedDriverMetrics"] ? CalculatedDriverMetrics.fromJS(data["calculatedDriverMetrics"]) : <any>undefined;
-      this.trackingDeviceId = data["trackingDeviceId"];
-      this.trackingDevice = data["trackingDevice"] ? TrackingDevice.fromJS(data["trackingDevice"]) : <any>undefined;
+    init(data?: any) {
+        if (data) {
+            this.id = data["id"];
+            this.driverId = data["driverId"];
+            this.trackingDeviceUID = data["trackingDeviceUID"];
+            this.registrationNumber = data["registrationNumber"];
+            this.vehicleModelId = data["vehicleModelId"];
+            this.vehicleModel = data["vehicleModel"] ? VehicleModel.fromJS(data["vehicleModel"]) : <any>undefined;
+            this.condition = data["condition"];
+            this.status = data["status"];
+            if (data["driverVehicleTrackingEvents"] && data["driverVehicleTrackingEvents"].constructor === Array) {
+                this.driverVehicleTrackingEvents = [];
+                for (let item of data["driverVehicleTrackingEvents"])
+                    this.driverVehicleTrackingEvents.push(DriverVehicleTrackingEvent.fromJS(item));
+            }
+            if (data["impressionMetrics"] && data["impressionMetrics"].constructor === Array) {
+                this.impressionMetrics = [];
+                for (let item of data["impressionMetrics"])
+                    this.impressionMetrics.push(ImpressionMetric.fromJS(item));
+            }
+            this.driverMetricId = data["driverMetricId"];
+            this.driverMetric = data["driverMetric"] ? DriverMetric.fromJS(data["driverMetric"]) : <any>undefined;
+            this.calculatedDriverMetricsId = data["calculatedDriverMetricsId"];
+            this.calculatedDriverMetrics = data["calculatedDriverMetrics"] ? CalculatedDriverMetrics.fromJS(data["calculatedDriverMetrics"]) : <any>undefined;
+            this.trackingDeviceId = data["trackingDeviceId"];
+            this.trackingDevice = data["trackingDevice"] ? TrackingDevice.fromJS(data["trackingDevice"]) : <any>undefined;
+        }
     }
-  }
 
-  static fromJS(data: any): DriverVehicle {
-    data = typeof data === 'object' ? data : {};
-    let result = new DriverVehicle();
-    result.init(data);
-    return result;
-  }
+    static fromJS(data: any): DriverVehicle {
+        data = typeof data === 'object' ? data : {};
+        let result = new DriverVehicle();
+        result.init(data);
+        return result;
+    }
 
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["id"] = this.id;
-    data["driverId"] = this.driverId;
-    data["trackingDeviceUID"] = this.trackingDeviceUID;
-    data["registrationNumber"] = this.registrationNumber;
-    data["vehicleModelId"] = this.vehicleModelId;
-    data["vehicleModel"] = this.vehicleModel ? this.vehicleModel.toJSON() : <any>undefined;
-    data["condition"] = this.condition;
-    data["status"] = this.status;
-    if (this.driverVehicleTrackingEvents && this.driverVehicleTrackingEvents.constructor === Array) {
-      data["driverVehicleTrackingEvents"] = [];
-      for (let item of this.driverVehicleTrackingEvents)
-        data["driverVehicleTrackingEvents"].push(item.toJSON());
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["driverId"] = this.driverId;
+        data["trackingDeviceUID"] = this.trackingDeviceUID;
+        data["registrationNumber"] = this.registrationNumber;
+        data["vehicleModelId"] = this.vehicleModelId;
+        data["vehicleModel"] = this.vehicleModel ? this.vehicleModel.toJSON() : <any>undefined;
+        data["condition"] = this.condition;
+        data["status"] = this.status;
+        if (this.driverVehicleTrackingEvents && this.driverVehicleTrackingEvents.constructor === Array) {
+            data["driverVehicleTrackingEvents"] = [];
+            for (let item of this.driverVehicleTrackingEvents)
+                data["driverVehicleTrackingEvents"].push(item.toJSON());
+        }
+        if (this.impressionMetrics && this.impressionMetrics.constructor === Array) {
+            data["impressionMetrics"] = [];
+            for (let item of this.impressionMetrics)
+                data["impressionMetrics"].push(item.toJSON());
+        }
+        data["driverMetricId"] = this.driverMetricId;
+        data["driverMetric"] = this.driverMetric ? this.driverMetric.toJSON() : <any>undefined;
+        data["calculatedDriverMetricsId"] = this.calculatedDriverMetricsId;
+        data["calculatedDriverMetrics"] = this.calculatedDriverMetrics ? this.calculatedDriverMetrics.toJSON() : <any>undefined;
+        data["trackingDeviceId"] = this.trackingDeviceId;
+        data["trackingDevice"] = this.trackingDevice ? this.trackingDevice.toJSON() : <any>undefined;
+        return data; 
     }
-    if (this.impressionMetrics && this.impressionMetrics.constructor === Array) {
-      data["impressionMetrics"] = [];
-      for (let item of this.impressionMetrics)
-        data["impressionMetrics"].push(item.toJSON());
-    }
-    data["driverMetricId"] = this.driverMetricId;
-    data["driverMetric"] = this.driverMetric ? this.driverMetric.toJSON() : <any>undefined;
-    data["calculatedDriverMetricsId"] = this.calculatedDriverMetricsId;
-    data["calculatedDriverMetrics"] = this.calculatedDriverMetrics ? this.calculatedDriverMetrics.toJSON() : <any>undefined;
-    data["trackingDeviceId"] = this.trackingDeviceId;
-    data["trackingDevice"] = this.trackingDevice ? this.trackingDevice.toJSON() : <any>undefined;
-    return data;
-  }
 }
 
 export interface IDriverVehicle {
-  id?: number | undefined;
-  driverId?: string | undefined;
-  trackingDeviceUID?: string | undefined;
-  registrationNumber: string;
-  vehicleModelId: number;
-  vehicleModel?: VehicleModel | undefined;
-  condition: DriverVehicleCondition;
-  status: DriverVehicleStatus;
-  driverVehicleTrackingEvents?: DriverVehicleTrackingEvent[] | undefined;
-  impressionMetrics?: ImpressionMetric[] | undefined;
-  driverMetricId?: number | undefined;
-  driverMetric?: DriverMetric | undefined;
-  calculatedDriverMetricsId?: number | undefined;
-  calculatedDriverMetrics?: CalculatedDriverMetrics | undefined;
-  trackingDeviceId?: number | undefined;
-  trackingDevice?: TrackingDevice | undefined;
+    id?: number | undefined;
+    driverId?: string | undefined;
+    trackingDeviceUID?: string | undefined;
+    registrationNumber: string;
+    vehicleModelId: number;
+    vehicleModel?: VehicleModel | undefined;
+    condition: DriverVehicleCondition;
+    status: DriverVehicleStatus;
+    driverVehicleTrackingEvents?: DriverVehicleTrackingEvent[] | undefined;
+    impressionMetrics?: ImpressionMetric[] | undefined;
+    driverMetricId?: number | undefined;
+    driverMetric?: DriverMetric | undefined;
+    calculatedDriverMetricsId?: number | undefined;
+    calculatedDriverMetrics?: CalculatedDriverMetrics | undefined;
+    trackingDeviceId?: number | undefined;
+    trackingDevice?: TrackingDevice | undefined;
 }
 
 export class DriverVehicleTrackingEvent implements IDriverVehicleTrackingEvent {
-  id?: number | undefined;
-  driverVehicleId?: number | undefined;
-  driverVehicle?: DriverVehicle | undefined;
-  createDateTime?: Date | undefined;
-  altitude: number;
-  longitude: number;
-  latitude: number;
-  batteryLevel?: number | undefined;
+    id?: number | undefined;
+    driverVehicleId?: number | undefined;
+    driverVehicle?: DriverVehicle | undefined;
+    createDateTime?: Date | undefined;
+    altitude: number;
+    longitude: number;
+    latitude: number;
+    batteryLevel?: number | undefined;
 
-  constructor(data?: IDriverVehicleTrackingEvent) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: IDriverVehicleTrackingEvent) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(data?: any) {
-    if (data) {
-      this.id = data["id"];
-      this.driverVehicleId = data["driverVehicleId"];
-      this.driverVehicle = data["driverVehicle"] ? DriverVehicle.fromJS(data["driverVehicle"]) : <any>undefined;
-      this.createDateTime = data["createDateTime"] ? new Date(data["createDateTime"].toString()) : <any>undefined;
-      this.altitude = data["altitude"];
-      this.longitude = data["longitude"];
-      this.latitude = data["latitude"];
-      this.batteryLevel = data["batteryLevel"];
+    init(data?: any) {
+        if (data) {
+            this.id = data["id"];
+            this.driverVehicleId = data["driverVehicleId"];
+            this.driverVehicle = data["driverVehicle"] ? DriverVehicle.fromJS(data["driverVehicle"]) : <any>undefined;
+            this.createDateTime = data["createDateTime"] ? new Date(data["createDateTime"].toString()) : <any>undefined;
+            this.altitude = data["altitude"];
+            this.longitude = data["longitude"];
+            this.latitude = data["latitude"];
+            this.batteryLevel = data["batteryLevel"];
+        }
     }
-  }
 
-  static fromJS(data: any): DriverVehicleTrackingEvent {
-    data = typeof data === 'object' ? data : {};
-    let result = new DriverVehicleTrackingEvent();
-    result.init(data);
-    return result;
-  }
+    static fromJS(data: any): DriverVehicleTrackingEvent {
+        data = typeof data === 'object' ? data : {};
+        let result = new DriverVehicleTrackingEvent();
+        result.init(data);
+        return result;
+    }
 
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["id"] = this.id;
-    data["driverVehicleId"] = this.driverVehicleId;
-    data["driverVehicle"] = this.driverVehicle ? this.driverVehicle.toJSON() : <any>undefined;
-    data["createDateTime"] = this.createDateTime ? this.createDateTime.toISOString() : <any>undefined;
-    data["altitude"] = this.altitude;
-    data["longitude"] = this.longitude;
-    data["latitude"] = this.latitude;
-    data["batteryLevel"] = this.batteryLevel;
-    return data;
-  }
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["driverVehicleId"] = this.driverVehicleId;
+        data["driverVehicle"] = this.driverVehicle ? this.driverVehicle.toJSON() : <any>undefined;
+        data["createDateTime"] = this.createDateTime ? this.createDateTime.toISOString() : <any>undefined;
+        data["altitude"] = this.altitude;
+        data["longitude"] = this.longitude;
+        data["latitude"] = this.latitude;
+        data["batteryLevel"] = this.batteryLevel;
+        return data; 
+    }
 }
 
 export interface IDriverVehicleTrackingEvent {
-  id?: number | undefined;
-  driverVehicleId?: number | undefined;
-  driverVehicle?: DriverVehicle | undefined;
-  createDateTime?: Date | undefined;
-  altitude: number;
-  longitude: number;
-  latitude: number;
-  batteryLevel?: number | undefined;
+    id?: number | undefined;
+    driverVehicleId?: number | undefined;
+    driverVehicle?: DriverVehicle | undefined;
+    createDateTime?: Date | undefined;
+    altitude: number;
+    longitude: number;
+    latitude: number;
+    batteryLevel?: number | undefined;
 }
 
 export class ImpressionMetric implements IImpressionMetric {
-  id?: number | undefined;
-  driverVehicleId?: number | undefined;
-  driverVehicle?: DriverVehicle | undefined;
-  dateTime?: Date | undefined;
-  impressions?: number | undefined;
-  ageMetrics?: AgeMetric[] | undefined;
-  ethnicityMetrics?: EthnicityMetric[] | undefined;
-  incomeMetrics?: IncomeMetric[] | undefined;
-  genderMetrics?: GenderMetric[] | undefined;
-  districtId?: number | undefined;
-  longitude?: number | undefined;
-  latitude?: number | undefined;
-  distanceFromLastLocation?: number | undefined;
+    id?: number | undefined;
+    driverVehicleId?: number | undefined;
+    driverVehicle?: DriverVehicle | undefined;
+    dateTime?: Date | undefined;
+    impressions?: number | undefined;
+    ageMetrics?: AgeMetric[] | undefined;
+    ethnicityMetrics?: EthnicityMetric[] | undefined;
+    incomeMetrics?: IncomeMetric[] | undefined;
+    genderMetrics?: GenderMetric[] | undefined;
+    districtId?: number | undefined;
+    longitude?: number | undefined;
+    latitude?: number | undefined;
+    distanceFromLastLocation?: number | undefined;
 
-  constructor(data?: IImpressionMetric) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: IImpressionMetric) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(data?: any) {
-    if (data) {
-      this.id = data["id"];
-      this.driverVehicleId = data["driverVehicleId"];
-      this.driverVehicle = data["driverVehicle"] ? DriverVehicle.fromJS(data["driverVehicle"]) : <any>undefined;
-      this.dateTime = data["dateTime"] ? new Date(data["dateTime"].toString()) : <any>undefined;
-      this.impressions = data["impressions"];
-      if (data["ageMetrics"] && data["ageMetrics"].constructor === Array) {
-        this.ageMetrics = [];
-        for (let item of data["ageMetrics"])
-          this.ageMetrics.push(AgeMetric.fromJS(item));
-      }
-      if (data["ethnicityMetrics"] && data["ethnicityMetrics"].constructor === Array) {
-        this.ethnicityMetrics = [];
-        for (let item of data["ethnicityMetrics"])
-          this.ethnicityMetrics.push(EthnicityMetric.fromJS(item));
-      }
-      if (data["incomeMetrics"] && data["incomeMetrics"].constructor === Array) {
-        this.incomeMetrics = [];
-        for (let item of data["incomeMetrics"])
-          this.incomeMetrics.push(IncomeMetric.fromJS(item));
-      }
-      if (data["genderMetrics"] && data["genderMetrics"].constructor === Array) {
-        this.genderMetrics = [];
-        for (let item of data["genderMetrics"])
-          this.genderMetrics.push(GenderMetric.fromJS(item));
-      }
-      this.districtId = data["districtId"];
-      this.longitude = data["longitude"];
-      this.latitude = data["latitude"];
-      this.distanceFromLastLocation = data["distanceFromLastLocation"];
+    init(data?: any) {
+        if (data) {
+            this.id = data["id"];
+            this.driverVehicleId = data["driverVehicleId"];
+            this.driverVehicle = data["driverVehicle"] ? DriverVehicle.fromJS(data["driverVehicle"]) : <any>undefined;
+            this.dateTime = data["dateTime"] ? new Date(data["dateTime"].toString()) : <any>undefined;
+            this.impressions = data["impressions"];
+            if (data["ageMetrics"] && data["ageMetrics"].constructor === Array) {
+                this.ageMetrics = [];
+                for (let item of data["ageMetrics"])
+                    this.ageMetrics.push(AgeMetric.fromJS(item));
+            }
+            if (data["ethnicityMetrics"] && data["ethnicityMetrics"].constructor === Array) {
+                this.ethnicityMetrics = [];
+                for (let item of data["ethnicityMetrics"])
+                    this.ethnicityMetrics.push(EthnicityMetric.fromJS(item));
+            }
+            if (data["incomeMetrics"] && data["incomeMetrics"].constructor === Array) {
+                this.incomeMetrics = [];
+                for (let item of data["incomeMetrics"])
+                    this.incomeMetrics.push(IncomeMetric.fromJS(item));
+            }
+            if (data["genderMetrics"] && data["genderMetrics"].constructor === Array) {
+                this.genderMetrics = [];
+                for (let item of data["genderMetrics"])
+                    this.genderMetrics.push(GenderMetric.fromJS(item));
+            }
+            this.districtId = data["districtId"];
+            this.longitude = data["longitude"];
+            this.latitude = data["latitude"];
+            this.distanceFromLastLocation = data["distanceFromLastLocation"];
+        }
     }
-  }
 
-  static fromJS(data: any): ImpressionMetric {
-    data = typeof data === 'object' ? data : {};
-    let result = new ImpressionMetric();
-    result.init(data);
-    return result;
-  }
+    static fromJS(data: any): ImpressionMetric {
+        data = typeof data === 'object' ? data : {};
+        let result = new ImpressionMetric();
+        result.init(data);
+        return result;
+    }
 
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["id"] = this.id;
-    data["driverVehicleId"] = this.driverVehicleId;
-    data["driverVehicle"] = this.driverVehicle ? this.driverVehicle.toJSON() : <any>undefined;
-    data["dateTime"] = this.dateTime ? this.dateTime.toISOString() : <any>undefined;
-    data["impressions"] = this.impressions;
-    if (this.ageMetrics && this.ageMetrics.constructor === Array) {
-      data["ageMetrics"] = [];
-      for (let item of this.ageMetrics)
-        data["ageMetrics"].push(item.toJSON());
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["driverVehicleId"] = this.driverVehicleId;
+        data["driverVehicle"] = this.driverVehicle ? this.driverVehicle.toJSON() : <any>undefined;
+        data["dateTime"] = this.dateTime ? this.dateTime.toISOString() : <any>undefined;
+        data["impressions"] = this.impressions;
+        if (this.ageMetrics && this.ageMetrics.constructor === Array) {
+            data["ageMetrics"] = [];
+            for (let item of this.ageMetrics)
+                data["ageMetrics"].push(item.toJSON());
+        }
+        if (this.ethnicityMetrics && this.ethnicityMetrics.constructor === Array) {
+            data["ethnicityMetrics"] = [];
+            for (let item of this.ethnicityMetrics)
+                data["ethnicityMetrics"].push(item.toJSON());
+        }
+        if (this.incomeMetrics && this.incomeMetrics.constructor === Array) {
+            data["incomeMetrics"] = [];
+            for (let item of this.incomeMetrics)
+                data["incomeMetrics"].push(item.toJSON());
+        }
+        if (this.genderMetrics && this.genderMetrics.constructor === Array) {
+            data["genderMetrics"] = [];
+            for (let item of this.genderMetrics)
+                data["genderMetrics"].push(item.toJSON());
+        }
+        data["districtId"] = this.districtId;
+        data["longitude"] = this.longitude;
+        data["latitude"] = this.latitude;
+        data["distanceFromLastLocation"] = this.distanceFromLastLocation;
+        return data; 
     }
-    if (this.ethnicityMetrics && this.ethnicityMetrics.constructor === Array) {
-      data["ethnicityMetrics"] = [];
-      for (let item of this.ethnicityMetrics)
-        data["ethnicityMetrics"].push(item.toJSON());
-    }
-    if (this.incomeMetrics && this.incomeMetrics.constructor === Array) {
-      data["incomeMetrics"] = [];
-      for (let item of this.incomeMetrics)
-        data["incomeMetrics"].push(item.toJSON());
-    }
-    if (this.genderMetrics && this.genderMetrics.constructor === Array) {
-      data["genderMetrics"] = [];
-      for (let item of this.genderMetrics)
-        data["genderMetrics"].push(item.toJSON());
-    }
-    data["districtId"] = this.districtId;
-    data["longitude"] = this.longitude;
-    data["latitude"] = this.latitude;
-    data["distanceFromLastLocation"] = this.distanceFromLastLocation;
-    return data;
-  }
 }
 
 export interface IImpressionMetric {
-  id?: number | undefined;
-  driverVehicleId?: number | undefined;
-  driverVehicle?: DriverVehicle | undefined;
-  dateTime?: Date | undefined;
-  impressions?: number | undefined;
-  ageMetrics?: AgeMetric[] | undefined;
-  ethnicityMetrics?: EthnicityMetric[] | undefined;
-  incomeMetrics?: IncomeMetric[] | undefined;
-  genderMetrics?: GenderMetric[] | undefined;
-  districtId?: number | undefined;
-  longitude?: number | undefined;
-  latitude?: number | undefined;
-  distanceFromLastLocation?: number | undefined;
+    id?: number | undefined;
+    driverVehicleId?: number | undefined;
+    driverVehicle?: DriverVehicle | undefined;
+    dateTime?: Date | undefined;
+    impressions?: number | undefined;
+    ageMetrics?: AgeMetric[] | undefined;
+    ethnicityMetrics?: EthnicityMetric[] | undefined;
+    incomeMetrics?: IncomeMetric[] | undefined;
+    genderMetrics?: GenderMetric[] | undefined;
+    districtId?: number | undefined;
+    longitude?: number | undefined;
+    latitude?: number | undefined;
+    distanceFromLastLocation?: number | undefined;
 }
 
 export class DriverMetric implements IDriverMetric {
-  id?: number | undefined;
-  driverOverviewMetric?: DriverOverviewMetric | undefined;
-  driverEthnicGroups?: DriverEthnicGroup[] | undefined;
-  driverGenderGroups?: DriverGenderGroup[] | undefined;
-  driverAgeGroups?: DriverAgeGroup[] | undefined;
-  driverIncomeGroups?: DriverIncomeGroup[] | undefined;
-  driverDistrictMetrics?: DriverDistrictMetric[] | undefined;
-  driverWeekdayMetrics?: DriverWeekdayMetric[] | undefined;
-  baseCostEstimate?: number | undefined;
+    id?: number | undefined;
+    driverOverviewMetric?: DriverOverviewMetric | undefined;
+    driverEthnicGroups?: DriverEthnicGroup[] | undefined;
+    driverGenderGroups?: DriverGenderGroup[] | undefined;
+    driverAgeGroups?: DriverAgeGroup[] | undefined;
+    driverIncomeGroups?: DriverIncomeGroup[] | undefined;
+    driverDistrictMetrics?: DriverDistrictMetric[] | undefined;
+    driverWeekdayMetrics?: DriverWeekdayMetric[] | undefined;
+    baseCostEstimate?: number | undefined;
 
-  constructor(data?: IDriverMetric) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: IDriverMetric) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(data?: any) {
-    if (data) {
-      this.id = data["id"];
-      this.driverOverviewMetric = data["driverOverviewMetric"] ? DriverOverviewMetric.fromJS(data["driverOverviewMetric"]) : <any>undefined;
-      if (data["driverEthnicGroups"] && data["driverEthnicGroups"].constructor === Array) {
-        this.driverEthnicGroups = [];
-        for (let item of data["driverEthnicGroups"])
-          this.driverEthnicGroups.push(DriverEthnicGroup.fromJS(item));
-      }
-      if (data["driverGenderGroups"] && data["driverGenderGroups"].constructor === Array) {
-        this.driverGenderGroups = [];
-        for (let item of data["driverGenderGroups"])
-          this.driverGenderGroups.push(DriverGenderGroup.fromJS(item));
-      }
-      if (data["driverAgeGroups"] && data["driverAgeGroups"].constructor === Array) {
-        this.driverAgeGroups = [];
-        for (let item of data["driverAgeGroups"])
-          this.driverAgeGroups.push(DriverAgeGroup.fromJS(item));
-      }
-      if (data["driverIncomeGroups"] && data["driverIncomeGroups"].constructor === Array) {
-        this.driverIncomeGroups = [];
-        for (let item of data["driverIncomeGroups"])
-          this.driverIncomeGroups.push(DriverIncomeGroup.fromJS(item));
-      }
-      if (data["driverDistrictMetrics"] && data["driverDistrictMetrics"].constructor === Array) {
-        this.driverDistrictMetrics = [];
-        for (let item of data["driverDistrictMetrics"])
-          this.driverDistrictMetrics.push(DriverDistrictMetric.fromJS(item));
-      }
-      if (data["driverWeekdayMetrics"] && data["driverWeekdayMetrics"].constructor === Array) {
-        this.driverWeekdayMetrics = [];
-        for (let item of data["driverWeekdayMetrics"])
-          this.driverWeekdayMetrics.push(DriverWeekdayMetric.fromJS(item));
-      }
-      this.baseCostEstimate = data["baseCostEstimate"];
+    init(data?: any) {
+        if (data) {
+            this.id = data["id"];
+            this.driverOverviewMetric = data["driverOverviewMetric"] ? DriverOverviewMetric.fromJS(data["driverOverviewMetric"]) : <any>undefined;
+            if (data["driverEthnicGroups"] && data["driverEthnicGroups"].constructor === Array) {
+                this.driverEthnicGroups = [];
+                for (let item of data["driverEthnicGroups"])
+                    this.driverEthnicGroups.push(DriverEthnicGroup.fromJS(item));
+            }
+            if (data["driverGenderGroups"] && data["driverGenderGroups"].constructor === Array) {
+                this.driverGenderGroups = [];
+                for (let item of data["driverGenderGroups"])
+                    this.driverGenderGroups.push(DriverGenderGroup.fromJS(item));
+            }
+            if (data["driverAgeGroups"] && data["driverAgeGroups"].constructor === Array) {
+                this.driverAgeGroups = [];
+                for (let item of data["driverAgeGroups"])
+                    this.driverAgeGroups.push(DriverAgeGroup.fromJS(item));
+            }
+            if (data["driverIncomeGroups"] && data["driverIncomeGroups"].constructor === Array) {
+                this.driverIncomeGroups = [];
+                for (let item of data["driverIncomeGroups"])
+                    this.driverIncomeGroups.push(DriverIncomeGroup.fromJS(item));
+            }
+            if (data["driverDistrictMetrics"] && data["driverDistrictMetrics"].constructor === Array) {
+                this.driverDistrictMetrics = [];
+                for (let item of data["driverDistrictMetrics"])
+                    this.driverDistrictMetrics.push(DriverDistrictMetric.fromJS(item));
+            }
+            if (data["driverWeekdayMetrics"] && data["driverWeekdayMetrics"].constructor === Array) {
+                this.driverWeekdayMetrics = [];
+                for (let item of data["driverWeekdayMetrics"])
+                    this.driverWeekdayMetrics.push(DriverWeekdayMetric.fromJS(item));
+            }
+            this.baseCostEstimate = data["baseCostEstimate"];
+        }
     }
-  }
 
-  static fromJS(data: any): DriverMetric {
-    data = typeof data === 'object' ? data : {};
-    let result = new DriverMetric();
-    result.init(data);
-    return result;
-  }
+    static fromJS(data: any): DriverMetric {
+        data = typeof data === 'object' ? data : {};
+        let result = new DriverMetric();
+        result.init(data);
+        return result;
+    }
 
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["id"] = this.id;
-    data["driverOverviewMetric"] = this.driverOverviewMetric ? this.driverOverviewMetric.toJSON() : <any>undefined;
-    if (this.driverEthnicGroups && this.driverEthnicGroups.constructor === Array) {
-      data["driverEthnicGroups"] = [];
-      for (let item of this.driverEthnicGroups)
-        data["driverEthnicGroups"].push(item.toJSON());
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["driverOverviewMetric"] = this.driverOverviewMetric ? this.driverOverviewMetric.toJSON() : <any>undefined;
+        if (this.driverEthnicGroups && this.driverEthnicGroups.constructor === Array) {
+            data["driverEthnicGroups"] = [];
+            for (let item of this.driverEthnicGroups)
+                data["driverEthnicGroups"].push(item.toJSON());
+        }
+        if (this.driverGenderGroups && this.driverGenderGroups.constructor === Array) {
+            data["driverGenderGroups"] = [];
+            for (let item of this.driverGenderGroups)
+                data["driverGenderGroups"].push(item.toJSON());
+        }
+        if (this.driverAgeGroups && this.driverAgeGroups.constructor === Array) {
+            data["driverAgeGroups"] = [];
+            for (let item of this.driverAgeGroups)
+                data["driverAgeGroups"].push(item.toJSON());
+        }
+        if (this.driverIncomeGroups && this.driverIncomeGroups.constructor === Array) {
+            data["driverIncomeGroups"] = [];
+            for (let item of this.driverIncomeGroups)
+                data["driverIncomeGroups"].push(item.toJSON());
+        }
+        if (this.driverDistrictMetrics && this.driverDistrictMetrics.constructor === Array) {
+            data["driverDistrictMetrics"] = [];
+            for (let item of this.driverDistrictMetrics)
+                data["driverDistrictMetrics"].push(item.toJSON());
+        }
+        if (this.driverWeekdayMetrics && this.driverWeekdayMetrics.constructor === Array) {
+            data["driverWeekdayMetrics"] = [];
+            for (let item of this.driverWeekdayMetrics)
+                data["driverWeekdayMetrics"].push(item.toJSON());
+        }
+        data["baseCostEstimate"] = this.baseCostEstimate;
+        return data; 
     }
-    if (this.driverGenderGroups && this.driverGenderGroups.constructor === Array) {
-      data["driverGenderGroups"] = [];
-      for (let item of this.driverGenderGroups)
-        data["driverGenderGroups"].push(item.toJSON());
-    }
-    if (this.driverAgeGroups && this.driverAgeGroups.constructor === Array) {
-      data["driverAgeGroups"] = [];
-      for (let item of this.driverAgeGroups)
-        data["driverAgeGroups"].push(item.toJSON());
-    }
-    if (this.driverIncomeGroups && this.driverIncomeGroups.constructor === Array) {
-      data["driverIncomeGroups"] = [];
-      for (let item of this.driverIncomeGroups)
-        data["driverIncomeGroups"].push(item.toJSON());
-    }
-    if (this.driverDistrictMetrics && this.driverDistrictMetrics.constructor === Array) {
-      data["driverDistrictMetrics"] = [];
-      for (let item of this.driverDistrictMetrics)
-        data["driverDistrictMetrics"].push(item.toJSON());
-    }
-    if (this.driverWeekdayMetrics && this.driverWeekdayMetrics.constructor === Array) {
-      data["driverWeekdayMetrics"] = [];
-      for (let item of this.driverWeekdayMetrics)
-        data["driverWeekdayMetrics"].push(item.toJSON());
-    }
-    data["baseCostEstimate"] = this.baseCostEstimate;
-    return data;
-  }
 }
 
 export interface IDriverMetric {
-  id?: number | undefined;
-  driverOverviewMetric?: DriverOverviewMetric | undefined;
-  driverEthnicGroups?: DriverEthnicGroup[] | undefined;
-  driverGenderGroups?: DriverGenderGroup[] | undefined;
-  driverAgeGroups?: DriverAgeGroup[] | undefined;
-  driverIncomeGroups?: DriverIncomeGroup[] | undefined;
-  driverDistrictMetrics?: DriverDistrictMetric[] | undefined;
-  driverWeekdayMetrics?: DriverWeekdayMetric[] | undefined;
-  baseCostEstimate?: number | undefined;
+    id?: number | undefined;
+    driverOverviewMetric?: DriverOverviewMetric | undefined;
+    driverEthnicGroups?: DriverEthnicGroup[] | undefined;
+    driverGenderGroups?: DriverGenderGroup[] | undefined;
+    driverAgeGroups?: DriverAgeGroup[] | undefined;
+    driverIncomeGroups?: DriverIncomeGroup[] | undefined;
+    driverDistrictMetrics?: DriverDistrictMetric[] | undefined;
+    driverWeekdayMetrics?: DriverWeekdayMetric[] | undefined;
+    baseCostEstimate?: number | undefined;
 }
 
 export class CalculatedDriverMetrics implements ICalculatedDriverMetrics {
-  id?: number | undefined;
-  currentEarning?: number | undefined;
-  currentDriveTime?: number | undefined;
-  currentDriveDistance?: number | undefined;
-  totalEarning?: number | undefined;
-  totalDriveTime?: number | undefined;
-  totalDriveDistance?: number | undefined;
+    id?: number | undefined;
+    currentEarning?: number | undefined;
+    currentDriveTime?: number | undefined;
+    currentDriveDistance?: number | undefined;
+    totalEarning?: number | undefined;
+    totalDriveTime?: number | undefined;
+    totalDriveDistance?: number | undefined;
 
-  constructor(data?: ICalculatedDriverMetrics) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: ICalculatedDriverMetrics) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(data?: any) {
-    if (data) {
-      this.id = data["id"];
-      this.currentEarning = data["currentEarning"];
-      this.currentDriveTime = data["currentDriveTime"];
-      this.currentDriveDistance = data["currentDriveDistance"];
-      this.totalEarning = data["totalEarning"];
-      this.totalDriveTime = data["totalDriveTime"];
-      this.totalDriveDistance = data["totalDriveDistance"];
+    init(data?: any) {
+        if (data) {
+            this.id = data["id"];
+            this.currentEarning = data["currentEarning"];
+            this.currentDriveTime = data["currentDriveTime"];
+            this.currentDriveDistance = data["currentDriveDistance"];
+            this.totalEarning = data["totalEarning"];
+            this.totalDriveTime = data["totalDriveTime"];
+            this.totalDriveDistance = data["totalDriveDistance"];
+        }
     }
-  }
 
-  static fromJS(data: any): CalculatedDriverMetrics {
-    data = typeof data === 'object' ? data : {};
-    let result = new CalculatedDriverMetrics();
-    result.init(data);
-    return result;
-  }
+    static fromJS(data: any): CalculatedDriverMetrics {
+        data = typeof data === 'object' ? data : {};
+        let result = new CalculatedDriverMetrics();
+        result.init(data);
+        return result;
+    }
 
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["id"] = this.id;
-    data["currentEarning"] = this.currentEarning;
-    data["currentDriveTime"] = this.currentDriveTime;
-    data["currentDriveDistance"] = this.currentDriveDistance;
-    data["totalEarning"] = this.totalEarning;
-    data["totalDriveTime"] = this.totalDriveTime;
-    data["totalDriveDistance"] = this.totalDriveDistance;
-    return data;
-  }
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["currentEarning"] = this.currentEarning;
+        data["currentDriveTime"] = this.currentDriveTime;
+        data["currentDriveDistance"] = this.currentDriveDistance;
+        data["totalEarning"] = this.totalEarning;
+        data["totalDriveTime"] = this.totalDriveTime;
+        data["totalDriveDistance"] = this.totalDriveDistance;
+        return data; 
+    }
 }
 
 export interface ICalculatedDriverMetrics {
-  id?: number | undefined;
-  currentEarning?: number | undefined;
-  currentDriveTime?: number | undefined;
-  currentDriveDistance?: number | undefined;
-  totalEarning?: number | undefined;
-  totalDriveTime?: number | undefined;
-  totalDriveDistance?: number | undefined;
+    id?: number | undefined;
+    currentEarning?: number | undefined;
+    currentDriveTime?: number | undefined;
+    currentDriveDistance?: number | undefined;
+    totalEarning?: number | undefined;
+    totalDriveTime?: number | undefined;
+    totalDriveDistance?: number | undefined;
 }
 
 export class TrackingDevice implements ITrackingDevice {
-  id?: number | undefined;
-  uniqueId?: string | undefined;
-  phoneNumber?: string | undefined;
-  isActive?: boolean | undefined;
+    id?: number | undefined;
+    uniqueId?: string | undefined;
+    phoneNumber?: string | undefined;
+    isActive?: boolean | undefined;
 
-  constructor(data?: ITrackingDevice) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: ITrackingDevice) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(data?: any) {
-    if (data) {
-      this.id = data["id"];
-      this.uniqueId = data["uniqueId"];
-      this.phoneNumber = data["phoneNumber"];
-      this.isActive = data["isActive"];
+    init(data?: any) {
+        if (data) {
+            this.id = data["id"];
+            this.uniqueId = data["uniqueId"];
+            this.phoneNumber = data["phoneNumber"];
+            this.isActive = data["isActive"];
+        }
     }
-  }
 
-  static fromJS(data: any): TrackingDevice {
-    data = typeof data === 'object' ? data : {};
-    let result = new TrackingDevice();
-    result.init(data);
-    return result;
-  }
+    static fromJS(data: any): TrackingDevice {
+        data = typeof data === 'object' ? data : {};
+        let result = new TrackingDevice();
+        result.init(data);
+        return result;
+    }
 
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["id"] = this.id;
-    data["uniqueId"] = this.uniqueId;
-    data["phoneNumber"] = this.phoneNumber;
-    data["isActive"] = this.isActive;
-    return data;
-  }
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["uniqueId"] = this.uniqueId;
+        data["phoneNumber"] = this.phoneNumber;
+        data["isActive"] = this.isActive;
+        return data; 
+    }
 }
 
 export interface ITrackingDevice {
-  id?: number | undefined;
-  uniqueId?: string | undefined;
-  phoneNumber?: string | undefined;
-  isActive?: boolean | undefined;
+    id?: number | undefined;
+    uniqueId?: string | undefined;
+    phoneNumber?: string | undefined;
+    isActive?: boolean | undefined;
 }
 
 export class AgeMetric implements IAgeMetric {
-  impressionMetricId?: number | undefined;
-  impressionMetric?: ImpressionMetric | undefined;
-  id?: number | undefined;
-  lower?: number | undefined;
-  upper?: number | undefined;
-  fraction?: number | undefined;
+    impressionMetricId?: number | undefined;
+    impressionMetric?: ImpressionMetric | undefined;
+    id?: number | undefined;
+    lower?: number | undefined;
+    upper?: number | undefined;
+    fraction?: number | undefined;
 
-  constructor(data?: IAgeMetric) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: IAgeMetric) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(data?: any) {
-    if (data) {
-      this.impressionMetricId = data["impressionMetricId"];
-      this.impressionMetric = data["impressionMetric"] ? ImpressionMetric.fromJS(data["impressionMetric"]) : <any>undefined;
-      this.id = data["id"];
-      this.lower = data["lower"];
-      this.upper = data["upper"];
-      this.fraction = data["fraction"];
+    init(data?: any) {
+        if (data) {
+            this.impressionMetricId = data["impressionMetricId"];
+            this.impressionMetric = data["impressionMetric"] ? ImpressionMetric.fromJS(data["impressionMetric"]) : <any>undefined;
+            this.id = data["id"];
+            this.lower = data["lower"];
+            this.upper = data["upper"];
+            this.fraction = data["fraction"];
+        }
     }
-  }
 
-  static fromJS(data: any): AgeMetric {
-    data = typeof data === 'object' ? data : {};
-    let result = new AgeMetric();
-    result.init(data);
-    return result;
-  }
+    static fromJS(data: any): AgeMetric {
+        data = typeof data === 'object' ? data : {};
+        let result = new AgeMetric();
+        result.init(data);
+        return result;
+    }
 
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["impressionMetricId"] = this.impressionMetricId;
-    data["impressionMetric"] = this.impressionMetric ? this.impressionMetric.toJSON() : <any>undefined;
-    data["id"] = this.id;
-    data["lower"] = this.lower;
-    data["upper"] = this.upper;
-    data["fraction"] = this.fraction;
-    return data;
-  }
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["impressionMetricId"] = this.impressionMetricId;
+        data["impressionMetric"] = this.impressionMetric ? this.impressionMetric.toJSON() : <any>undefined;
+        data["id"] = this.id;
+        data["lower"] = this.lower;
+        data["upper"] = this.upper;
+        data["fraction"] = this.fraction;
+        return data; 
+    }
 }
 
 export interface IAgeMetric {
-  impressionMetricId?: number | undefined;
-  impressionMetric?: ImpressionMetric | undefined;
-  id?: number | undefined;
-  lower?: number | undefined;
-  upper?: number | undefined;
-  fraction?: number | undefined;
+    impressionMetricId?: number | undefined;
+    impressionMetric?: ImpressionMetric | undefined;
+    id?: number | undefined;
+    lower?: number | undefined;
+    upper?: number | undefined;
+    fraction?: number | undefined;
 }
 
 export class EthnicityMetric implements IEthnicityMetric {
-  impressionMetricId?: number | undefined;
-  impressionMetric?: ImpressionMetric | undefined;
-  id?: number | undefined;
-  label?: string | undefined;
-  fraction?: number | undefined;
+    impressionMetricId?: number | undefined;
+    impressionMetric?: ImpressionMetric | undefined;
+    id?: number | undefined;
+    label?: string | undefined;
+    fraction?: number | undefined;
 
-  constructor(data?: IEthnicityMetric) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: IEthnicityMetric) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(data?: any) {
-    if (data) {
-      this.impressionMetricId = data["impressionMetricId"];
-      this.impressionMetric = data["impressionMetric"] ? ImpressionMetric.fromJS(data["impressionMetric"]) : <any>undefined;
-      this.id = data["id"];
-      this.label = data["label"];
-      this.fraction = data["fraction"];
+    init(data?: any) {
+        if (data) {
+            this.impressionMetricId = data["impressionMetricId"];
+            this.impressionMetric = data["impressionMetric"] ? ImpressionMetric.fromJS(data["impressionMetric"]) : <any>undefined;
+            this.id = data["id"];
+            this.label = data["label"];
+            this.fraction = data["fraction"];
+        }
     }
-  }
 
-  static fromJS(data: any): EthnicityMetric {
-    data = typeof data === 'object' ? data : {};
-    let result = new EthnicityMetric();
-    result.init(data);
-    return result;
-  }
+    static fromJS(data: any): EthnicityMetric {
+        data = typeof data === 'object' ? data : {};
+        let result = new EthnicityMetric();
+        result.init(data);
+        return result;
+    }
 
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["impressionMetricId"] = this.impressionMetricId;
-    data["impressionMetric"] = this.impressionMetric ? this.impressionMetric.toJSON() : <any>undefined;
-    data["id"] = this.id;
-    data["label"] = this.label;
-    data["fraction"] = this.fraction;
-    return data;
-  }
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["impressionMetricId"] = this.impressionMetricId;
+        data["impressionMetric"] = this.impressionMetric ? this.impressionMetric.toJSON() : <any>undefined;
+        data["id"] = this.id;
+        data["label"] = this.label;
+        data["fraction"] = this.fraction;
+        return data; 
+    }
 }
 
 export interface IEthnicityMetric {
-  impressionMetricId?: number | undefined;
-  impressionMetric?: ImpressionMetric | undefined;
-  id?: number | undefined;
-  label?: string | undefined;
-  fraction?: number | undefined;
+    impressionMetricId?: number | undefined;
+    impressionMetric?: ImpressionMetric | undefined;
+    id?: number | undefined;
+    label?: string | undefined;
+    fraction?: number | undefined;
 }
 
 export class IncomeMetric implements IIncomeMetric {
-  impressionMetricId?: number | undefined;
-  impressionMetric?: ImpressionMetric | undefined;
-  id?: number | undefined;
-  lower?: number | undefined;
-  upper?: number | undefined;
-  fraction?: number | undefined;
+    impressionMetricId?: number | undefined;
+    impressionMetric?: ImpressionMetric | undefined;
+    id?: number | undefined;
+    lower?: number | undefined;
+    upper?: number | undefined;
+    fraction?: number | undefined;
 
-  constructor(data?: IIncomeMetric) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: IIncomeMetric) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(data?: any) {
-    if (data) {
-      this.impressionMetricId = data["impressionMetricId"];
-      this.impressionMetric = data["impressionMetric"] ? ImpressionMetric.fromJS(data["impressionMetric"]) : <any>undefined;
-      this.id = data["id"];
-      this.lower = data["lower"];
-      this.upper = data["upper"];
-      this.fraction = data["fraction"];
+    init(data?: any) {
+        if (data) {
+            this.impressionMetricId = data["impressionMetricId"];
+            this.impressionMetric = data["impressionMetric"] ? ImpressionMetric.fromJS(data["impressionMetric"]) : <any>undefined;
+            this.id = data["id"];
+            this.lower = data["lower"];
+            this.upper = data["upper"];
+            this.fraction = data["fraction"];
+        }
     }
-  }
 
-  static fromJS(data: any): IncomeMetric {
-    data = typeof data === 'object' ? data : {};
-    let result = new IncomeMetric();
-    result.init(data);
-    return result;
-  }
+    static fromJS(data: any): IncomeMetric {
+        data = typeof data === 'object' ? data : {};
+        let result = new IncomeMetric();
+        result.init(data);
+        return result;
+    }
 
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["impressionMetricId"] = this.impressionMetricId;
-    data["impressionMetric"] = this.impressionMetric ? this.impressionMetric.toJSON() : <any>undefined;
-    data["id"] = this.id;
-    data["lower"] = this.lower;
-    data["upper"] = this.upper;
-    data["fraction"] = this.fraction;
-    return data;
-  }
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["impressionMetricId"] = this.impressionMetricId;
+        data["impressionMetric"] = this.impressionMetric ? this.impressionMetric.toJSON() : <any>undefined;
+        data["id"] = this.id;
+        data["lower"] = this.lower;
+        data["upper"] = this.upper;
+        data["fraction"] = this.fraction;
+        return data; 
+    }
 }
 
 export interface IIncomeMetric {
-  impressionMetricId?: number | undefined;
-  impressionMetric?: ImpressionMetric | undefined;
-  id?: number | undefined;
-  lower?: number | undefined;
-  upper?: number | undefined;
-  fraction?: number | undefined;
+    impressionMetricId?: number | undefined;
+    impressionMetric?: ImpressionMetric | undefined;
+    id?: number | undefined;
+    lower?: number | undefined;
+    upper?: number | undefined;
+    fraction?: number | undefined;
 }
 
 export class GenderMetric implements IGenderMetric {
-  impressionMetricId?: number | undefined;
-  impressionMetric?: ImpressionMetric | undefined;
-  id?: number | undefined;
-  label?: string | undefined;
-  fraction?: number | undefined;
+    impressionMetricId?: number | undefined;
+    impressionMetric?: ImpressionMetric | undefined;
+    id?: number | undefined;
+    label?: string | undefined;
+    fraction?: number | undefined;
 
-  constructor(data?: IGenderMetric) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: IGenderMetric) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(data?: any) {
-    if (data) {
-      this.impressionMetricId = data["impressionMetricId"];
-      this.impressionMetric = data["impressionMetric"] ? ImpressionMetric.fromJS(data["impressionMetric"]) : <any>undefined;
-      this.id = data["id"];
-      this.label = data["label"];
-      this.fraction = data["fraction"];
+    init(data?: any) {
+        if (data) {
+            this.impressionMetricId = data["impressionMetricId"];
+            this.impressionMetric = data["impressionMetric"] ? ImpressionMetric.fromJS(data["impressionMetric"]) : <any>undefined;
+            this.id = data["id"];
+            this.label = data["label"];
+            this.fraction = data["fraction"];
+        }
     }
-  }
 
-  static fromJS(data: any): GenderMetric {
-    data = typeof data === 'object' ? data : {};
-    let result = new GenderMetric();
-    result.init(data);
-    return result;
-  }
+    static fromJS(data: any): GenderMetric {
+        data = typeof data === 'object' ? data : {};
+        let result = new GenderMetric();
+        result.init(data);
+        return result;
+    }
 
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["impressionMetricId"] = this.impressionMetricId;
-    data["impressionMetric"] = this.impressionMetric ? this.impressionMetric.toJSON() : <any>undefined;
-    data["id"] = this.id;
-    data["label"] = this.label;
-    data["fraction"] = this.fraction;
-    return data;
-  }
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["impressionMetricId"] = this.impressionMetricId;
+        data["impressionMetric"] = this.impressionMetric ? this.impressionMetric.toJSON() : <any>undefined;
+        data["id"] = this.id;
+        data["label"] = this.label;
+        data["fraction"] = this.fraction;
+        return data; 
+    }
 }
 
 export interface IGenderMetric {
-  impressionMetricId?: number | undefined;
-  impressionMetric?: ImpressionMetric | undefined;
-  id?: number | undefined;
-  label?: string | undefined;
-  fraction?: number | undefined;
+    impressionMetricId?: number | undefined;
+    impressionMetric?: ImpressionMetric | undefined;
+    id?: number | undefined;
+    label?: string | undefined;
+    fraction?: number | undefined;
 }
 
 export class DriverOverviewMetric implements IDriverOverviewMetric {
-  id?: number | undefined;
-  driveTime?: number | undefined;
-  distance?: number | undefined;
-  impressions?: number | undefined;
+    id?: number | undefined;
+    driveTime?: number | undefined;
+    distance?: number | undefined;
+    impressions?: number | undefined;
 
-  constructor(data?: IDriverOverviewMetric) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: IDriverOverviewMetric) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(data?: any) {
-    if (data) {
-      this.id = data["id"];
-      this.driveTime = data["driveTime"];
-      this.distance = data["distance"];
-      this.impressions = data["impressions"];
+    init(data?: any) {
+        if (data) {
+            this.id = data["id"];
+            this.driveTime = data["driveTime"];
+            this.distance = data["distance"];
+            this.impressions = data["impressions"];
+        }
     }
-  }
 
-  static fromJS(data: any): DriverOverviewMetric {
-    data = typeof data === 'object' ? data : {};
-    let result = new DriverOverviewMetric();
-    result.init(data);
-    return result;
-  }
+    static fromJS(data: any): DriverOverviewMetric {
+        data = typeof data === 'object' ? data : {};
+        let result = new DriverOverviewMetric();
+        result.init(data);
+        return result;
+    }
 
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["id"] = this.id;
-    data["driveTime"] = this.driveTime;
-    data["distance"] = this.distance;
-    data["impressions"] = this.impressions;
-    return data;
-  }
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["driveTime"] = this.driveTime;
+        data["distance"] = this.distance;
+        data["impressions"] = this.impressions;
+        return data; 
+    }
 }
 
 export interface IDriverOverviewMetric {
-  id?: number | undefined;
-  driveTime?: number | undefined;
-  distance?: number | undefined;
-  impressions?: number | undefined;
+    id?: number | undefined;
+    driveTime?: number | undefined;
+    distance?: number | undefined;
+    impressions?: number | undefined;
 }
 
 export class DriverEthnicGroup implements IDriverEthnicGroup {
-  id?: number | undefined;
-  driverMetricId?: number | undefined;
-  driverMetric?: DriverMetric | undefined;
-  name?: string | undefined;
-  fraction?: number | undefined;
+    id?: number | undefined;
+    driverMetricId?: number | undefined;
+    driverMetric?: DriverMetric | undefined;
+    name?: string | undefined;
+    fraction?: number | undefined;
 
-  constructor(data?: IDriverEthnicGroup) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: IDriverEthnicGroup) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(data?: any) {
-    if (data) {
-      this.id = data["id"];
-      this.driverMetricId = data["driverMetricId"];
-      this.driverMetric = data["driverMetric"] ? DriverMetric.fromJS(data["driverMetric"]) : <any>undefined;
-      this.name = data["name"];
-      this.fraction = data["fraction"];
+    init(data?: any) {
+        if (data) {
+            this.id = data["id"];
+            this.driverMetricId = data["driverMetricId"];
+            this.driverMetric = data["driverMetric"] ? DriverMetric.fromJS(data["driverMetric"]) : <any>undefined;
+            this.name = data["name"];
+            this.fraction = data["fraction"];
+        }
     }
-  }
 
-  static fromJS(data: any): DriverEthnicGroup {
-    data = typeof data === 'object' ? data : {};
-    let result = new DriverEthnicGroup();
-    result.init(data);
-    return result;
-  }
+    static fromJS(data: any): DriverEthnicGroup {
+        data = typeof data === 'object' ? data : {};
+        let result = new DriverEthnicGroup();
+        result.init(data);
+        return result;
+    }
 
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["id"] = this.id;
-    data["driverMetricId"] = this.driverMetricId;
-    data["driverMetric"] = this.driverMetric ? this.driverMetric.toJSON() : <any>undefined;
-    data["name"] = this.name;
-    data["fraction"] = this.fraction;
-    return data;
-  }
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["driverMetricId"] = this.driverMetricId;
+        data["driverMetric"] = this.driverMetric ? this.driverMetric.toJSON() : <any>undefined;
+        data["name"] = this.name;
+        data["fraction"] = this.fraction;
+        return data; 
+    }
 }
 
 export interface IDriverEthnicGroup {
-  id?: number | undefined;
-  driverMetricId?: number | undefined;
-  driverMetric?: DriverMetric | undefined;
-  name?: string | undefined;
-  fraction?: number | undefined;
+    id?: number | undefined;
+    driverMetricId?: number | undefined;
+    driverMetric?: DriverMetric | undefined;
+    name?: string | undefined;
+    fraction?: number | undefined;
 }
 
 export class DriverGenderGroup implements IDriverGenderGroup {
-  id?: number | undefined;
-  driverMetricId?: number | undefined;
-  driverMetric?: DriverMetric | undefined;
-  name?: string | undefined;
-  fraction?: number | undefined;
+    id?: number | undefined;
+    driverMetricId?: number | undefined;
+    driverMetric?: DriverMetric | undefined;
+    name?: string | undefined;
+    fraction?: number | undefined;
 
-  constructor(data?: IDriverGenderGroup) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: IDriverGenderGroup) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(data?: any) {
-    if (data) {
-      this.id = data["id"];
-      this.driverMetricId = data["driverMetricId"];
-      this.driverMetric = data["driverMetric"] ? DriverMetric.fromJS(data["driverMetric"]) : <any>undefined;
-      this.name = data["name"];
-      this.fraction = data["fraction"];
+    init(data?: any) {
+        if (data) {
+            this.id = data["id"];
+            this.driverMetricId = data["driverMetricId"];
+            this.driverMetric = data["driverMetric"] ? DriverMetric.fromJS(data["driverMetric"]) : <any>undefined;
+            this.name = data["name"];
+            this.fraction = data["fraction"];
+        }
     }
-  }
 
-  static fromJS(data: any): DriverGenderGroup {
-    data = typeof data === 'object' ? data : {};
-    let result = new DriverGenderGroup();
-    result.init(data);
-    return result;
-  }
+    static fromJS(data: any): DriverGenderGroup {
+        data = typeof data === 'object' ? data : {};
+        let result = new DriverGenderGroup();
+        result.init(data);
+        return result;
+    }
 
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["id"] = this.id;
-    data["driverMetricId"] = this.driverMetricId;
-    data["driverMetric"] = this.driverMetric ? this.driverMetric.toJSON() : <any>undefined;
-    data["name"] = this.name;
-    data["fraction"] = this.fraction;
-    return data;
-  }
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["driverMetricId"] = this.driverMetricId;
+        data["driverMetric"] = this.driverMetric ? this.driverMetric.toJSON() : <any>undefined;
+        data["name"] = this.name;
+        data["fraction"] = this.fraction;
+        return data; 
+    }
 }
 
 export interface IDriverGenderGroup {
-  id?: number | undefined;
-  driverMetricId?: number | undefined;
-  driverMetric?: DriverMetric | undefined;
-  name?: string | undefined;
-  fraction?: number | undefined;
+    id?: number | undefined;
+    driverMetricId?: number | undefined;
+    driverMetric?: DriverMetric | undefined;
+    name?: string | undefined;
+    fraction?: number | undefined;
 }
 
 export class DriverAgeGroup implements IDriverAgeGroup {
-  id?: number | undefined;
-  driverMetricId?: number | undefined;
-  driverMetric?: DriverMetric | undefined;
-  name?: string | undefined;
-  fraction?: number | undefined;
+    id?: number | undefined;
+    driverMetricId?: number | undefined;
+    driverMetric?: DriverMetric | undefined;
+    name?: string | undefined;
+    fraction?: number | undefined;
 
-  constructor(data?: IDriverAgeGroup) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: IDriverAgeGroup) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(data?: any) {
-    if (data) {
-      this.id = data["id"];
-      this.driverMetricId = data["driverMetricId"];
-      this.driverMetric = data["driverMetric"] ? DriverMetric.fromJS(data["driverMetric"]) : <any>undefined;
-      this.name = data["name"];
-      this.fraction = data["fraction"];
+    init(data?: any) {
+        if (data) {
+            this.id = data["id"];
+            this.driverMetricId = data["driverMetricId"];
+            this.driverMetric = data["driverMetric"] ? DriverMetric.fromJS(data["driverMetric"]) : <any>undefined;
+            this.name = data["name"];
+            this.fraction = data["fraction"];
+        }
     }
-  }
 
-  static fromJS(data: any): DriverAgeGroup {
-    data = typeof data === 'object' ? data : {};
-    let result = new DriverAgeGroup();
-    result.init(data);
-    return result;
-  }
+    static fromJS(data: any): DriverAgeGroup {
+        data = typeof data === 'object' ? data : {};
+        let result = new DriverAgeGroup();
+        result.init(data);
+        return result;
+    }
 
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["id"] = this.id;
-    data["driverMetricId"] = this.driverMetricId;
-    data["driverMetric"] = this.driverMetric ? this.driverMetric.toJSON() : <any>undefined;
-    data["name"] = this.name;
-    data["fraction"] = this.fraction;
-    return data;
-  }
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["driverMetricId"] = this.driverMetricId;
+        data["driverMetric"] = this.driverMetric ? this.driverMetric.toJSON() : <any>undefined;
+        data["name"] = this.name;
+        data["fraction"] = this.fraction;
+        return data; 
+    }
 }
 
 export interface IDriverAgeGroup {
-  id?: number | undefined;
-  driverMetricId?: number | undefined;
-  driverMetric?: DriverMetric | undefined;
-  name?: string | undefined;
-  fraction?: number | undefined;
+    id?: number | undefined;
+    driverMetricId?: number | undefined;
+    driverMetric?: DriverMetric | undefined;
+    name?: string | undefined;
+    fraction?: number | undefined;
 }
 
 export class DriverIncomeGroup implements IDriverIncomeGroup {
-  id?: number | undefined;
-  driverMetricId?: number | undefined;
-  driverMetric?: DriverMetric | undefined;
-  name?: string | undefined;
-  fraction?: number | undefined;
+    id?: number | undefined;
+    driverMetricId?: number | undefined;
+    driverMetric?: DriverMetric | undefined;
+    name?: string | undefined;
+    fraction?: number | undefined;
 
-  constructor(data?: IDriverIncomeGroup) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: IDriverIncomeGroup) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(data?: any) {
-    if (data) {
-      this.id = data["id"];
-      this.driverMetricId = data["driverMetricId"];
-      this.driverMetric = data["driverMetric"] ? DriverMetric.fromJS(data["driverMetric"]) : <any>undefined;
-      this.name = data["name"];
-      this.fraction = data["fraction"];
+    init(data?: any) {
+        if (data) {
+            this.id = data["id"];
+            this.driverMetricId = data["driverMetricId"];
+            this.driverMetric = data["driverMetric"] ? DriverMetric.fromJS(data["driverMetric"]) : <any>undefined;
+            this.name = data["name"];
+            this.fraction = data["fraction"];
+        }
     }
-  }
 
-  static fromJS(data: any): DriverIncomeGroup {
-    data = typeof data === 'object' ? data : {};
-    let result = new DriverIncomeGroup();
-    result.init(data);
-    return result;
-  }
+    static fromJS(data: any): DriverIncomeGroup {
+        data = typeof data === 'object' ? data : {};
+        let result = new DriverIncomeGroup();
+        result.init(data);
+        return result;
+    }
 
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["id"] = this.id;
-    data["driverMetricId"] = this.driverMetricId;
-    data["driverMetric"] = this.driverMetric ? this.driverMetric.toJSON() : <any>undefined;
-    data["name"] = this.name;
-    data["fraction"] = this.fraction;
-    return data;
-  }
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["driverMetricId"] = this.driverMetricId;
+        data["driverMetric"] = this.driverMetric ? this.driverMetric.toJSON() : <any>undefined;
+        data["name"] = this.name;
+        data["fraction"] = this.fraction;
+        return data; 
+    }
 }
 
 export interface IDriverIncomeGroup {
-  id?: number | undefined;
-  driverMetricId?: number | undefined;
-  driverMetric?: DriverMetric | undefined;
-  name?: string | undefined;
-  fraction?: number | undefined;
+    id?: number | undefined;
+    driverMetricId?: number | undefined;
+    driverMetric?: DriverMetric | undefined;
+    name?: string | undefined;
+    fraction?: number | undefined;
 }
 
 export class DriverDistrictMetric implements IDriverDistrictMetric {
-  id?: number | undefined;
-  driverMetricId?: number | undefined;
-  driverMetric?: DriverMetric | undefined;
-  districtId?: number | undefined;
-  fraction?: number | undefined;
+    id?: number | undefined;
+    driverMetricId?: number | undefined;
+    driverMetric?: DriverMetric | undefined;
+    districtId?: number | undefined;
+    fraction?: number | undefined;
 
-  constructor(data?: IDriverDistrictMetric) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: IDriverDistrictMetric) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(data?: any) {
-    if (data) {
-      this.id = data["id"];
-      this.driverMetricId = data["driverMetricId"];
-      this.driverMetric = data["driverMetric"] ? DriverMetric.fromJS(data["driverMetric"]) : <any>undefined;
-      this.districtId = data["districtId"];
-      this.fraction = data["fraction"];
+    init(data?: any) {
+        if (data) {
+            this.id = data["id"];
+            this.driverMetricId = data["driverMetricId"];
+            this.driverMetric = data["driverMetric"] ? DriverMetric.fromJS(data["driverMetric"]) : <any>undefined;
+            this.districtId = data["districtId"];
+            this.fraction = data["fraction"];
+        }
     }
-  }
 
-  static fromJS(data: any): DriverDistrictMetric {
-    data = typeof data === 'object' ? data : {};
-    let result = new DriverDistrictMetric();
-    result.init(data);
-    return result;
-  }
+    static fromJS(data: any): DriverDistrictMetric {
+        data = typeof data === 'object' ? data : {};
+        let result = new DriverDistrictMetric();
+        result.init(data);
+        return result;
+    }
 
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["id"] = this.id;
-    data["driverMetricId"] = this.driverMetricId;
-    data["driverMetric"] = this.driverMetric ? this.driverMetric.toJSON() : <any>undefined;
-    data["districtId"] = this.districtId;
-    data["fraction"] = this.fraction;
-    return data;
-  }
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["driverMetricId"] = this.driverMetricId;
+        data["driverMetric"] = this.driverMetric ? this.driverMetric.toJSON() : <any>undefined;
+        data["districtId"] = this.districtId;
+        data["fraction"] = this.fraction;
+        return data; 
+    }
 }
 
 export interface IDriverDistrictMetric {
-  id?: number | undefined;
-  driverMetricId?: number | undefined;
-  driverMetric?: DriverMetric | undefined;
-  districtId?: number | undefined;
-  fraction?: number | undefined;
+    id?: number | undefined;
+    driverMetricId?: number | undefined;
+    driverMetric?: DriverMetric | undefined;
+    districtId?: number | undefined;
+    fraction?: number | undefined;
 }
 
 export class DriverWeekdayMetric implements IDriverWeekdayMetric {
-  id?: number | undefined;
-  driverMetricId?: number | undefined;
-  driverMetric?: DriverMetric | undefined;
-  hour?: string | undefined;
-  weekday?: string | undefined;
-  fraction?: number | undefined;
+    id?: number | undefined;
+    driverMetricId?: number | undefined;
+    driverMetric?: DriverMetric | undefined;
+    hour?: string | undefined;
+    weekday?: string | undefined;
+    fraction?: number | undefined;
 
-  constructor(data?: IDriverWeekdayMetric) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: IDriverWeekdayMetric) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(data?: any) {
-    if (data) {
-      this.id = data["id"];
-      this.driverMetricId = data["driverMetricId"];
-      this.driverMetric = data["driverMetric"] ? DriverMetric.fromJS(data["driverMetric"]) : <any>undefined;
-      this.hour = data["hour"];
-      this.weekday = data["weekday"];
-      this.fraction = data["fraction"];
+    init(data?: any) {
+        if (data) {
+            this.id = data["id"];
+            this.driverMetricId = data["driverMetricId"];
+            this.driverMetric = data["driverMetric"] ? DriverMetric.fromJS(data["driverMetric"]) : <any>undefined;
+            this.hour = data["hour"];
+            this.weekday = data["weekday"];
+            this.fraction = data["fraction"];
+        }
     }
-  }
 
-  static fromJS(data: any): DriverWeekdayMetric {
-    data = typeof data === 'object' ? data : {};
-    let result = new DriverWeekdayMetric();
-    result.init(data);
-    return result;
-  }
+    static fromJS(data: any): DriverWeekdayMetric {
+        data = typeof data === 'object' ? data : {};
+        let result = new DriverWeekdayMetric();
+        result.init(data);
+        return result;
+    }
 
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["id"] = this.id;
-    data["driverMetricId"] = this.driverMetricId;
-    data["driverMetric"] = this.driverMetric ? this.driverMetric.toJSON() : <any>undefined;
-    data["hour"] = this.hour;
-    data["weekday"] = this.weekday;
-    data["fraction"] = this.fraction;
-    return data;
-  }
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["driverMetricId"] = this.driverMetricId;
+        data["driverMetric"] = this.driverMetric ? this.driverMetric.toJSON() : <any>undefined;
+        data["hour"] = this.hour;
+        data["weekday"] = this.weekday;
+        data["fraction"] = this.fraction;
+        return data; 
+    }
 }
 
 export interface IDriverWeekdayMetric {
-  id?: number | undefined;
-  driverMetricId?: number | undefined;
-  driverMetric?: DriverMetric | undefined;
-  hour?: string | undefined;
-  weekday?: string | undefined;
-  fraction?: number | undefined;
+    id?: number | undefined;
+    driverMetricId?: number | undefined;
+    driverMetric?: DriverMetric | undefined;
+    hour?: string | undefined;
+    weekday?: string | undefined;
+    fraction?: number | undefined;
 }
 
 export class CreateTrackingEventRequest implements ICreateTrackingEventRequest {
-  provider?: string | undefined;
-  time?: number | undefined;
-  latitude?: number | undefined;
-  longitude?: number | undefined;
-  accuracy?: number | undefined;
-  locationProvider?: number | undefined;
+    provider?: string | undefined;
+    time?: number | undefined;
+    latitude?: number | undefined;
+    longitude?: number | undefined;
+    accuracy?: number | undefined;
+    locationProvider?: number | undefined;
 
-  constructor(data?: ICreateTrackingEventRequest) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: ICreateTrackingEventRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(data?: any) {
-    if (data) {
-      this.provider = data["provider"];
-      this.time = data["time"];
-      this.latitude = data["latitude"];
-      this.longitude = data["longitude"];
-      this.accuracy = data["accuracy"];
-      this.locationProvider = data["locationProvider"];
+    init(data?: any) {
+        if (data) {
+            this.provider = data["provider"];
+            this.time = data["time"];
+            this.latitude = data["latitude"];
+            this.longitude = data["longitude"];
+            this.accuracy = data["accuracy"];
+            this.locationProvider = data["locationProvider"];
+        }
     }
-  }
 
-  static fromJS(data: any): CreateTrackingEventRequest {
-    data = typeof data === 'object' ? data : {};
-    let result = new CreateTrackingEventRequest();
-    result.init(data);
-    return result;
-  }
+    static fromJS(data: any): CreateTrackingEventRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateTrackingEventRequest();
+        result.init(data);
+        return result;
+    }
 
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["provider"] = this.provider;
-    data["time"] = this.time;
-    data["latitude"] = this.latitude;
-    data["longitude"] = this.longitude;
-    data["accuracy"] = this.accuracy;
-    data["locationProvider"] = this.locationProvider;
-    return data;
-  }
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["provider"] = this.provider;
+        data["time"] = this.time;
+        data["latitude"] = this.latitude;
+        data["longitude"] = this.longitude;
+        data["accuracy"] = this.accuracy;
+        data["locationProvider"] = this.locationProvider;
+        return data; 
+    }
 }
 
 export interface ICreateTrackingEventRequest {
-  provider?: string | undefined;
-  time?: number | undefined;
-  latitude?: number | undefined;
-  longitude?: number | undefined;
-  accuracy?: number | undefined;
-  locationProvider?: number | undefined;
+    provider?: string | undefined;
+    time?: number | undefined;
+    latitude?: number | undefined;
+    longitude?: number | undefined;
+    accuracy?: number | undefined;
+    locationProvider?: number | undefined;
 }
 
 export class Country implements ICountry {
-  id?: number | undefined;
-  name: string;
+    id?: number | undefined;
+    name: string;
 
-  constructor(data?: ICountry) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: ICountry) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(data?: any) {
-    if (data) {
-      this.id = data["id"];
-      this.name = data["name"];
+    init(data?: any) {
+        if (data) {
+            this.id = data["id"];
+            this.name = data["name"];
+        }
     }
-  }
 
-  static fromJS(data: any): Country {
-    data = typeof data === 'object' ? data : {};
-    let result = new Country();
-    result.init(data);
-    return result;
-  }
+    static fromJS(data: any): Country {
+        data = typeof data === 'object' ? data : {};
+        let result = new Country();
+        result.init(data);
+        return result;
+    }
 
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["id"] = this.id;
-    data["name"] = this.name;
-    return data;
-  }
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        return data; 
+    }
 }
 
 export interface ICountry {
-  id?: number | undefined;
-  name: string;
+    id?: number | undefined;
+    name: string;
 }
 
 export class JobOffersResponse implements IJobOffersResponse {
-  status?: string | undefined;
-  jobOffers?: JobOfferEntryResponse[] | undefined;
+    status?: string | undefined;
+    jobOffers?: JobOfferEntryResponse[] | undefined;
 
-  constructor(data?: IJobOffersResponse) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: IJobOffersResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(data?: any) {
-    if (data) {
-      this.status = data["status"];
-      if (data["jobOffers"] && data["jobOffers"].constructor === Array) {
-        this.jobOffers = [];
-        for (let item of data["jobOffers"])
-          this.jobOffers.push(JobOfferEntryResponse.fromJS(item));
-      }
+    init(data?: any) {
+        if (data) {
+            this.status = data["status"];
+            if (data["jobOffers"] && data["jobOffers"].constructor === Array) {
+                this.jobOffers = [];
+                for (let item of data["jobOffers"])
+                    this.jobOffers.push(JobOfferEntryResponse.fromJS(item));
+            }
+        }
     }
-  }
 
-  static fromJS(data: any): JobOffersResponse {
-    data = typeof data === 'object' ? data : {};
-    let result = new JobOffersResponse();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["status"] = this.status;
-    if (this.jobOffers && this.jobOffers.constructor === Array) {
-      data["jobOffers"] = [];
-      for (let item of this.jobOffers)
-        data["jobOffers"].push(item.toJSON());
+    static fromJS(data: any): JobOffersResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new JobOffersResponse();
+        result.init(data);
+        return result;
     }
-    return data;
-  }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["status"] = this.status;
+        if (this.jobOffers && this.jobOffers.constructor === Array) {
+            data["jobOffers"] = [];
+            for (let item of this.jobOffers)
+                data["jobOffers"].push(item.toJSON());
+        }
+        return data; 
+    }
 }
 
 export interface IJobOffersResponse {
-  status?: string | undefined;
-  jobOffers?: JobOfferEntryResponse[] | undefined;
+    status?: string | undefined;
+    jobOffers?: JobOfferEntryResponse[] | undefined;
 }
 
 export class JobOfferEntryResponse implements IJobOfferEntryResponse {
-  id?: number | undefined;
-  status?: string | undefined;
-  totalAmount?: number | undefined;
-  campaignLength?: number | undefined;
-  startDate?: Date | undefined;
-  advertiser?: string | undefined;
-  campaignName?: string | undefined;
+    id?: number | undefined;
+    status?: string | undefined;
+    totalAmount?: number | undefined;
+    campaignLength?: number | undefined;
+    startDate?: Date | undefined;
+    advertiser?: string | undefined;
+    campaignName?: string | undefined;
 
-  constructor(data?: IJobOfferEntryResponse) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: IJobOfferEntryResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(data?: any) {
-    if (data) {
-      this.id = data["id"];
-      this.status = data["status"];
-      this.totalAmount = data["totalAmount"];
-      this.campaignLength = data["campaignLength"];
-      this.startDate = data["startDate"] ? new Date(data["startDate"].toString()) : <any>undefined;
-      this.advertiser = data["advertiser"];
-      this.campaignName = data["campaignName"];
+    init(data?: any) {
+        if (data) {
+            this.id = data["id"];
+            this.status = data["status"];
+            this.totalAmount = data["totalAmount"];
+            this.campaignLength = data["campaignLength"];
+            this.startDate = data["startDate"] ? new Date(data["startDate"].toString()) : <any>undefined;
+            this.advertiser = data["advertiser"];
+            this.campaignName = data["campaignName"];
+        }
     }
-  }
 
-  static fromJS(data: any): JobOfferEntryResponse {
-    data = typeof data === 'object' ? data : {};
-    let result = new JobOfferEntryResponse();
-    result.init(data);
-    return result;
-  }
+    static fromJS(data: any): JobOfferEntryResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new JobOfferEntryResponse();
+        result.init(data);
+        return result;
+    }
 
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["id"] = this.id;
-    data["status"] = this.status;
-    data["totalAmount"] = this.totalAmount;
-    data["campaignLength"] = this.campaignLength;
-    data["startDate"] = this.startDate ? this.startDate.toISOString() : <any>undefined;
-    data["advertiser"] = this.advertiser;
-    data["campaignName"] = this.campaignName;
-    return data;
-  }
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["status"] = this.status;
+        data["totalAmount"] = this.totalAmount;
+        data["campaignLength"] = this.campaignLength;
+        data["startDate"] = this.startDate ? this.startDate.toISOString() : <any>undefined;
+        data["advertiser"] = this.advertiser;
+        data["campaignName"] = this.campaignName;
+        return data; 
+    }
 }
 
 export interface IJobOfferEntryResponse {
-  id?: number | undefined;
-  status?: string | undefined;
-  totalAmount?: number | undefined;
-  campaignLength?: number | undefined;
-  startDate?: Date | undefined;
-  advertiser?: string | undefined;
-  campaignName?: string | undefined;
+    id?: number | undefined;
+    status?: string | undefined;
+    totalAmount?: number | undefined;
+    campaignLength?: number | undefined;
+    startDate?: Date | undefined;
+    advertiser?: string | undefined;
+    campaignName?: string | undefined;
 }
 
 export class SuccessModel implements ISuccessModel {
-  messages?: string[] | undefined;
+    messages?: string[] | undefined;
 
-  constructor(data?: ISuccessModel) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: ISuccessModel) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(data?: any) {
-    if (data) {
-      if (data["messages"] && data["messages"].constructor === Array) {
-        this.messages = [];
-        for (let item of data["messages"])
-          this.messages.push(item);
-      }
+    init(data?: any) {
+        if (data) {
+            if (data["messages"] && data["messages"].constructor === Array) {
+                this.messages = [];
+                for (let item of data["messages"])
+                    this.messages.push(item);
+            }
+        }
     }
-  }
 
-  static fromJS(data: any): SuccessModel {
-    data = typeof data === 'object' ? data : {};
-    let result = new SuccessModel();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    if (this.messages && this.messages.constructor === Array) {
-      data["messages"] = [];
-      for (let item of this.messages)
-        data["messages"].push(item);
+    static fromJS(data: any): SuccessModel {
+        data = typeof data === 'object' ? data : {};
+        let result = new SuccessModel();
+        result.init(data);
+        return result;
     }
-    return data;
-  }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (this.messages && this.messages.constructor === Array) {
+            data["messages"] = [];
+            for (let item of this.messages)
+                data["messages"].push(item);
+        }
+        return data; 
+    }
 }
 
 export interface ISuccessModel {
-  messages?: string[] | undefined;
+    messages?: string[] | undefined;
 }
 
 export class JobOffer implements IJobOffer {
-  id?: number | undefined;
-  creativeId?: number | undefined;
-  creative?: Creative | undefined;
-  status?: JobOfferStatus | undefined;
-  acceptanceDate?: Date | undefined;
-  startDate?: Date | undefined;
-  endDate?: Date | undefined;
-  driverVehicleId?: number | undefined;
-  driverVehicle?: DriverVehicle | undefined;
+    id?: number | undefined;
+    creativeId?: number | undefined;
+    creative?: Creative | undefined;
+    status?: JobOfferStatus | undefined;
+    acceptanceDate?: Date | undefined;
+    startDate?: Date | undefined;
+    endDate?: Date | undefined;
+    driverVehicleId?: number | undefined;
+    driverVehicle?: DriverVehicle | undefined;
 
-  constructor(data?: IJobOffer) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: IJobOffer) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(data?: any) {
-    if (data) {
-      this.id = data["id"];
-      this.creativeId = data["creativeId"];
-      this.creative = data["creative"] ? Creative.fromJS(data["creative"]) : <any>undefined;
-      this.status = data["status"];
-      this.acceptanceDate = data["acceptanceDate"] ? new Date(data["acceptanceDate"].toString()) : <any>undefined;
-      this.startDate = data["startDate"] ? new Date(data["startDate"].toString()) : <any>undefined;
-      this.endDate = data["endDate"] ? new Date(data["endDate"].toString()) : <any>undefined;
-      this.driverVehicleId = data["driverVehicleId"];
-      this.driverVehicle = data["driverVehicle"] ? DriverVehicle.fromJS(data["driverVehicle"]) : <any>undefined;
+    init(data?: any) {
+        if (data) {
+            this.id = data["id"];
+            this.creativeId = data["creativeId"];
+            this.creative = data["creative"] ? Creative.fromJS(data["creative"]) : <any>undefined;
+            this.status = data["status"];
+            this.acceptanceDate = data["acceptanceDate"] ? new Date(data["acceptanceDate"].toString()) : <any>undefined;
+            this.startDate = data["startDate"] ? new Date(data["startDate"].toString()) : <any>undefined;
+            this.endDate = data["endDate"] ? new Date(data["endDate"].toString()) : <any>undefined;
+            this.driverVehicleId = data["driverVehicleId"];
+            this.driverVehicle = data["driverVehicle"] ? DriverVehicle.fromJS(data["driverVehicle"]) : <any>undefined;
+        }
     }
-  }
 
-  static fromJS(data: any): JobOffer {
-    data = typeof data === 'object' ? data : {};
-    let result = new JobOffer();
-    result.init(data);
-    return result;
-  }
+    static fromJS(data: any): JobOffer {
+        data = typeof data === 'object' ? data : {};
+        let result = new JobOffer();
+        result.init(data);
+        return result;
+    }
 
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["id"] = this.id;
-    data["creativeId"] = this.creativeId;
-    data["creative"] = this.creative ? this.creative.toJSON() : <any>undefined;
-    data["status"] = this.status;
-    data["acceptanceDate"] = this.acceptanceDate ? this.acceptanceDate.toISOString() : <any>undefined;
-    data["startDate"] = this.startDate ? this.startDate.toISOString() : <any>undefined;
-    data["endDate"] = this.endDate ? this.endDate.toISOString() : <any>undefined;
-    data["driverVehicleId"] = this.driverVehicleId;
-    data["driverVehicle"] = this.driverVehicle ? this.driverVehicle.toJSON() : <any>undefined;
-    return data;
-  }
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["creativeId"] = this.creativeId;
+        data["creative"] = this.creative ? this.creative.toJSON() : <any>undefined;
+        data["status"] = this.status;
+        data["acceptanceDate"] = this.acceptanceDate ? this.acceptanceDate.toISOString() : <any>undefined;
+        data["startDate"] = this.startDate ? this.startDate.toISOString() : <any>undefined;
+        data["endDate"] = this.endDate ? this.endDate.toISOString() : <any>undefined;
+        data["driverVehicleId"] = this.driverVehicleId;
+        data["driverVehicle"] = this.driverVehicle ? this.driverVehicle.toJSON() : <any>undefined;
+        return data; 
+    }
 }
 
 export interface IJobOffer {
-  id?: number | undefined;
-  creativeId?: number | undefined;
-  creative?: Creative | undefined;
-  status?: JobOfferStatus | undefined;
-  acceptanceDate?: Date | undefined;
-  startDate?: Date | undefined;
-  endDate?: Date | undefined;
-  driverVehicleId?: number | undefined;
-  driverVehicle?: DriverVehicle | undefined;
+    id?: number | undefined;
+    creativeId?: number | undefined;
+    creative?: Creative | undefined;
+    status?: JobOfferStatus | undefined;
+    acceptanceDate?: Date | undefined;
+    startDate?: Date | undefined;
+    endDate?: Date | undefined;
+    driverVehicleId?: number | undefined;
+    driverVehicle?: DriverVehicle | undefined;
 }
 
 export class Creative implements ICreative {
-  id?: number | undefined;
-  name: string;
-  campaignId?: number | undefined;
-  campaign?: Campaign | undefined;
-  numberOfVehicles: number;
-  vehicleCategoryClassId: number;
-  vehicleCategoryClass?: VehicleCategoryClass | undefined;
-  createDateTime?: Date | undefined;
-  startDate?: Date | undefined;
-  status?: string | undefined;
-  campaignLength?: number | undefined;
-  costPerVehiclePerMonth?: number | undefined;
+    id?: number | undefined;
+    name: string;
+    campaignId?: number | undefined;
+    campaign?: Campaign | undefined;
+    numberOfVehicles: number;
+    vehicleCategoryClassId: number;
+    vehicleCategoryClass?: VehicleCategoryClass | undefined;
+    createDateTime?: Date | undefined;
+    startDate?: Date | undefined;
+    designUpload?: string | undefined;
+    status?: string | undefined;
+    campaignLength?: number | undefined;
+    costPerVehiclePerMonth?: number | undefined;
+    driverSalaryPerMonth?: number | undefined;
+    invoices?: CreativeInvoice[] | undefined;
+    leftSideImageUploadId?: number | undefined;
+    leftSideImageUpload?: ImageUpload | undefined;
+    rightSideImageUploadId?: number | undefined;
+    rightSideImageUpload?: ImageUpload | undefined;
+    frontImageUploadId?: number | undefined;
+    frontImageUpload?: ImageUpload | undefined;
+    backImageUploadId?: number | undefined;
+    backImageUpload?: ImageUpload | undefined;
 
-  constructor(data?: ICreative) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: ICreative) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(data?: any) {
-    if (data) {
-      this.id = data["id"];
-      this.name = data["name"];
-      this.campaignId = data["campaignId"];
-      this.campaign = data["campaign"] ? Campaign.fromJS(data["campaign"]) : <any>undefined;
-      this.numberOfVehicles = data["numberOfVehicles"];
-      this.vehicleCategoryClassId = data["vehicleCategoryClassId"];
-      this.vehicleCategoryClass = data["vehicleCategoryClass"] ? VehicleCategoryClass.fromJS(data["vehicleCategoryClass"]) : <any>undefined;
-      this.createDateTime = data["createDateTime"] ? new Date(data["createDateTime"].toString()) : <any>undefined;
-      this.startDate = data["startDate"] ? new Date(data["startDate"].toString()) : <any>undefined;
-      this.status = data["status"];
-      this.campaignLength = data["campaignLength"];
-      this.costPerVehiclePerMonth = data["costPerVehiclePerMonth"];
+    init(data?: any) {
+        if (data) {
+            this.id = data["id"];
+            this.name = data["name"];
+            this.campaignId = data["campaignId"];
+            this.campaign = data["campaign"] ? Campaign.fromJS(data["campaign"]) : <any>undefined;
+            this.numberOfVehicles = data["numberOfVehicles"];
+            this.vehicleCategoryClassId = data["vehicleCategoryClassId"];
+            this.vehicleCategoryClass = data["vehicleCategoryClass"] ? VehicleCategoryClass.fromJS(data["vehicleCategoryClass"]) : <any>undefined;
+            this.createDateTime = data["createDateTime"] ? new Date(data["createDateTime"].toString()) : <any>undefined;
+            this.startDate = data["startDate"] ? new Date(data["startDate"].toString()) : <any>undefined;
+            this.designUpload = data["designUpload"];
+            this.status = data["status"];
+            this.campaignLength = data["campaignLength"];
+            this.costPerVehiclePerMonth = data["costPerVehiclePerMonth"];
+            this.driverSalaryPerMonth = data["driverSalaryPerMonth"];
+            if (data["invoices"] && data["invoices"].constructor === Array) {
+                this.invoices = [];
+                for (let item of data["invoices"])
+                    this.invoices.push(CreativeInvoice.fromJS(item));
+            }
+            this.leftSideImageUploadId = data["leftSideImageUploadId"];
+            this.leftSideImageUpload = data["leftSideImageUpload"] ? ImageUpload.fromJS(data["leftSideImageUpload"]) : <any>undefined;
+            this.rightSideImageUploadId = data["rightSideImageUploadId"];
+            this.rightSideImageUpload = data["rightSideImageUpload"] ? ImageUpload.fromJS(data["rightSideImageUpload"]) : <any>undefined;
+            this.frontImageUploadId = data["frontImageUploadId"];
+            this.frontImageUpload = data["frontImageUpload"] ? ImageUpload.fromJS(data["frontImageUpload"]) : <any>undefined;
+            this.backImageUploadId = data["backImageUploadId"];
+            this.backImageUpload = data["backImageUpload"] ? ImageUpload.fromJS(data["backImageUpload"]) : <any>undefined;
+        }
     }
-  }
 
-  static fromJS(data: any): Creative {
-    data = typeof data === 'object' ? data : {};
-    let result = new Creative();
-    result.init(data);
-    return result;
-  }
+    static fromJS(data: any): Creative {
+        data = typeof data === 'object' ? data : {};
+        let result = new Creative();
+        result.init(data);
+        return result;
+    }
 
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["id"] = this.id;
-    data["name"] = this.name;
-    data["campaignId"] = this.campaignId;
-    data["campaign"] = this.campaign ? this.campaign.toJSON() : <any>undefined;
-    data["numberOfVehicles"] = this.numberOfVehicles;
-    data["vehicleCategoryClassId"] = this.vehicleCategoryClassId;
-    data["vehicleCategoryClass"] = this.vehicleCategoryClass ? this.vehicleCategoryClass.toJSON() : <any>undefined;
-    data["createDateTime"] = this.createDateTime ? this.createDateTime.toISOString() : <any>undefined;
-    data["startDate"] = this.startDate ? this.startDate.toISOString() : <any>undefined;
-    data["status"] = this.status;
-    data["campaignLength"] = this.campaignLength;
-    data["costPerVehiclePerMonth"] = this.costPerVehiclePerMonth;
-    return data;
-  }
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["campaignId"] = this.campaignId;
+        data["campaign"] = this.campaign ? this.campaign.toJSON() : <any>undefined;
+        data["numberOfVehicles"] = this.numberOfVehicles;
+        data["vehicleCategoryClassId"] = this.vehicleCategoryClassId;
+        data["vehicleCategoryClass"] = this.vehicleCategoryClass ? this.vehicleCategoryClass.toJSON() : <any>undefined;
+        data["createDateTime"] = this.createDateTime ? this.createDateTime.toISOString() : <any>undefined;
+        data["startDate"] = this.startDate ? this.startDate.toISOString() : <any>undefined;
+        data["designUpload"] = this.designUpload;
+        data["status"] = this.status;
+        data["campaignLength"] = this.campaignLength;
+        data["costPerVehiclePerMonth"] = this.costPerVehiclePerMonth;
+        data["driverSalaryPerMonth"] = this.driverSalaryPerMonth;
+        if (this.invoices && this.invoices.constructor === Array) {
+            data["invoices"] = [];
+            for (let item of this.invoices)
+                data["invoices"].push(item.toJSON());
+        }
+        data["leftSideImageUploadId"] = this.leftSideImageUploadId;
+        data["leftSideImageUpload"] = this.leftSideImageUpload ? this.leftSideImageUpload.toJSON() : <any>undefined;
+        data["rightSideImageUploadId"] = this.rightSideImageUploadId;
+        data["rightSideImageUpload"] = this.rightSideImageUpload ? this.rightSideImageUpload.toJSON() : <any>undefined;
+        data["frontImageUploadId"] = this.frontImageUploadId;
+        data["frontImageUpload"] = this.frontImageUpload ? this.frontImageUpload.toJSON() : <any>undefined;
+        data["backImageUploadId"] = this.backImageUploadId;
+        data["backImageUpload"] = this.backImageUpload ? this.backImageUpload.toJSON() : <any>undefined;
+        return data; 
+    }
 }
 
 export interface ICreative {
-  id?: number | undefined;
-  name: string;
-  campaignId?: number | undefined;
-  campaign?: Campaign | undefined;
-  numberOfVehicles: number;
-  vehicleCategoryClassId: number;
-  vehicleCategoryClass?: VehicleCategoryClass | undefined;
-  createDateTime?: Date | undefined;
-  startDate?: Date | undefined;
-  status?: string | undefined;
-  campaignLength?: number | undefined;
-  costPerVehiclePerMonth?: number | undefined;
+    id?: number | undefined;
+    name: string;
+    campaignId?: number | undefined;
+    campaign?: Campaign | undefined;
+    numberOfVehicles: number;
+    vehicleCategoryClassId: number;
+    vehicleCategoryClass?: VehicleCategoryClass | undefined;
+    createDateTime?: Date | undefined;
+    startDate?: Date | undefined;
+    designUpload?: string | undefined;
+    status?: string | undefined;
+    campaignLength?: number | undefined;
+    costPerVehiclePerMonth?: number | undefined;
+    driverSalaryPerMonth?: number | undefined;
+    invoices?: CreativeInvoice[] | undefined;
+    leftSideImageUploadId?: number | undefined;
+    leftSideImageUpload?: ImageUpload | undefined;
+    rightSideImageUploadId?: number | undefined;
+    rightSideImageUpload?: ImageUpload | undefined;
+    frontImageUploadId?: number | undefined;
+    frontImageUpload?: ImageUpload | undefined;
+    backImageUploadId?: number | undefined;
+    backImageUpload?: ImageUpload | undefined;
 }
 
 export class Campaign implements ICampaign {
-  id?: number | undefined;
-  name: string;
-  accountId?: number | undefined;
-  account?: Account | undefined;
+    id?: number | undefined;
+    name: string;
+    accountId?: number | undefined;
+    account?: Account | undefined;
 
-  constructor(data?: ICampaign) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: ICampaign) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(data?: any) {
-    if (data) {
-      this.id = data["id"];
-      this.name = data["name"];
-      this.accountId = data["accountId"];
-      this.account = data["account"] ? Account.fromJS(data["account"]) : <any>undefined;
+    init(data?: any) {
+        if (data) {
+            this.id = data["id"];
+            this.name = data["name"];
+            this.accountId = data["accountId"];
+            this.account = data["account"] ? Account.fromJS(data["account"]) : <any>undefined;
+        }
     }
-  }
 
-  static fromJS(data: any): Campaign {
-    data = typeof data === 'object' ? data : {};
-    let result = new Campaign();
-    result.init(data);
-    return result;
-  }
+    static fromJS(data: any): Campaign {
+        data = typeof data === 'object' ? data : {};
+        let result = new Campaign();
+        result.init(data);
+        return result;
+    }
 
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["id"] = this.id;
-    data["name"] = this.name;
-    data["accountId"] = this.accountId;
-    data["account"] = this.account ? this.account.toJSON() : <any>undefined;
-    return data;
-  }
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["accountId"] = this.accountId;
+        data["account"] = this.account ? this.account.toJSON() : <any>undefined;
+        return data; 
+    }
 }
 
 export interface ICampaign {
-  id?: number | undefined;
-  name: string;
-  accountId?: number | undefined;
-  account?: Account | undefined;
+    id?: number | undefined;
+    name: string;
+    accountId?: number | undefined;
+    account?: Account | undefined;
+}
+
+export class CreativeInvoice implements ICreativeInvoice {
+    id?: number | undefined;
+    creativeId?: number | undefined;
+    creative?: Creative | undefined;
+    periodStart?: Date | undefined;
+    periodEnd?: Date | undefined;
+    createDate?: Date | undefined;
+    status?: CreativeInvoiceStatus | undefined;
+    amount?: number | undefined;
+    accountInvoiceId?: number | undefined;
+    accountInvoice?: AccountInvoice | undefined;
+
+    constructor(data?: ICreativeInvoice) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(data?: any) {
+        if (data) {
+            this.id = data["id"];
+            this.creativeId = data["creativeId"];
+            this.creative = data["creative"] ? Creative.fromJS(data["creative"]) : <any>undefined;
+            this.periodStart = data["periodStart"] ? new Date(data["periodStart"].toString()) : <any>undefined;
+            this.periodEnd = data["periodEnd"] ? new Date(data["periodEnd"].toString()) : <any>undefined;
+            this.createDate = data["createDate"] ? new Date(data["createDate"].toString()) : <any>undefined;
+            this.status = data["status"];
+            this.amount = data["amount"];
+            this.accountInvoiceId = data["accountInvoiceId"];
+            this.accountInvoice = data["accountInvoice"] ? AccountInvoice.fromJS(data["accountInvoice"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): CreativeInvoice {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreativeInvoice();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["creativeId"] = this.creativeId;
+        data["creative"] = this.creative ? this.creative.toJSON() : <any>undefined;
+        data["periodStart"] = this.periodStart ? this.periodStart.toISOString() : <any>undefined;
+        data["periodEnd"] = this.periodEnd ? this.periodEnd.toISOString() : <any>undefined;
+        data["createDate"] = this.createDate ? this.createDate.toISOString() : <any>undefined;
+        data["status"] = this.status;
+        data["amount"] = this.amount;
+        data["accountInvoiceId"] = this.accountInvoiceId;
+        data["accountInvoice"] = this.accountInvoice ? this.accountInvoice.toJSON() : <any>undefined;
+        return data; 
+    }
+}
+
+export interface ICreativeInvoice {
+    id?: number | undefined;
+    creativeId?: number | undefined;
+    creative?: Creative | undefined;
+    periodStart?: Date | undefined;
+    periodEnd?: Date | undefined;
+    createDate?: Date | undefined;
+    status?: CreativeInvoiceStatus | undefined;
+    amount?: number | undefined;
+    accountInvoiceId?: number | undefined;
+    accountInvoice?: AccountInvoice | undefined;
+}
+
+export class ImageUpload implements IImageUpload {
+    id?: number | undefined;
+    image?: string | undefined;
+    x?: number | undefined;
+    y?: number | undefined;
+    scale?: number | undefined;
+
+    constructor(data?: IImageUpload) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(data?: any) {
+        if (data) {
+            this.id = data["id"];
+            this.image = data["image"];
+            this.x = data["x"];
+            this.y = data["y"];
+            this.scale = data["scale"];
+        }
+    }
+
+    static fromJS(data: any): ImageUpload {
+        data = typeof data === 'object' ? data : {};
+        let result = new ImageUpload();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["image"] = this.image;
+        data["x"] = this.x;
+        data["y"] = this.y;
+        data["scale"] = this.scale;
+        return data; 
+    }
+}
+
+export interface IImageUpload {
+    id?: number | undefined;
+    image?: string | undefined;
+    x?: number | undefined;
+    y?: number | undefined;
+    scale?: number | undefined;
 }
 
 export class Account implements IAccount {
-  id?: number | undefined;
-  companyName: string;
+    id?: number | undefined;
+    companyName: string;
+    invoices?: AccountInvoice[] | undefined;
 
-  constructor(data?: IAccount) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: IAccount) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(data?: any) {
-    if (data) {
-      this.id = data["id"];
-      this.companyName = data["companyName"];
+    init(data?: any) {
+        if (data) {
+            this.id = data["id"];
+            this.companyName = data["companyName"];
+            if (data["invoices"] && data["invoices"].constructor === Array) {
+                this.invoices = [];
+                for (let item of data["invoices"])
+                    this.invoices.push(AccountInvoice.fromJS(item));
+            }
+        }
     }
-  }
 
-  static fromJS(data: any): Account {
-    data = typeof data === 'object' ? data : {};
-    let result = new Account();
-    result.init(data);
-    return result;
-  }
+    static fromJS(data: any): Account {
+        data = typeof data === 'object' ? data : {};
+        let result = new Account();
+        result.init(data);
+        return result;
+    }
 
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["id"] = this.id;
-    data["companyName"] = this.companyName;
-    return data;
-  }
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["companyName"] = this.companyName;
+        if (this.invoices && this.invoices.constructor === Array) {
+            data["invoices"] = [];
+            for (let item of this.invoices)
+                data["invoices"].push(item.toJSON());
+        }
+        return data; 
+    }
 }
 
 export interface IAccount {
-  id?: number | undefined;
-  companyName: string;
+    id?: number | undefined;
+    companyName: string;
+    invoices?: AccountInvoice[] | undefined;
+}
+
+export class AccountInvoice implements IAccountInvoice {
+    id?: number | undefined;
+    accountId?: number | undefined;
+    account?: Account | undefined;
+    createDate?: Date | undefined;
+    paidDate?: Date | undefined;
+    status?: AccountInvoiceStatus | undefined;
+    creativeInvoices?: CreativeInvoice[] | undefined;
+
+    constructor(data?: IAccountInvoice) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(data?: any) {
+        if (data) {
+            this.id = data["id"];
+            this.accountId = data["accountId"];
+            this.account = data["account"] ? Account.fromJS(data["account"]) : <any>undefined;
+            this.createDate = data["createDate"] ? new Date(data["createDate"].toString()) : <any>undefined;
+            this.paidDate = data["paidDate"] ? new Date(data["paidDate"].toString()) : <any>undefined;
+            this.status = data["status"];
+            if (data["creativeInvoices"] && data["creativeInvoices"].constructor === Array) {
+                this.creativeInvoices = [];
+                for (let item of data["creativeInvoices"])
+                    this.creativeInvoices.push(CreativeInvoice.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): AccountInvoice {
+        data = typeof data === 'object' ? data : {};
+        let result = new AccountInvoice();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["accountId"] = this.accountId;
+        data["account"] = this.account ? this.account.toJSON() : <any>undefined;
+        data["createDate"] = this.createDate ? this.createDate.toISOString() : <any>undefined;
+        data["paidDate"] = this.paidDate ? this.paidDate.toISOString() : <any>undefined;
+        data["status"] = this.status;
+        if (this.creativeInvoices && this.creativeInvoices.constructor === Array) {
+            data["creativeInvoices"] = [];
+            for (let item of this.creativeInvoices)
+                data["creativeInvoices"].push(item.toJSON());
+        }
+        return data; 
+    }
+}
+
+export interface IAccountInvoice {
+    id?: number | undefined;
+    accountId?: number | undefined;
+    account?: Account | undefined;
+    createDate?: Date | undefined;
+    paidDate?: Date | undefined;
+    status?: AccountInvoiceStatus | undefined;
+    creativeInvoices?: CreativeInvoice[] | undefined;
 }
 
 export class PricingRequest implements IPricingRequest {
-  locations?: number[] | undefined;
-  categoryClassId?: number | undefined;
-  numberOfVehicles?: number | undefined;
-  campaignLength?: number | undefined;
+    locations?: number[] | undefined;
+    categoryClassId?: number | undefined;
+    numberOfVehicles?: number | undefined;
+    campaignLength?: number | undefined;
 
-  constructor(data?: IPricingRequest) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: IPricingRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(data?: any) {
-    if (data) {
-      if (data["locations"] && data["locations"].constructor === Array) {
-        this.locations = [];
-        for (let item of data["locations"])
-          this.locations.push(item);
-      }
-      this.categoryClassId = data["categoryClassId"];
-      this.numberOfVehicles = data["numberOfVehicles"];
-      this.campaignLength = data["campaignLength"];
+    init(data?: any) {
+        if (data) {
+            if (data["locations"] && data["locations"].constructor === Array) {
+                this.locations = [];
+                for (let item of data["locations"])
+                    this.locations.push(item);
+            }
+            this.categoryClassId = data["categoryClassId"];
+            this.numberOfVehicles = data["numberOfVehicles"];
+            this.campaignLength = data["campaignLength"];
+        }
     }
-  }
 
-  static fromJS(data: any): PricingRequest {
-    data = typeof data === 'object' ? data : {};
-    let result = new PricingRequest();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    if (this.locations && this.locations.constructor === Array) {
-      data["locations"] = [];
-      for (let item of this.locations)
-        data["locations"].push(item);
+    static fromJS(data: any): PricingRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new PricingRequest();
+        result.init(data);
+        return result;
     }
-    data["categoryClassId"] = this.categoryClassId;
-    data["numberOfVehicles"] = this.numberOfVehicles;
-    data["campaignLength"] = this.campaignLength;
-    return data;
-  }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (this.locations && this.locations.constructor === Array) {
+            data["locations"] = [];
+            for (let item of this.locations)
+                data["locations"].push(item);
+        }
+        data["categoryClassId"] = this.categoryClassId;
+        data["numberOfVehicles"] = this.numberOfVehicles;
+        data["campaignLength"] = this.campaignLength;
+        return data; 
+    }
 }
 
 export interface IPricingRequest {
-  locations?: number[] | undefined;
-  categoryClassId?: number | undefined;
-  numberOfVehicles?: number | undefined;
-  campaignLength?: number | undefined;
+    locations?: number[] | undefined;
+    categoryClassId?: number | undefined;
+    numberOfVehicles?: number | undefined;
+    campaignLength?: number | undefined;
 }
 
 export class WalletResponse implements IWalletResponse {
-  canWithdraw?: boolean | undefined;
-  amountAvailible?: number | undefined;
-  totalEarnings?: number | undefined;
-  walletEntries?: WalletEntryResponse[] | undefined;
+    canWithdraw?: boolean | undefined;
+    amountAvailible?: number | undefined;
+    totalEarnings?: number | undefined;
+    walletEntries?: WalletEntryResponse[] | undefined;
 
-  constructor(data?: IWalletResponse) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: IWalletResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(data?: any) {
-    if (data) {
-      this.canWithdraw = data["canWithdraw"];
-      this.amountAvailible = data["amountAvailible"];
-      this.totalEarnings = data["totalEarnings"];
-      if (data["walletEntries"] && data["walletEntries"].constructor === Array) {
-        this.walletEntries = [];
-        for (let item of data["walletEntries"])
-          this.walletEntries.push(WalletEntryResponse.fromJS(item));
-      }
+    init(data?: any) {
+        if (data) {
+            this.canWithdraw = data["canWithdraw"];
+            this.amountAvailible = data["amountAvailible"];
+            this.totalEarnings = data["totalEarnings"];
+            if (data["walletEntries"] && data["walletEntries"].constructor === Array) {
+                this.walletEntries = [];
+                for (let item of data["walletEntries"])
+                    this.walletEntries.push(WalletEntryResponse.fromJS(item));
+            }
+        }
     }
-  }
 
-  static fromJS(data: any): WalletResponse {
-    data = typeof data === 'object' ? data : {};
-    let result = new WalletResponse();
-    result.init(data);
-    return result;
-  }
-
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["canWithdraw"] = this.canWithdraw;
-    data["amountAvailible"] = this.amountAvailible;
-    data["totalEarnings"] = this.totalEarnings;
-    if (this.walletEntries && this.walletEntries.constructor === Array) {
-      data["walletEntries"] = [];
-      for (let item of this.walletEntries)
-        data["walletEntries"].push(item.toJSON());
+    static fromJS(data: any): WalletResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new WalletResponse();
+        result.init(data);
+        return result;
     }
-    return data;
-  }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["canWithdraw"] = this.canWithdraw;
+        data["amountAvailible"] = this.amountAvailible;
+        data["totalEarnings"] = this.totalEarnings;
+        if (this.walletEntries && this.walletEntries.constructor === Array) {
+            data["walletEntries"] = [];
+            for (let item of this.walletEntries)
+                data["walletEntries"].push(item.toJSON());
+        }
+        return data; 
+    }
 }
 
 export interface IWalletResponse {
-  canWithdraw?: boolean | undefined;
-  amountAvailible?: number | undefined;
-  totalEarnings?: number | undefined;
-  walletEntries?: WalletEntryResponse[] | undefined;
+    canWithdraw?: boolean | undefined;
+    amountAvailible?: number | undefined;
+    totalEarnings?: number | undefined;
+    walletEntries?: WalletEntryResponse[] | undefined;
 }
 
 export class WalletEntryResponse implements IWalletEntryResponse {
-  id?: number | undefined;
-  status?: string | undefined;
-  amount?: number | undefined;
-  createDateTime?: Date | undefined;
-  paidDateTime?: Date | undefined;
-  currency?: string | undefined;
+    id?: number | undefined;
+    status?: string | undefined;
+    amount?: number | undefined;
+    createDateTime?: Date | undefined;
+    paidDateTime?: Date | undefined;
+    currency?: string | undefined;
 
-  constructor(data?: IWalletEntryResponse) {
-    if (data) {
-      for (var property in data) {
-        if (data.hasOwnProperty(property))
-          (<any>this)[property] = (<any>data)[property];
-      }
+    constructor(data?: IWalletEntryResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
     }
-  }
 
-  init(data?: any) {
-    if (data) {
-      this.id = data["id"];
-      this.status = data["status"];
-      this.amount = data["amount"];
-      this.createDateTime = data["createDateTime"] ? new Date(data["createDateTime"].toString()) : <any>undefined;
-      this.paidDateTime = data["paidDateTime"] ? new Date(data["paidDateTime"].toString()) : <any>undefined;
-      this.currency = data["currency"];
+    init(data?: any) {
+        if (data) {
+            this.id = data["id"];
+            this.status = data["status"];
+            this.amount = data["amount"];
+            this.createDateTime = data["createDateTime"] ? new Date(data["createDateTime"].toString()) : <any>undefined;
+            this.paidDateTime = data["paidDateTime"] ? new Date(data["paidDateTime"].toString()) : <any>undefined;
+            this.currency = data["currency"];
+        }
     }
-  }
 
-  static fromJS(data: any): WalletEntryResponse {
-    data = typeof data === 'object' ? data : {};
-    let result = new WalletEntryResponse();
-    result.init(data);
-    return result;
-  }
+    static fromJS(data: any): WalletEntryResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new WalletEntryResponse();
+        result.init(data);
+        return result;
+    }
 
-  toJSON(data?: any) {
-    data = typeof data === 'object' ? data : {};
-    data["id"] = this.id;
-    data["status"] = this.status;
-    data["amount"] = this.amount;
-    data["createDateTime"] = this.createDateTime ? this.createDateTime.toISOString() : <any>undefined;
-    data["paidDateTime"] = this.paidDateTime ? this.paidDateTime.toISOString() : <any>undefined;
-    data["currency"] = this.currency;
-    return data;
-  }
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["status"] = this.status;
+        data["amount"] = this.amount;
+        data["createDateTime"] = this.createDateTime ? this.createDateTime.toISOString() : <any>undefined;
+        data["paidDateTime"] = this.paidDateTime ? this.paidDateTime.toISOString() : <any>undefined;
+        data["currency"] = this.currency;
+        return data; 
+    }
 }
 
 export interface IWalletEntryResponse {
-  id?: number | undefined;
-  status?: string | undefined;
-  amount?: number | undefined;
-  createDateTime?: Date | undefined;
-  paidDateTime?: Date | undefined;
-  currency?: string | undefined;
+    id?: number | undefined;
+    status?: string | undefined;
+    amount?: number | undefined;
+    createDateTime?: Date | undefined;
+    paidDateTime?: Date | undefined;
+    currency?: string | undefined;
 }
 
 export enum DriverInfoResponseStatus {
-  _1 = 1,
-  _2 = 2,
-  _3 = 3,
-  _4 = 4,
+    _1 = 1, 
+    _2 = 2, 
+    _3 = 3, 
+    _4 = 4, 
 }
 
 export enum VehicleInfoVehicleCondition {
-  _1 = 1,
-  _2 = 2,
-  _3 = 3,
-  _4 = 4,
-  _5 = 5,
+    _1 = 1, 
+    _2 = 2, 
+    _3 = 3, 
+    _4 = 4, 
+    _5 = 5, 
 }
 
 export enum DriverVehicleCondition {
-  _1 = 1,
-  _2 = 2,
-  _3 = 3,
-  _4 = 4,
-  _5 = 5,
+    _1 = 1, 
+    _2 = 2, 
+    _3 = 3, 
+    _4 = 4, 
+    _5 = 5, 
 }
 
 export enum DriverVehicleStatus {
-  _1 = 1,
-  _2 = 2,
-  _3 = 3,
-  _4 = 4,
-  _5 = 5,
+    _1 = 1, 
+    _2 = 2, 
+    _3 = 3, 
+    _4 = 4, 
+    _5 = 5, 
 }
 
 export enum JobOfferStatus {
-  _1 = 1,
-  _2 = 2,
-  _3 = 3,
-  _4 = 4,
+    _1 = 1, 
+    _2 = 2, 
+    _3 = 3, 
+    _4 = 4, 
+}
+
+export enum CreativeInvoiceStatus {
+    _1 = 1, 
+    _2 = 2, 
+}
+
+export enum AccountInvoiceStatus {
+    _1 = 1, 
+    _2 = 2, 
 }
 
 export class SwaggerException extends Error {
-  message: string;
-  status: number;
-  response: string;
-  headers: { [key: string]: any; };
-  result: any;
+    message: string;
+    status: number; 
+    response: string; 
+    headers: { [key: string]: any; };
+    result: any; 
 
-  constructor(message: string, status: number, response: string, headers: { [key: string]: any; }, result: any) {
-    super();
+    constructor(message: string, status: number, response: string, headers: { [key: string]: any; }, result: any) {
+        super();
 
-    this.message = message;
-    this.status = status;
-    this.response = response;
-    this.headers = headers;
-    this.result = result;
-  }
+        this.message = message;
+        this.status = status;
+        this.response = response;
+        this.headers = headers;
+        this.result = result;
+    }
 
-  protected isSwaggerException = true;
+    protected isSwaggerException = true;
 
-  static isSwaggerException(obj: any): obj is SwaggerException {
-    return obj.isSwaggerException === true;
-  }
+    static isSwaggerException(obj: any): obj is SwaggerException {
+        return obj.isSwaggerException === true;
+    }
 }
 
 function throwException(message: string, status: number, response: string, headers: { [key: string]: any; }, result?: any): Observable<any> {
-  return Observable.throw(new SwaggerException(message, status, response, headers, result));
+    return Observable.throw(new SwaggerException(message, status, response, headers, result));
 }
 
 function blobToText(blob: any): Observable<string> {
-  return new Observable<string>((observer: any) => {
-    if (!blob) {
-      observer.next("");
-      observer.complete();
-    } else {
-      let reader = new FileReader();
-      reader.onload = event => {
-        observer.next((<any>event.target).result);
-        observer.complete();
-      };
-      reader.readAsText(blob);
-    }
-  });
+    return new Observable<string>((observer: any) => {
+        if (!blob) {
+            observer.next("");
+            observer.complete();
+        } else {
+            let reader = new FileReader(); 
+            reader.onload = event => { 
+                observer.next((<any>event.target).result);
+                observer.complete();
+            };
+            reader.readAsText(blob); 
+        }
+    });
 }

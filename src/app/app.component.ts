@@ -30,8 +30,6 @@ export class MyApp {
   public rootPage: any;
 
   public nav: any;
-  public driver:Observable<DriverInfoResponse>;
-
   public pages = [
     {
       title: 'Home',
@@ -56,12 +54,6 @@ export class MyApp {
       icon: 'settings',
       count: 0,
       component: SettingPage
-    },
-    {
-      title: 'Support',
-      icon: 'ios-help-circle-outline',
-      count: 0,
-      component: SupportPage
     }
   ];
 
@@ -77,7 +69,6 @@ export class MyApp {
   }
 
   openPage(page) {
-      this.driver = this.driverService.getCurrentDriver();
     // Reset the content nav to have just this page
     // we wouldn't want the back button to show in this scenario
     this.nav.setRoot(page.component);

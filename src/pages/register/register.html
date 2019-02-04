@@ -12,7 +12,7 @@
   <div class="auth-content">
     <div class="light-bg" *ngIf="(vehicleModels | async)?.length ">
 
-      <section *ngIf="signupPage===1" >
+      <section padding >
         <!-- Logo -->
         <div padding text-center>
           <div class="logo">
@@ -22,6 +22,8 @@
         </div>
         <form [formGroup]="userBasicInfo" padding>
           <!-- Login form -->
+          <h6>Basic Info:</h6>
+          <br/>
           <ion-list class="list-form">
             <ion-item>
               <ion-input class="item-input" formControlName="name" type="text" placeholder="Your name"></ion-input>
@@ -59,22 +61,8 @@
               <p>Please enter a valid password of at least 5 characters.</p>
             </ion-item>
           </ion-list>
-        </form>
-        <div padding>
-          <button ion-button color="secondary" block (click)="next(2)">
-            Next
-          </button>
-        </div>
-      </section>
-      <section *ngIf="signupPage===2">
-        <div padding text-center>
-            <div class="logo">
-              <img src="https://res.cloudinary.com/dbwpvgyrn/image/upload/c_scale,w_500/v1539702962/logo_black_ybky2b.png"/>
-            </div>
-          <p ion-text color="dark">Your vehicle information</p>
-        </div>
-
-        <form [formGroup]="userVehicleInfo" padding>
+          <h6>Vehicle Info:</h6>
+          <br/>
           <ion-list class="list-form">
             <!-- Login form -->
             <ion-item>
@@ -84,7 +72,7 @@
               </ion-select>
             </ion-item>
             <ion-item
-              *ngIf="!userVehicleInfo.controls.model.valid  && (userVehicleInfo.controls.model.dirty || submitAttempt)">
+              *ngIf="!userBasicInfo.controls.model.valid  && (userBasicInfo.controls.model.dirty || submitAttempt)">
               <p>Please select vehicle model.</p>
             </ion-item>
 
@@ -93,11 +81,12 @@
               <ion-input formControlName="numberPlate" type="text" ></ion-input>
             </ion-item>
             <ion-item
-              *ngIf="!userVehicleInfo.controls.numberPlate.valid  && (userVehicleInfo.controls.numberPlate.dirty || submitAttempt)">
+              *ngIf="!userBasicInfo.controls.numberPlate.valid  && (userBasicInfo.controls.numberPlate.dirty || submitAttempt)">
               <p>Please enter a valid plate number of at least 5 characters.</p>
             </ion-item>
 
           </ion-list>
+
         </form>
         <div padding>
           <button ion-button color="secondary" block (click)="signup()">
@@ -109,7 +98,7 @@
     <div padding=""></div>
 
     <!-- Other links -->
-    <ion-grid>
+    <ion-grid style="padding-bottom:20px">
       <ion-row>
         <ion-col>
           <span ion-text color="light">Forgot password?</span>

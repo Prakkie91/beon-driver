@@ -20,22 +20,26 @@ page-job-history,
 }
 
 .Pending{
-  background-color: darkviolet;
+  background-color: #FFEE00;
 }
 
 .Accepted{
-  background-color: mediumseagreen;
+  background-color: #0AC100;
 }
 .Active{
-  background-color: lightseagreen;
+  background-color: #7F08FF;
 }
 
 .Completed{
-  background-color: darkseagreen;
+  background-color: #0DFF00;
+}
+
+.Expired{
+  background-color: gray;
 }
 
 .Rejected{
-  background-color: darkred;
+  background-color: #ED0006;
 }
 .amount-col{
   text-align: right;

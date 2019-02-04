@@ -4,6 +4,10 @@
   See http://ionicframework.com/docs/v2/components/#navigation for more info on
   Ionic pages and navigation.
 -->
+<div class="loading" *ngIf="loading">
+  <img src="/assets/img/loader.svg" class="loading-img"/>
+  <img class="loading-img-center" src="/assets/img/beon-logo-white.png" />
+</div>
 <ion-header>
 
   <ion-navbar color="primary">
@@ -19,17 +23,9 @@
   <form [formGroup]="userBasicInfo" padding>
     <ion-list class="list-full-border">
       <ion-item class="item-divider">General</ion-item>
-
-      <ion-item>
-        <ion-label>Account Active</ion-label>
-        <ion-toggle checked="false" color="secondary"></ion-toggle>
-      </ion-item>
-
-      <ion-item class="item-divider">Basic</ion-item>
-
       <ion-item>
         <ion-label>Full Name</ion-label>
-        <ion-input formControlName="name" type="text"></ion-input>
+        <ion-input formControlName="name" type="text" ></ion-input>
       </ion-item>
       <ion-item>
         <ion-label>Email</ion-label>
@@ -37,11 +33,11 @@
       </ion-item>
       <ion-item>
         <ion-label>Phone Number</ion-label>
-        <ion-input formControlName="phone" type="text"></ion-input>
+        <ion-input formControlName="phone" type="text" ></ion-input>
       </ion-item>
 
     </ion-list>
-    <button ion-button color="secondary">
+    <button ion-button color="secondary" (click)="save()">
       UPDATE
     </button>
   </form>
