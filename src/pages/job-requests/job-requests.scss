@@ -8,9 +8,6 @@ page-job-history,
   padding-top: 5px;
   padding-bottom: 10px;
 }
-.white-bg{
-  background-color: white;
-}
 
 .padding-job {
   padding: 20px 20px;
@@ -57,4 +54,10 @@ line-height: 30px;
 .job-spec-value{
   font-weight: bold;
   line-height: 15px;
+}
+
+.bg-img-job-requests{
+  background-image: url('/assets/img/background.png');
+  background-repeat: no-repeat;
+  background-size: cover;
 }

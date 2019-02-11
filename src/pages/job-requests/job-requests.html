@@ -19,12 +19,12 @@
 </ion-header>
 
 
-<ion-content class="white-bg">
+<ion-content class="bg-img-job-requests">
   <!-- list of history records -->
-  <ion-grid class="dark-list list-border">
-    <div padding *ngIf="!(records | async)?.jobOffers.length">
-      <h5 ion-text color="dark">No job offers yet, we will let you know when we have a job for you!</h5>
+  <div padding *ngIf="!(records | async)?.jobOffers.length">
+      <h5 ion-text color="light">No job offers yet, we will let you know when we have a job for you!</h5>
     </div>
+  <ion-grid class="list-border">
     <ion-row class="{{record.status}}" *ngFor="let record of (records | async)?.jobOffers">
       <ion-col>
         <ion-row>
