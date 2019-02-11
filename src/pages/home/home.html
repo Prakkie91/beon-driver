@@ -19,52 +19,55 @@
       <ion-row>
         <div #map id="map"></div>
       </ion-row>
-      <ion-row class="status-container">
-        {{ (driver | async)?.vehicleInfo?.vehicleModel?.vehicleBrand?.name }} - {{ (driver |
-        async)?.vehicleInfo?.vehicleModel?.name }} - ({{ (driver | async)?.vehicleInfo?.registrationNumber }})
-      </ion-row>
-      <ion-row *ngIf="(driver | async)?.status == 'Analyzing'">
-        <ion-col>
-          <h6>Campaign Matching</h6>
-          <p>Keep Driving! we are analysing your drive pattern to determine which campaigns to assign to you.</p>
-        </ion-col>
-      </ion-row>
-      <ion-row *ngIf="(driver | async)?.status == 'Reviewing'">
-        <ion-col>
-          <h6>Reviewing</h6>
-          <p>One of your representatives are reviewing your profile and will activate, your profile soon!</p>
-        </ion-col>
-      </ion-row>
-      <ion-row *ngIf="(driver | async)?.status == 'Rejected'">
-        <ion-col>
-          <h6>Rejected</h6>
-          <p>Your vehicle has been rejected, please contact support@beonadvertising.com for more info. </p>
-        </ion-col>
-      </ion-row>
-      <ion-row *ngIf="(driver | async)?.status == 'Approved'" class="overview-container">
-        <ion-col>
-          <p>Total Earnings</p>
-          <p>
-            <strong>{{ (driver | async)?.earnings?.totalEarning }}</strong>
-          </p>
-          <p>HKD</p>
-        </ion-col>
-        <ion-col>
-          <p>Drive Time</p>
-          <p>
-            <strong>{{ (driver | async)?.earnings?.totalDriveTime }}</strong>
-          </p>
-          <p>Hours</p>
-        </ion-col>
-      </ion-row>
-      <ion-row *ngIf="(driver | async)?.status == 'Approved'" class="hours-container">
-        <ion-col>
-          <p class="billable-hour-text" color="white">Billable Hours</p>
-        </ion-col>
-        <ion-col>
-          <p class="hour-text" color="white">{{ (this.driver | async)?.earnings?.currentDriveTime }}</p>
-        </ion-col>
-      </ion-row>
+      <div class="bottom-info-container">
+          <ion-row class="status-container">
+              {{ (driver | async)?.vehicleInfo?.vehicleModel?.vehicleBrand?.name }} - {{ (driver |
+              async)?.vehicleInfo?.vehicleModel?.name }} - ({{ (driver | async)?.vehicleInfo?.registrationNumber }})
+            </ion-row>
+            <ion-row *ngIf="(driver | async)?.status == 'Analyzing'">
+              <ion-col>
+                <h6>Campaign Matching</h6>
+                <p>Keep Driving! we are analysing your drive pattern to determine which campaigns to assign to you.</p>
+              </ion-col>
+            </ion-row>
+            <ion-row *ngIf="(driver | async)?.status == 'Reviewing'">
+              <ion-col>
+                <h6>Reviewing</h6>
+                <p>One of your representatives are reviewing your profile and will activate, your profile soon!</p>
+              </ion-col>
+            </ion-row>
+            <ion-row *ngIf="(driver | async)?.status == 'Rejected'">
+              <ion-col>
+                <h6>Rejected</h6>
+                <p>Your vehicle has been rejected, please contact support@beonadvertising.com for more info. </p>
+              </ion-col>
+            </ion-row>
+            <ion-row *ngIf="(driver | async)?.status == 'Approved'" class="overview-container">
+              <ion-col>
+                <p>Total Earnings</p>
+                <p>
+                  <strong>{{ (driver | async)?.earnings?.totalEarning }}</strong>
+                </p>
+                <p>HKD</p>
+              </ion-col>
+              <ion-col>
+                <p>Drive Time</p>
+                <p>
+                  <strong>{{ (driver | async)?.earnings?.totalDriveTime }}</strong>
+                </p>
+                <p>Hours</p>
+              </ion-col>
+            </ion-row>
+            <ion-row *ngIf="(driver | async)?.status == 'Approved'" class="hours-container">
+              <ion-col>
+                <p class="billable-hour-text" color="white">Billable Hours</p>
+              </ion-col>
+              <ion-col>
+                <p class="hour-text" color="white">{{ (this.driver | async)?.earnings?.currentDriveTime }}</p>
+              </ion-col>
+            </ion-row>
+      </div>
+      
 
     </ion-grid>
 
