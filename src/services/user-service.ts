@@ -1,10 +1,8 @@
-import { UpdateInfo } from './../../plugins/cordova-plugin-ionic/www/definitions';
 import {Injectable} from '@angular/core';
 import {Client, DriverSignUpRequest, LoginResponse, SignUpResponse, DriverInfoUpdateRequest} from './beon-api';
 import {HttpClient} from "@angular/common/http";
 import {Storage} from "@ionic/storage";
 import {LocationTrackingService} from "./location-tracking";
-import {Observable} from "rxjs";
 
 @Injectable()
 export class UserService {
