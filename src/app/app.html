@@ -1,24 +1,26 @@
 <ion-menu [content]="content">
 
-  <ion-content class="menu-left">
+  <ion-content class="primary-bg menu-left">
     <!-- User profile -->
-    <div text-center padding-top padding-bottom class="primary-bg menu-left">
+    <div text-center padding-top padding-bottom >
       <a menuClose>
-        <h4 class="light-text">Menu</h4>
       </a>
     </div>
 
-    <ion-list class="list-full-border">
-      <button ion-item menuClose *ngFor="let page of pages" (click)="openPage(page)">
+    <ion-list >
+      <button class="side-menu-item" ion-item menuClose *ngFor="let page of pages" (click)="openPage(page)">
         <ion-icon item-left name="{{ page.icon }}"></ion-icon>
         {{ page.title }}
         <ion-badge danger item-right *ngIf="page.count">{{ page.count }}</ion-badge>
       </button>
-      <button ion-item menuClose (click)="logout()">
-        <ion-icon item-left name="md-exit"></ion-icon>
-        Logout
-      </button>
+      
     </ion-list>
+    <ion-list style="position: absolute; bottom: 0; left: 30px;">
+
+        <button class="side-menu-item"  ion-item menuClose (click)="logout()">
+            Sign out
+          </button>
+        </ion-list>
   </ion-content>
 
 </ion-menu>

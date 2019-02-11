@@ -1,8 +1,8 @@
 <div class="loading" *ngIf="loading">
-  <img src="/assets/img/loader.svg" class="loading-img"/>
+  <img src="/assets/img/loader.svg" class="loading-img" />
   <img class="loading-img-center" src="/assets/img/beon-logo-white.png" />
 </div>
-<ion-header >
+<ion-header>
   <ion-navbar text-center>
     <button ion-button menuToggle>
       <ion-icon name="menu"></ion-icon>
@@ -23,26 +23,25 @@
         {{ (driver | async)?.vehicleInfo?.vehicleModel?.vehicleBrand?.name }} - {{ (driver |
         async)?.vehicleInfo?.vehicleModel?.name }} - ({{ (driver | async)?.vehicleInfo?.registrationNumber }})
       </ion-row>
-
-<ion-row *ngIf="(driver | async)?.status == 'Analyzing'"  >
-    <ion-col>
-  <h6>Campaign Matching</h6>
-  <p>Keep Driving! we are analysing your drive pattern to determine which campaigns to assign to you.</p>
-</ion-col>
-</ion-row>
-<ion-row *ngIf="(driver | async)?.status == 'Reviewing'"  >
-    <ion-col>
-  <h6>Reviewing</h6>
-  <p>One of your representatives are reviewing your profile and will activate, your profile soon!</p>
-</ion-col>
-</ion-row>
-<ion-row *ngIf="(driver | async)?.status == 'Rejected'"  >
-    <ion-col>
-        <h6>Rejected</h6>
-        <p>Your vehicle has been rejected, please contact support@beonadvertising.com for more info. </p>
-      </ion-col>
-</ion-row>
-<ion-row *ngIf="(driver | async)?.status == 'Approved'" class="overview-container">
+      <ion-row *ngIf="(driver | async)?.status == 'Analyzing'">
+        <ion-col>
+          <h6>Campaign Matching</h6>
+          <p>Keep Driving! we are analysing your drive pattern to determine which campaigns to assign to you.</p>
+        </ion-col>
+      </ion-row>
+      <ion-row *ngIf="(driver | async)?.status == 'Reviewing'">
+        <ion-col>
+          <h6>Reviewing</h6>
+          <p>One of your representatives are reviewing your profile and will activate, your profile soon!</p>
+        </ion-col>
+      </ion-row>
+      <ion-row *ngIf="(driver | async)?.status == 'Rejected'">
+        <ion-col>
+          <h6>Rejected</h6>
+          <p>Your vehicle has been rejected, please contact support@beonadvertising.com for more info. </p>
+        </ion-col>
+      </ion-row>
+      <ion-row *ngIf="(driver | async)?.status == 'Approved'" class="overview-container">
         <ion-col>
           <p>Total Earnings</p>
           <p>
