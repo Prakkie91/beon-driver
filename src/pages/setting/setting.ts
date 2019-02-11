@@ -1,4 +1,3 @@
-import { UpdateInfo } from './../../../plugins/cordova-plugin-ionic/www/definitions';
 import { Component } from '@angular/core';
 import {AlertController, NavController} from 'ionic-angular';
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
