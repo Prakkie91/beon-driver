@@ -8,29 +8,29 @@
   <img src="/assets/img/loader.svg" class="loading-img"/>
   <img class="loading-img-center" src="/assets/img/beon-logo-white.png" />
 </div>
-<ion-content>
+<ion-content class="bg-img-login">
   <div class="auth-content">
-    <div class="light-bg">
+    <div >
       <!-- Logo -->
       <div padding text-center>
-        <div class="logo">
-          <img src="https://res.cloudinary.com/dbwpvgyrn/image/upload/c_scale,w_500/v1539702962/logo_black_ybky2b.png"/>
+        <div class="login-logo">
+          <img src="/assets/img/white-logo.png"/>
         </div>
-        <p ion-text color="dark" >If you’re driving anyway, why not make some easy extra cash?</p>
+      
       </div>
 
       <!-- Login form -->
       <form [formGroup]="userBasicInfo" padding>
-      <ion-list class="list-form" padding>
+      <ion-list class="list-form login-input">
 
-        <ion-item>
+        <ion-item >
           <ion-input formControlName="email" type="text" placeholder="Email"></ion-input>
         </ion-item>
         <ion-item
           *ngIf="!userBasicInfo.controls.email.valid  && (userBasicInfo.controls.email.dirty || submitAttempt)">
           <p>Please enter a valid email address.</p>
         </ion-item>
-        <ion-item>
+        <ion-item class="login-input">
           <ion-input formControlName="password" type="password" placeholder="Password"></ion-input>
         </ion-item>
         <ion-item
@@ -40,9 +40,9 @@
 
       </ion-list>
       </form>
-      <div padding>
-        <button  ion-button color="secondary"  block (click)="login()">
-          Login
+      <div padding style="margin: 0vw 5vw">
+        <button  ion-button class="login-btn" block (click)="login()">
+          LOGIN
         </button>
       </div>
 
@@ -53,13 +53,10 @@
     <!-- Other links -->
     <ion-grid>
       <ion-row>
-        <ion-col>
-          <span ion-text color="light" >Forgot password?</span>
-        </ion-col>
-        <ion-col>
-          <span ion-text color="light" >
-            New here?
-            <span ion-text color="secondary"  (click)="signup()">Sign up</span>
+        <ion-col style="text-align: center;">
+          <span ion-text color="light" style="margin: 0 auto;" >
+            Don't have an account?
+            <span ion-text color="light" style="font-weight: bold"  (click)="signup()">Sign up</span>
           </span>
         </ion-col>
       </ion-row>

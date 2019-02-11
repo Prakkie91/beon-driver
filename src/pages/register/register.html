@@ -8,65 +8,63 @@
   <img src="/assets/img/loader.svg" class="loading-img"/>
   <img class="loading-img-center" src="/assets/img/beon-logo-white.png" />
 </div>
-<ion-content>
+<ion-content class="bg-img-register">
   <div class="auth-content">
-    <div class="light-bg" *ngIf="(vehicleModels | async)?.length ">
+    <div *ngIf="(vehicleModels | async)?.length ">
 
       <section padding >
         <!-- Logo -->
         <div padding text-center>
           <div class="logo">
-            <img src="https://res.cloudinary.com/dbwpvgyrn/image/upload/c_scale,w_500/v1539702962/logo_black_ybky2b.png"/>
+            <img src="/assets/img/white-logo.png"/>
           </div>
-          <p ion-text color="dark">If you’re driving anyway, why not make some easy extra cash?</p>
+          <p ion-text color="light">If you’re driving anyway, why not make some easy extra cash?</p>
         </div>
         <form [formGroup]="userBasicInfo" padding>
           <!-- Login form -->
-          <h6>Basic Info:</h6>
-          <br/>
-          <ion-list class="list-form">
+          <ion-list class="list-form register-input">
             <ion-item>
-              <ion-input class="item-input" formControlName="name" type="text" placeholder="Your name"></ion-input>
+                <ion-label class="label-white" >Full Name</ion-label>
+              <ion-input class="item-input" formControlName="name" type="text"></ion-input>
             </ion-item>
             <ion-item
               *ngIf="!userBasicInfo.controls.name.valid  && (userBasicInfo.controls.name.dirty || submitAttempt)">
               <p>Please enter a valid name.</p>
             </ion-item>
             <ion-item>
-              <ion-input formControlName="phone" type="text" placeholder="Phone number"></ion-input>
+                <ion-label class="label-white" >Phone</ion-label>
+              <ion-input formControlName="phone" type="text"></ion-input>
             </ion-item>
             <ion-item
               *ngIf="!userBasicInfo.controls.phone.valid  && (userBasicInfo.controls.phone.dirty || submitAttempt)">
               <p>Please enter a valid phone number.</p>
             </ion-item>
             <ion-item>
-              <ion-input formControlName="identityNumber" type="text" placeholder="HKId Number"></ion-input>
+                <ion-label class="label-white">HKID No</ion-label>
+              <ion-input formControlName="identityNumber" type="text"></ion-input>
             </ion-item>
             <ion-item
               *ngIf="!userBasicInfo.controls.identityNumber.valid  && (userBasicInfo.controls.identityNumber.dirty || submitAttempt)">
               <p>Please enter a valid HKId Number of at least 7 characters.</p>
             </ion-item>
             <ion-item>
-              <ion-input formControlName="email" type="text" placeholder="Email"></ion-input>
+                <ion-label class="label-white">Email</ion-label>
+              <ion-input formControlName="email" type="text" ></ion-input>
             </ion-item>
             <ion-item
               *ngIf="!userBasicInfo.controls.email.valid  && (userBasicInfo.controls.email.dirty || submitAttempt)">
               <p>Please enter a valid email address.</p>
             </ion-item>
             <ion-item>
-              <ion-input formControlName="password" type="password" placeholder="Password"></ion-input>
+                <ion-label class="label-white">Password</ion-label>
+              <ion-input formControlName="password" type="password"></ion-input>
             </ion-item>
             <ion-item
               *ngIf="!userBasicInfo.controls.password.valid  && (userBasicInfo.controls.password.dirty || submitAttempt)">
               <p>Please enter a valid password of at least 5 characters.</p>
             </ion-item>
-          </ion-list>
-          <h6>Vehicle Info:</h6>
-          <br/>
-          <ion-list class="list-form">
-            <!-- Login form -->
             <ion-item>
-              <ion-label>Model</ion-label>
+              <ion-label class="label-white">Vehicle Model</ion-label>
               <ion-select class="item-input"  formControlName="model" type="text" >
                 <ion-option *ngFor="let key of (vehicleModels| async)" value="{{key.id}}">{{key.name}} - ({{key.vehicleBrand.name}})</ion-option>
               </ion-select>
@@ -77,19 +75,17 @@
             </ion-item>
 
             <ion-item>
-              <ion-label>Plate Number</ion-label>
+              <ion-label class="label-white">Plate Number</ion-label>
               <ion-input formControlName="numberPlate" type="text" ></ion-input>
             </ion-item>
             <ion-item
               *ngIf="!userBasicInfo.controls.numberPlate.valid  && (userBasicInfo.controls.numberPlate.dirty || submitAttempt)">
               <p>Please enter a valid plate number of at least 5 characters.</p>
             </ion-item>
-
           </ion-list>
-
         </form>
-        <div padding>
-          <button ion-button color="secondary" block (click)="signup()">
+        <div padding style="margin: 0vw 5vw">
+          <button ion-button class="register-btn" block (click)="signup()">
             Sign Up
           </button>
         </div>
@@ -98,15 +94,12 @@
     <div padding=""></div>
 
     <!-- Other links -->
-    <ion-grid style="padding-bottom:20px">
+    <ion-grid style="padding-bottom:30px">
       <ion-row>
-        <ion-col>
-          <span ion-text color="light">Forgot password?</span>
-        </ion-col>
-        <ion-col>
-          <span ion-text color="light">
+        <ion-col style="text-align: center;">
+          <span ion-text color="light" style="margin: 0 auto;">
             Have account?
-            <span ion-text color="secondary" (click)="login()">Login</span>
+            <span ion-text color="light" style="font-weight: bold" (click)="login()">Login</span>
           </span>
         </ion-col>
       </ion-row>

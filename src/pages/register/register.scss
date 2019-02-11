@@ -1,0 +1,24 @@
+.register-input ion-item {
+    background: transparent!important;
+}
+
+.register-input p ,.register-input input,.register-input ion-select, .register-input ion-label{
+    color: white;
+}
+
+.register-input input::placeholder { color: white; font-style: italic; }
+
+.register-btn{
+    color: white;
+    background-color: #FF1358;
+    border-radius: 500px;
+}
+.bg-img-register{
+    background-image: url('/assets/img/background-register.png');
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+.label-white{
+    color: white!important;
+    font-style: italic;
+}

@@ -7,7 +7,7 @@ import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {UserService} from "../../services/user-service";
 import {SwaggerException} from "../../services/beon-api";
 import {TransactionService} from "../../services/transaction-service";
-
+import { Keyboard } from 'ionic-angular';
 /*
   Generated class for the LoginPage page.
 
@@ -26,7 +26,8 @@ export class LoginPage {
               private storage: Storage,
               public formBuilder: FormBuilder,
               public userService: UserService,
-              private alertCtrl: AlertController) {
+              private alertCtrl: AlertController,
+              private keyboard: Keyboard) {
     this.checkIfLoggedIn();
 
     this.userBasicInfo = formBuilder.group({

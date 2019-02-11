@@ -1,3 +1,35 @@
 .list-form .item-block {
     padding-left: 0px;
 }
+.auth-content{
+    height: 100%;
+    color: white;
+}
+
+.login-input ion-item {
+    background: transparent!important;
+}
+
+.login-input p , .login-input input{
+    color: white;
+}
+
+.login-input input::placeholder { color: white; font-style: italic; }
+
+.login-btn{
+    color: white;
+    background-color: #FF1358;
+    border-radius: 500px;
+}
+
+.login-logo{
+    padding-top: 10vh;
+    padding-bottom: 10vh;
+    width: 55vw;
+    margin: auto;
+}
+.bg-img-login{
+    background-image: url('/assets/img/background.png');
+    background-repeat: no-repeat;
+    background-size: cover;
+}
