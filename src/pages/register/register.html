@@ -25,7 +25,7 @@
           <ion-list class="list-form register-input">
             <ion-item>
                 <ion-label class="label-white" >Full Name</ion-label>
-              <ion-input class="item-input" formControlName="name" type="text"></ion-input>
+              <ion-input formControlName="name" type="text"></ion-input>
             </ion-item>
             <ion-item
               *ngIf="!userBasicInfo.controls.name.valid  && (userBasicInfo.controls.name.dirty || submitAttempt)">
@@ -65,7 +65,7 @@
             </ion-item>
             <ion-item>
               <ion-label class="label-white">Vehicle Model</ion-label>
-              <ion-select class="item-input"  formControlName="model" type="text" >
+              <ion-select  formControlName="model" type="text" >
                 <ion-option *ngFor="let key of (vehicleModels| async)" value="{{key.id}}">{{key.name}} - ({{key.vehicleBrand.name}})</ion-option>
               </ion-select>
             </ion-item>
