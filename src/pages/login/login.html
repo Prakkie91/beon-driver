@@ -5,43 +5,42 @@
   Ionic pages and navigation.
 -->
 <div class="loading" *ngIf="loading">
-  <img src="/assets/img/loader.svg" class="loading-img"/>
+  <img src="/assets/img/loader.svg" class="loading-img" />
   <img class="loading-img-center" src="/assets/img/beon-logo-white.png" />
 </div>
 <ion-content class="bg-img-login">
-  <div class="auth-content">
-    <div >
+  <div class="auth-content" >
+    <div>
       <!-- Logo -->
       <div padding text-center>
         <div class="login-logo">
-          <img src="/assets/img/white-logo.png"/>
+          <img src="/assets/img/white-logo.png" />
         </div>
-      
+
       </div>
 
       <!-- Login form -->
       <form [formGroup]="userBasicInfo" padding>
-      <ion-list class="list-form login-input">
+        <ion-list class="list-form login-input">
 
-        <ion-item >
-          <ion-input formControlName="email" type="text" placeholder="Email"></ion-input>
-        </ion-item>
-        <ion-item
-          *ngIf="!userBasicInfo.controls.email.valid  && (userBasicInfo.controls.email.dirty || submitAttempt)">
-          <p>Please enter a valid email address.</p>
-        </ion-item>
-        <ion-item class="login-input">
-          <ion-input formControlName="password" type="password" placeholder="Password"></ion-input>
-        </ion-item>
-        <ion-item
-          *ngIf="!userBasicInfo.controls.password.valid  && (userBasicInfo.controls.password.dirty || submitAttempt)">
-          <p>Please enter a valid password of at least 5 characters.</p>
-        </ion-item>
+          <ion-item>
+            <ion-input formControlName="email" type="text" placeholder="Email"></ion-input>
+          </ion-item>
+          <div *ngIf="!userBasicInfo.controls.email.valid && userBasicInfo.controls.email.dirty" class="validator-error">
+            Please enter a valid email.
+          </div>
+          <ion-item class="login-input">
+            <ion-input formControlName="password" type="password" placeholder="Password"></ion-input>
+          </ion-item>
+          <div *ngIf="!userBasicInfo.controls.password.valid && userBasicInfo.controls.password.dirty" class="validator-error">
+            Passwords should be at least 5 characters long and contain one number,
+  one character and one special character.
+          </div>
 
-      </ion-list>
+        </ion-list>
       </form>
       <div padding style="margin: 0vw 5vw">
-        <button  ion-button class="login-btn" block (click)="login()">
+        <button ion-button class="login-btn" [disabled]="!userBasicInfo.valid" block (click)="login()">
           LOGIN
         </button>
       </div>
@@ -54,13 +53,12 @@
     <ion-grid>
       <ion-row>
         <ion-col style="text-align: center;">
-          <span ion-text color="light" style="margin: 0 auto;" >
+          <span ion-text color="light" style="margin: 0 auto;">
             Don't have an account?
-            <span ion-text color="light" style="font-weight: bold"  (click)="signup()">Sign up</span>
+            <span ion-text color="light" style="font-weight: bold" (click)="signup()">Sign up</span>
           </span>
         </ion-col>
       </ion-row>
     </ion-grid>
-
   </div>
 </ion-content>

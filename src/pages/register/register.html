@@ -5,18 +5,18 @@
   Ionic pages and navigation.
 -->
 <div class="loading" *ngIf="loading">
-  <img src="/assets/img/loader.svg" class="loading-img"/>
+  <img src="/assets/img/loader.svg" class="loading-img" />
   <img class="loading-img-center" src="/assets/img/beon-logo-white.png" />
 </div>
 <ion-content class="bg-img-register">
   <div class="auth-content">
     <div *ngIf="(vehicleModels | async)?.length ">
 
-      <section padding >
+      <section padding>
         <!-- Logo -->
         <div padding text-center>
           <div class="logo">
-            <img src="/assets/img/white-logo.png"/>
+            <img src="/assets/img/white-logo.png" />
           </div>
           <p ion-text color="light">If you’re driving anyway, why not make some easy extra cash?</p>
         </div>
@@ -24,68 +24,61 @@
           <!-- Login form -->
           <ion-list class="list-form register-input">
             <ion-item>
-                <ion-label class="label-white" >Full Name</ion-label>
+              <ion-label class="label-white">Full Name</ion-label>
               <ion-input formControlName="name" type="text"></ion-input>
             </ion-item>
-            <ion-item
-              *ngIf="!userBasicInfo.controls.name.valid  && (userBasicInfo.controls.name.dirty || submitAttempt)">
+            <div *ngIf="!userBasicInfo.controls.name.valid  && (userBasicInfo.controls.name.dirty)"
+              class="validator-error">
               <p>Please enter a valid name.</p>
-            </ion-item>
+            </div>
             <ion-item>
-                <ion-label class="label-white" >Phone</ion-label>
-              <ion-input formControlName="phone" type="text"></ion-input>
+              <ion-label class="label-white">Phone</ion-label>
+              <ion-input formControlName="phone" type="text" [brmasker]="{phone: true}"></ion-input>
             </ion-item>
-            <ion-item
-              *ngIf="!userBasicInfo.controls.phone.valid  && (userBasicInfo.controls.phone.dirty || submitAttempt)">
+            <div *ngIf="!userBasicInfo.controls.phone.valid  && (userBasicInfo.controls.phone.dirty)"
+              class="validator-error">
               <p>Please enter a valid phone number.</p>
-            </ion-item>
+            </div>
             <ion-item>
-                <ion-label class="label-white">HKID No</ion-label>
-              <ion-input formControlName="identityNumber" type="text"></ion-input>
+              <ion-label class="label-white">Email</ion-label>
+              <ion-input formControlName="email" type="text"></ion-input>
             </ion-item>
-            <ion-item
-              *ngIf="!userBasicInfo.controls.identityNumber.valid  && (userBasicInfo.controls.identityNumber.dirty || submitAttempt)">
-              <p>Please enter a valid HKId Number of at least 7 characters.</p>
-            </ion-item>
-            <ion-item>
-                <ion-label class="label-white">Email</ion-label>
-              <ion-input formControlName="email" type="text" ></ion-input>
-            </ion-item>
-            <ion-item
-              *ngIf="!userBasicInfo.controls.email.valid  && (userBasicInfo.controls.email.dirty || submitAttempt)">
+            <div *ngIf="!userBasicInfo.controls.email.valid  && (userBasicInfo.controls.email.dirty)"
+              class="validator-error">
               <p>Please enter a valid email address.</p>
-            </ion-item>
+            </div>
             <ion-item>
-                <ion-label class="label-white">Password</ion-label>
+              <ion-label class="label-white">Password</ion-label>
               <ion-input formControlName="password" type="password"></ion-input>
             </ion-item>
-            <ion-item
-              *ngIf="!userBasicInfo.controls.password.valid  && (userBasicInfo.controls.password.dirty || submitAttempt)">
+            <div *ngIf="!userBasicInfo.controls.password.valid  && (userBasicInfo.controls.password.dirty)"
+              class="validator-error">
               <p>Please enter a valid password of at least 5 characters.</p>
-            </ion-item>
+            </div>
             <ion-item>
               <ion-label class="label-white">Vehicle Model</ion-label>
-              <ion-select  formControlName="model" type="text" >
-                <ion-option *ngFor="let key of (vehicleModels| async)" value="{{key.id}}">{{key.name}} - ({{key.vehicleBrand.name}})</ion-option>
+              <ion-select formControlName="model" type="text">
+                <ion-option *ngFor="let key of (vehicleModels| async)" value="{{key.id}}">{{key.name}} -
+                  ({{key.vehicleBrand.name}})</ion-option>
               </ion-select>
             </ion-item>
-            <ion-item
-              *ngIf="!userBasicInfo.controls.model.valid  && (userBasicInfo.controls.model.dirty || submitAttempt)">
+            <div *ngIf="!userBasicInfo.controls.model.valid  && (userBasicInfo.controls.model.dirty)"
+              class="validator-error">
               <p>Please select vehicle model.</p>
-            </ion-item>
+            </div>
 
             <ion-item>
               <ion-label class="label-white">Plate Number</ion-label>
-              <ion-input formControlName="numberPlate" type="text" ></ion-input>
+              <ion-input formControlName="numberPlate" type="text" [brmasker]="{mask:'00-0000', len:7}"></ion-input>
             </ion-item>
-            <ion-item
-              *ngIf="!userBasicInfo.controls.numberPlate.valid  && (userBasicInfo.controls.numberPlate.dirty || submitAttempt)">
-              <p>Please enter a valid plate number of at least 5 characters.</p>
-            </ion-item>
+            <div *ngIf="!userBasicInfo.controls.numberPlate.valid  && (userBasicInfo.controls.numberPlate.dirty)"
+              class="validator-error" >
+              <p>Please enter a valid plate number.</p>
+            </div>
           </ion-list>
         </form>
         <div padding style="margin: 0vw 5vw">
-          <button ion-button class="register-btn" block (click)="signup()">
+          <button ion-button class="register-btn" [disabled]="!userBasicInfo.valid" block (click)="signup()">
             Sign Up
           </button>
         </div>

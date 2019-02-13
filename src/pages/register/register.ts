@@ -13,6 +13,7 @@ import {
 import {UserService} from "../../services/user-service";
 import {Storage} from "@ionic/storage";
 
+
 /*
   Generated class for the RegisterPage page.
 
@@ -24,7 +25,7 @@ import {Storage} from "@ionic/storage";
   templateUrl: 'register.html'
 })
 export class RegisterPage {
-
+  masks: any;
   signupPage: number = 1;
   userBasicInfo: FormGroup;
   submitAttempt: boolean = false;
@@ -40,11 +41,12 @@ export class RegisterPage {
       name: ['', Validators.compose([Validators.required, Validators.minLength(4)])],
       phone: ['', Validators.compose([Validators.required, Validators.minLength(10)])],
       email: ['', Validators.compose([Validators.required, Validators.email])],
-      identityNumber:['', Validators.compose([Validators.required, Validators.minLength(10)])],
       password: ['', Validators.compose([Validators.required, Validators.minLength(5)])],
       model: ['', Validators.compose([Validators.required])],
       numberPlate: ['', Validators.compose([Validators.required, Validators.minLength(5)])]
     });
+
+    this.masks = {phoneNumber: ['(', /[1-9]/, /\d/, /\d/, ')', ' ', /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/]};
 
     this.vehicleModels = vehicleService.getVehicleModels();
 
@@ -65,7 +67,7 @@ export class RegisterPage {
       signUpRequest.password = this.userBasicInfo.value.password;
       signUpRequest.fullName = this.userBasicInfo.value.name;
       signUpRequest.phoneNumber = this.userBasicInfo.value.phone;
-      signUpRequest.identityNumber = this.userBasicInfo.value.identityNumber;
+      signUpRequest.identityNumber = "";
 
       signUpRequest.vehicleModelId = this.userBasicInfo.value.model;
       signUpRequest.vehiclePlateNumber = this.userBasicInfo.value.numberPlate;

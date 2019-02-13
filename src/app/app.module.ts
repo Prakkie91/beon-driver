@@ -37,6 +37,8 @@ import { IonicStorageModule } from '@ionic/storage';
 import {VehicleService} from "../services/vehicle-service";
 import {UserService} from "../services/user-service";
 
+import { BrMaskerModule } from 'brmasker-ionic-3';
+
 Pro.init('b4069d91', {
   appVersion: '1.0.6'
 });
@@ -80,6 +82,7 @@ export class MyErrorHandler implements ErrorHandler {
   imports: [
     BrowserModule,
     HttpClientModule,
+    BrMaskerModule,
     IonicModule.forRoot(MyApp, { scrollAssist: false, autoFocusAssist: false }),
     IonicStorageModule.forRoot({
       name: '__mydb',
