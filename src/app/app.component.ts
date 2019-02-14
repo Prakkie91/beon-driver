@@ -29,6 +29,11 @@ export class MyApp {
 
   public rootPage: any;
 
+  tab1Root = HomePage;
+  tab2Root = WalletPage;
+  tab3Root = JobRequestsPage;
+  tab4Root = SettingPage;
+
   public nav: any;
   public pages = [
     {

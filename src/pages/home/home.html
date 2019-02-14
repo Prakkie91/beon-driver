@@ -4,71 +4,68 @@
 </div>
 <ion-header>
   <ion-navbar text-center color="primary">
-    <button ion-button menuToggle>
-      <ion-icon name="menu"></ion-icon>
-    </button>
-    <ion-title style="margin-right: 44px">
-      <img style="height: 30px" src="/assets/img/beon-logo.png" />
+    <ion-title>
+      <img style="height: 30px" src="/assets/img/white-logo.png" />
     </ion-title>
   </ion-navbar>
 </ion-header>
-<ion-content class=" primary-bg">
+<ion-content class="dashboard-bg">
 
   <div text-center>
-    <ion-grid class="light-bg">
-      <ion-row>
-        <div #map id="map"></div>
+    <ion-grid>
+      <ion-row *ngIf="(driver | async)?.status == 'Analyzing'">
+        <div class="dashboard-main-container">
+          <img class="progress-img" src="/assets/img/1.png" />
+          <h3>Campaign Matching</h3>
+          <p color="white">Keep Driving! we are analysing your drive pattern to determine which campaigns to assign to
+            you.</p>
+        </div>
+      </ion-row>
+      <ion-row *ngIf="(driver | async)?.status == 'Reviewing'">
+        <div class="dashboard-main-container">
+          <img class="progress-img" src="/assets/img/2.png" />
+          <h3>Reviewing</h3>
+          <p color="white">One of your representatives are reviewing your profile and will activate, your profile soon!
+          </p>
+        </div>
+      </ion-row>
+      <ion-row *ngIf="(driver | async)?.status == 'Accepted'">
+          <div class="dashboard-main-container">
+            <img class="progress-img" src="/assets/img/3.png" />
+            <h3>Accepted</h3>
+            <p color="white">Your vehicle has been accepted, and we will start assigning campaigns to you soon!
+            </p>
+          </div>
+        </ion-row>
+      <ion-row *ngIf="(driver | async)?.status == 'Rejected'">
+        <div class="dashboard-main-container">
+          <img class="progress-img" src="/assets/img/reject.png" />
+          <h3>Rejected</h3>
+          <p color="white">Your vehicle has been rejected, please contact support@beonadvertising.com for more info.</p>
+        </div>
       </ion-row>
       <div class="bottom-info-container">
-          <ion-row class="status-container">
-              {{ (driver | async)?.vehicleInfo?.vehicleModel?.vehicleBrand?.name }} - {{ (driver |
+        <ion-row class="status-container">
+          {{ (driver | async)?.vehicleInfo?.vehicleModel?.vehicleBrand?.name }} - {{ (driver |
               async)?.vehicleInfo?.vehicleModel?.name }} - ({{ (driver | async)?.vehicleInfo?.registrationNumber }})
-            </ion-row>
-            <ion-row *ngIf="(driver | async)?.status == 'Analyzing'">
-              <ion-col>
-                <h6>Campaign Matching</h6>
-                <p>Keep Driving! we are analysing your drive pattern to determine which campaigns to assign to you.</p>
-              </ion-col>
-            </ion-row>
-            <ion-row *ngIf="(driver | async)?.status == 'Reviewing'">
-              <ion-col>
-                <h6>Reviewing</h6>
-                <p>One of your representatives are reviewing your profile and will activate, your profile soon!</p>
-              </ion-col>
-            </ion-row>
-            <ion-row *ngIf="(driver | async)?.status == 'Rejected'">
-              <ion-col>
-                <h6>Rejected</h6>
-                <p>Your vehicle has been rejected, please contact support@beonadvertising.com for more info. </p>
-              </ion-col>
-            </ion-row>
-            <ion-row *ngIf="(driver | async)?.status == 'Approved'" class="overview-container">
-              <ion-col>
-                <p>Total Earnings</p>
-                <p>
-                  <strong>{{ (driver | async)?.earnings?.totalEarning }}</strong>
-                </p>
-                <p>HKD</p>
-              </ion-col>
-              <ion-col>
-                <p>Drive Time</p>
-                <p>
-                  <strong>{{ (driver | async)?.earnings?.totalDriveTime }}</strong>
-                </p>
-                <p>Hours</p>
-              </ion-col>
-            </ion-row>
-            <ion-row *ngIf="(driver | async)?.status == 'Approved'" class="hours-container">
-              <ion-col>
-                <p class="billable-hour-text" color="white">Billable Hours</p>
-              </ion-col>
-              <ion-col>
-                <p class="hour-text" color="white">{{ (this.driver | async)?.earnings?.currentDriveTime }}</p>
-              </ion-col>
-            </ion-row>
+        </ion-row>
+        <ion-row class="overview-container">
+          <ion-col>
+            <p>Drive Distance</p>
+            <p>
+              <strong>{{ (driver | async)?.earnings?.totalDriveDistance/100 }}</strong>
+            </p>
+            <p>KM</p>
+          </ion-col>
+          <ion-col>
+            <p>Drive Time</p>
+            <p>
+              <strong>{{ (driver | async)?.earnings?.totalDriveTime }}</strong>
+            </p>
+            <p>Hours</p>
+          </ion-col>
+        </ion-row>
       </div>
-      
-
     </ion-grid>
 
   </div>

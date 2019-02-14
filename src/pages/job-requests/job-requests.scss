@@ -17,26 +17,26 @@ page-job-history,
 }
 
 .Pending{
-  background-color: #FFEE00;
+  background-color: rgba(255, 238, 0, 0.4);
 }
 
 .Accepted{
-  background-color: #0AC100;
+  background-color: rgba(10, 193, 0, 0.4);
 }
 .Active{
-  background-color: #7F08FF;
+  background-color: rgba(127, 8, 255, 0.4);
 }
 
 .Completed{
-  background-color: #0DFF00;
+  background-color: rgba(13, 255, 0, 0.4);
 }
 
 .Expired{
-  background-color: gray;
+  background-color: rgba(127, 127, 130, 0.4);
 }
 
 .Rejected{
-  background-color: #ED0006;
+  background-color: rgba(237, 0, 6, 0.4);
 }
 .amount-col{
   text-align: right;
