@@ -1,0 +1,13 @@
+<ion-tabs style="z-index:99">
+        <ion-tab [root]="tab1Root" tabTitle="Home" tabIcon="ios-home-outline">
+        </ion-tab>
+        <ion-tab [root]="tab2Root" tabTitle="Wallet" tabIcon="ios-albums">
+        </ion-tab>
+        <ion-tab [root]="tab3Root" tabTitle="Job offers" tabIcon="md-time">
+        </ion-tab>
+        <ion-tab [root]="tab4Root" tabTitle="Setting" tabIcon="settings">
+        </ion-tab>
+      </ion-tabs>
+      <a (click)="logout();" style="position: absolute; top:14px;right: 20px;z-index: 99;color:white" >
+          Sign-out
+      </a>

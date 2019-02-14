@@ -12,6 +12,7 @@ import {
 } from "../../services/beon-api";
 import {UserService} from "../../services/user-service";
 import {Storage} from "@ionic/storage";
+import { TabsPage } from '../tabs/tabs';
 
 
 /*
@@ -89,7 +90,7 @@ export class RegisterPage {
 
   loginUser(username: string) {
     this.storage.set('userName', username).then(a =>
-      this.nav.setRoot(HomePage));
+      this.nav.setRoot(TabsPage));
   }
 
   login() {
@@ -101,7 +102,7 @@ export class RegisterPage {
     return this.storage.get("userName")
       .then(function (driverId) {
         if (driverId) {
-          self.nav.setRoot(HomePage);
+          self.nav.setRoot(TabsPage);
         }
       });
   }

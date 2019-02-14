@@ -8,6 +8,7 @@ import { UserService } from "../../services/user-service";
 import { SwaggerException } from "../../services/beon-api";
 import { TransactionService } from "../../services/transaction-service";
 import { Keyboard } from 'ionic-angular';
+import { TabsPage } from '../tabs/tabs';
 /*
   Generated class for the LoginPage page.
 
@@ -44,7 +45,7 @@ export class LoginPage {
     this.storage.get("userName")
       .then(function (driverId) {
         if (driverId) {
-          self.nav.setRoot(HomePage);
+          self.nav.setRoot(TabsPage);
         }
       });
   }
@@ -57,7 +58,7 @@ export class LoginPage {
     if (this.userBasicInfo.valid) {
       this.userService.login(this.userBasicInfo.value.email,
         this.userBasicInfo.value.password).then(
-          (value) => this.nav.setRoot(HomePage),
+          (value) => this.nav.setRoot(TabsPage),
           (err: SwaggerException) => {
             let alert = this.alertCtrl.create({
               title: 'Error',

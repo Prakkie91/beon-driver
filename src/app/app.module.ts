@@ -30,6 +30,7 @@ import {ProfilePage} from '../pages/profile/profile';
 import {RegisterPage} from '../pages/register/register';
 import {SettingPage} from '../pages/setting/setting';
 import {SupportPage} from '../pages/support/support';
+import {TabsPage} from '../pages/tabs/tabs';
 import {WalletPage} from '../pages/wallet/wallet';
 // end import pages
 import { Device } from '@ionic-native/device';
@@ -77,7 +78,8 @@ export class MyErrorHandler implements ErrorHandler {
     RegisterPage,
     SettingPage,
     SupportPage,
-    WalletPage
+    WalletPage,
+    TabsPage
   ],
   imports: [
     BrowserModule,
@@ -102,7 +104,8 @@ export class MyErrorHandler implements ErrorHandler {
     RegisterPage,
     SettingPage,
     SupportPage,
-    WalletPage
+    WalletPage,
+    TabsPage
   ],
   providers: [
     StatusBar,

@@ -1,3 +1,5 @@
+import { RegisterPage } from './../pages/register/register';
+import { TabsPage } from './../pages/tabs/tabs';
 import {Component} from '@angular/core';
 import {Platform} from 'ionic-angular';
 import {ViewChild} from '@angular/core';
@@ -29,39 +31,8 @@ export class MyApp {
 
   public rootPage: any;
 
-  tab1Root = HomePage;
-  tab2Root = WalletPage;
-  tab3Root = JobRequestsPage;
-  tab4Root = SettingPage;
-
   public nav: any;
-  public pages = [
-    {
-      title: 'Home',
-      icon: 'ios-home-outline',
-      count: 0,
-      component: HomePage
-    },
-    {
-      title: 'Wallet',
-      icon: 'ios-albums',
-      count: 0,
-      component: WalletPage
-    },
-    {
-      title: 'Job offers',
-      icon: 'md-time',
-      count: 0,
-      component: JobRequestsPage
-    },
-    {
-      title: 'Setting',
-      icon: 'settings',
-      count: 0,
-      component: SettingPage
-    }
-  ];
-
+ 
   constructor(platform: Platform, statusBar: StatusBar, splashScreen: SplashScreen, private storage: Storage, private driverService:DriverService) {
     this.rootPage = RegisterPage;
     platform.ready().then(() => {
@@ -79,11 +50,6 @@ export class MyApp {
     this.nav.setRoot(page.component);
   }
 
-  logout() {
-    this.storage.remove("userName").then(a =>
-      this.nav.setRoot(LoginPage)
-  );
-  }
 }
 
 
