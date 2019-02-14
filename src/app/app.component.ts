@@ -13,7 +13,6 @@ import {JobRequestsPage} from '../pages/job-requests/job-requests';
 import {SettingPage} from '../pages/setting/setting';
 import {SupportPage} from '../pages/support/support';
 import {LoginPage} from '../pages/login/login';
-import {RegisterPage} from "../pages/register/register";
 import {Storage} from "@ionic/storage";
 import {Observable} from "rxjs";
 import {DriverInfoResponse} from "../services/beon-api";
