@@ -5,7 +5,7 @@
   Ionic pages and navigation.
 -->
 <div class="loading" *ngIf="loading">
-  <img src="/assets/img/loader.svg" class="loading-img"/>
+  <img src="/assets/img/loader.svg" class="loading-img" />
   <img class="loading-img-center" src="/assets/img/beon-logo-white.png" />
 </div>
 
@@ -22,51 +22,56 @@
 <ion-content class="bg-img-job-requests">
   <!-- list of history records -->
   <div padding *ngIf="!(records | async)?.jobOffers.length">
-      <h5 ion-text color="light">No job offers yet, we will let you know when we have a job for you!</h5>
-    </div>
-  <ion-grid class="list-border">
-    <ion-row class="{{record.status}}" *ngFor="let record of (records | async)?.jobOffers">
-      <ion-col>
-        <ion-row>
-          <ion-col text-center>
-            <h6 ion-text color="light">{{ record.advertiser }}</h6>
-          </ion-col>
-          <ion-col text-right class="job-status">
-            <span ion-text color="light">{{ record.status }}</span>
-            <div class="uppercase">
-              <span ion-text color="light">{{ record.startDate.toLocaleDateString() }}</span>
-            </div>
+    <h5 ion-text color="light">No job offers yet, we will let you know when we have a job for you!</h5>
+  </div>
+  <ion-slides pager="true">
+    <ion-slide *ngFor="let record of (records | async)?.jobOffers">
+      <ion-grid class="slide-content">
+        <ion-row class="{{ record.status }} job-status">
+          <ion-col text-right>
+            <span ion-text>{{ record.status }}</span>
           </ion-col>
         </ion-row>
-        <ion-row class="light-bg padding-job">
-          <ion-col>
-            <span class="job-spec-key" ion-text color="grey">Campaign Name:</span>
-            <br/>
-            <span class="job-spec-value" ion-text color="dark">{{record.campaignName}}</span>
-            <br/>
-            <span class="job-spec-key" ion-text color="grey">Campaign Length:</span>
-            <br/>
-            <span class="job-spec-value" ion-text color="dark"><strong>{{ record.campaignLength }}</strong> Months</span>
-          </ion-col>
-          <ion-col class="amount-col">
-            <span ion-text color="gray">TOTAL</span>
-            <br/>
+        <ion-row>
+          <div class="advertiser-heading">
+            <h3 ion-text color="dark">{{ record.advertiser }}</h3>
+            <h6>{{record.campaignName}}</h6>
+          </div>
+          <div class="amount-container">
             <span ion-text color="dark">
               <strong class="amount-text">{{record.totalAmount }}</strong>
               HKD</span>
+          </div>
+          <div class="light-bg padding-job job-details">
+            <ion-row>
+              <ion-col text-center>
+                <span class="job-spec-key" ion-text color="grey">Campaign Length:</span>
+                <br />
+                <span class="job-spec-value" ion-text color="dark"><strong>{{ record.campaignLength }}</strong>
+                  Months</span>
+              </ion-col>
+              <ion-col text-center>
+                <span class="job-spec-key" ion-text color="grey">Start Date:</span>
+                <br />
+                <span class="job-spec-value" ion-text
+                  color="dark"><strong>{{ record.startDate.toLocaleDateString() }}</strong>
+                </span>
+              </ion-col>
+            </ion-row>
+          </div>
+        </ion-row>
+          <ion-row padding class="light-bg" *ngIf="record.status == 'Pending'">
+            <ion-col text-center>
+              <button ion-button block color="danger" (click)="reject(record.id)">Reject</button>
+            </ion-col>
+            <ion-col text-center>
+              <button ion-button block color="secondary" (click)="accept(record.id)">Accept</button>
+            </ion-col>
+          </ion-row>
+      </ion-grid>
+    </ion-slide>
+  </ion-slides>
 
-          </ion-col>
-        </ion-row>
-        <ion-row class="light-bg" *ngIf="record.status == 'Pending'">
-          <ion-col text-center>
-            <button ion-button block color="danger" (click)="reject(record.id)">Reject</button>
-          </ion-col>
-          <ion-col text-center>
-            <button ion-button block color="secondary" (click)="accept(record.id)">Accept</button>
-          </ion-col>
-        </ion-row>
-      </ion-col>
-    </ion-row>
-  </ion-grid>
+
 
 </ion-content>

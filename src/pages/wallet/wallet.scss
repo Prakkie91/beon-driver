@@ -10,25 +10,23 @@ page-wallet,
   }
 }
 
-
 .pending{
-  padding: 5px;
-  background-color: #EFDF00;
-}
-
-.paid{
-  padding: 5px;
-  background-color: #0DFF00;
+  border-left: 3px solid yellow; 
+  padding-left: 10px!important;
 }
 
 .status{
 font-size: 25px;
 }
 .create-time{
-  color:whitesmoke;
+  color:#8D9095;
 }
 .amount-col{
   width: 50px;
+}
+
+.balance-available{
+  font-weight: bolder;
 }
 
 .amount{
@@ -40,7 +38,49 @@ font-size: 25px;
 }
 
 .bg-img-wallet{
+background-color: #F7F8FD;
+}
+
+.top-balance{
   background-image: url('/assets/img/background.png');
   background-repeat: no-repeat;
   background-size: cover;
+  border-radius: 0% 0% 150% 150%/0% 0% 40% 40%;
+  box-shadow: 0px 0px 8px 2px #000000;
+  z-index: 99;
+  margin-bottom: 20px;
+}
+
+.top-balance:after {
+  position:relative;
+  width:100%;
+  bottom:1px;
+  z-index:-1;
+  transform:scale(.9);
+  box-shadow: 0px 0px 8px 2px #000000;
+}
+
+.balance-label{
+  color:white;
+}
+
+.wallet-list{
+  margin: 0px 10px;
+  color: #8D9095;
+  background-color: #F7F8FD;
+}
+
+.wallet-item{
+  margin: 10px 0px;
+  color:rgb(77, 77, 77);
+  box-shadow: 0px 0px 2px 2px #DFE0E6;
+}
+
+.withdraw-btn{
+  margin-left: auto;
+  margin-right:auto; 
+  color: white;
+  background-color: #FF1358;
+  border-radius: 500px;
+  max-width: 200px;
 }
