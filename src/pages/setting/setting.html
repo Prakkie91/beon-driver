@@ -9,19 +9,15 @@
   <img class="loading-img-center" src="/assets/img/beon-logo-white.png" />
 </div>
 <ion-header>
-
-  <ion-navbar color="primary">
-    <button ion-button menuToggle>
-      <ion-icon name="menu"></ion-icon>
-    </button>
-    <ion-title>Setting</ion-title>
-  </ion-navbar>
-
+    <div class="top-settings" padding>
+        <span class="balance-label" ion-text color="light">Settings</span>
+    </div>
 </ion-header>
 
 <ion-content class="bg-img-settings">
-  <form [formGroup]="userBasicInfo" padding>
-    <ion-list class="list-full-border">
+
+  <form [formGroup]="userBasicInfo"  text-center>
+    <ion-list class="settings-list">
       <ion-item class="item-divider">General</ion-item>
       <ion-item>
         <ion-label>Full Name</ion-label>

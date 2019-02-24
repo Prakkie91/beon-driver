@@ -2,9 +2,37 @@
     color: white;
     background-color: #FF1358;
     border-radius: 500px;
+    margin-left: auto;
+    margin-right:auto; 
+    width: 200px;
+    
 }
 .bg-img-settings{
+    background-color: #F7F8FD;
+}
+
+.settings-list{
+    margin-left:0px;
+    margin-right: 0px;
+    margin-bottom: 10px;
+}
+
+
+.top-settings{
     background-image: url('/assets/img/background.png');
     background-repeat: no-repeat;
     background-size: cover;
-}
+    border-radius: 0% 0% 150% 150%/0% 0% 40% 40%;
+    box-shadow: 0px 0px 8px 2px #000000;
+    z-index: 99;
+    margin-bottom: 20px;
+  }
+  
+  .top-settings:after {
+    position:relative;
+    width:100%;
+    bottom:1px;
+    z-index:-1;
+    transform:scale(.9);
+    box-shadow: 0px 0px 8px 2px #000000;
+  }

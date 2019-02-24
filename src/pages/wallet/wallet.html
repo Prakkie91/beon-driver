@@ -8,23 +8,23 @@
   <img src="/assets/img/loader.svg" class="loading-img"/>
   <img class="loading-img-center" src="/assets/img/beon-logo-white.png" />
 </div>
+
 <ion-header>
-
-  <ion-navbar color="primary">
-    <ion-title>Wallet</ion-title>
-  </ion-navbar>
-
+    
+    <div class="top-balance" padding text-center>
+      <div style="text-align: left;margin-bottom: 5px;">
+        <span ion-text color="light">Wallet</span>
+      </div>
+        <span class="balance-label" ion-text color="light">Current balance (HKD)</span>
+        <h2 no-margin ion-text class="balance-available" color="light">{{(records | async)?.amountAvailible}}</h2>
+        <button class="withdraw-btn" ion-button block color="light" [disabled]="!(records | async)?.canWithdraw" (click)="withDraw()">
+          WITHDRAW
+        </button>
+      </div>
 </ion-header>
 
-
 <ion-content class="bg-img-wallet">
-  <div class="top-balance" padding text-center>
-    <span class="balance-label" ion-text color="light">Current balance (HKD)</span>
-    <h2 no-margin ion-text class="balance-available" color="light">{{(records | async)?.amountAvailible}}</h2>
-    <button class="withdraw-btn" ion-button block color="light" [disabled]="!(records | async)?.canWithdraw" (click)="withDraw()">
-      WITHDRAW
-    </button>
-  </div>
+ 
   <div padding *ngIf="!(records | async)?.walletEntries.length">
     <h3 ion-text color="dark">No withdrawals yet</h3>
   </div>

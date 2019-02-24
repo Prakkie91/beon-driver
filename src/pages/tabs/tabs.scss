@@ -1,0 +1,21 @@
+.tabbar{
+    background: #fff!important;
+}
+.tab-button[aria-selected=true] .tab-button-icon{
+    color:#4043BF!important;
+}
+
+.tab-button[aria-selected=true]{
+    color:#4043BF!important;
+}
+
+.tab-button[aria-selected=false] .tab-button-icon{
+    color:#A5C6F3!important;
+}
+
+.tab-button[aria-selected=false]{
+    color:#A5C6F3!important;
+}
+.tab-button{
+    padding: 10px!important;
+}

@@ -15,7 +15,7 @@
     <ion-grid>
       <ion-row *ngIf="(driver | async)?.status == 'Analyzing'">
         <div class="dashboard-main-container">
-          <img class="progress-img" src="/assets/img/1.png" />
+          <img class="progress-img" src="https://res.cloudinary.com/dbwpvgyrn/image/upload/c_scale,w_800/v1550989439/1_sfbzhq.png" />
           <h3>Campaign Matching</h3>
           <p color="white">Keep Driving! we are analysing your drive pattern to determine which campaigns to assign to
             you.</p>
@@ -24,7 +24,7 @@
       </ion-row>
       <ion-row *ngIf="(driver | async)?.status == 'Reviewing'">
         <div class="dashboard-main-container">
-          <img class="progress-img" src="/assets/img/2.png" />
+          <img class="progress-img" src="https://res.cloudinary.com/dbwpvgyrn/image/upload/c_scale,w_800/v1550989426/2_fn53ao.png" />
           <h3>Reviewing</h3>
           <p color="white">One of your representatives are reviewing your profile and will activate, your profile soon!
           </p>
@@ -32,7 +32,7 @@
       </ion-row>
       <ion-row *ngIf="(driver | async)?.status == 'Accepted'">
           <div class="dashboard-main-container">
-            <img class="progress-img" src="/assets/img/3.png" />
+            <img class="progress-img" src="https://res.cloudinary.com/dbwpvgyrn/image/upload/c_scale,w_800/v1550989432/3_kyoxji.png" />
             <h3>Accepted</h3>
             <p color="white">Your vehicle has been accepted, and we will start assigning campaigns to you soon!
             </p>
@@ -40,7 +40,7 @@
         </ion-row>
       <ion-row *ngIf="(driver | async)?.status == 'Rejected'">
         <div class="dashboard-main-container">
-          <img class="progress-img" src="/assets/img/reject.png" />
+          <img class="progress-img" src="https://res.cloudinary.com/dbwpvgyrn/image/upload/c_scale,w_800/v1550989358/reject_tl0x7h.png" />
           <h3>Rejected</h3>
           <p color="white">Your vehicle has been rejected, please contact support@beonadvertising.com for more info.</p>
         </div>
@@ -53,7 +53,7 @@
   
 </ion-content>
 <div class="bottom-info-container">
-  <ion-row class="status-container">
+  <ion-row class="status-container" >
     {{ (driver | async)?.vehicleInfo?.vehicleModel?.vehicleBrand?.name }} - {{ (driver |
         async)?.vehicleInfo?.vehicleModel?.name }} - ({{ (driver | async)?.vehicleInfo?.registrationNumber }})
   </ion-row>

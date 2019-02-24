@@ -65,7 +65,7 @@ background-color: #F7F8FD;
 }
 
 .wallet-list{
-  margin: 0px 10px;
+  margin:10px;
   color: #8D9095;
   background-color: #F7F8FD;
 }
@@ -83,4 +83,13 @@ background-color: #F7F8FD;
   background-color: #FF1358;
   border-radius: 500px;
   max-width: 200px;
+}
+
+.top-wallet{
+  background-image: url('/assets/img/background.png');
+  background-repeat: no-repeat;
+  background-size: cover;
+  position:relative;
+  width:100%;
+  z-index: 99;
 }
