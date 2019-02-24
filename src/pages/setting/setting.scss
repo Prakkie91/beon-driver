@@ -5,7 +5,10 @@
     margin-left: auto;
     margin-right:auto; 
     width: 200px;
-    
+    position: absolute;
+    bottom:20px;
+    left:0px;
+    right: 0px;
 }
 .bg-img-settings{
     background-color: #F7F8FD;
@@ -17,6 +20,9 @@
     margin-bottom: 10px;
 }
 
+.settings-content{
+    padding-top: 70px;
+}
 
 .top-settings{
     background-image: url('/assets/img/background.png');

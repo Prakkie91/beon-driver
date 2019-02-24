@@ -9,7 +9,7 @@
   <img class="loading-img-center" src="/assets/img/beon-logo-white.png" />
 </div>
 
-<ion-header>
+<div class="header-container">
     
     <div class="top-balance" padding text-center>
       <div style="text-align: left;margin-bottom: 5px;">
@@ -21,10 +21,10 @@
           WITHDRAW
         </button>
       </div>
-</ion-header>
+</div>
 
 <ion-content class="bg-img-wallet">
- 
+ <div class="wallet-content">
   <div padding *ngIf="!(records | async)?.walletEntries.length">
     <h3 ion-text color="dark">No withdrawals yet</h3>
   </div>
@@ -51,4 +51,5 @@
       </ion-item>
     </ion-list>
   </div>
+</div>
 </ion-content>

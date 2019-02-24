@@ -219,3 +219,13 @@ ion-list.list-full-border {
 .toolbar-background{
   background-color: transparent!important;
 }
+
+.header-container{
+  position: absolute;
+  display: block;
+  top:0px;
+  left: 0px;
+  right: 0px;
+  height: auto;
+  z-index: 99;
+}

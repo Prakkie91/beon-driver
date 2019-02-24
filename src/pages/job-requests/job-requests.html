@@ -8,16 +8,17 @@
   <img src="/assets/img/loader.svg" class="loading-img" />
   <img class="loading-img-center" src="/assets/img/beon-logo-white.png" />
 </div>
-<ion-header>
+<div class="header-container">
     <div class="top-job-requests" padding>
         <span class="balance-label" ion-text color="light">Job Requests</span>
     </div>
-</ion-header>
+</div>
 
 <ion-content class="bg-img-job-requests">
+  <div class="job-requests-content">
   <!-- list of history records -->
   <div padding *ngIf="!(records | async)?.jobOffers.length">
-    <h5 ion-text color="light">No job offers yet, we will let you know when we have a job for you!</h5>
+    <h5 ion-text>No job offers yet, we will let you know when we have a job for you!</h5>
   </div>
   <ion-slides pager="true">
     <ion-slide *ngFor="let record of (records | async)?.jobOffers">
@@ -67,6 +68,6 @@
     </ion-slide>
   </ion-slides>
 
-
+</div>
 
 </ion-content>

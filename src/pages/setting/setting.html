@@ -8,17 +8,16 @@
   <img src="/assets/img/loader.svg" class="loading-img"/>
   <img class="loading-img-center" src="/assets/img/beon-logo-white.png" />
 </div>
-<ion-header>
+<div class="header-container">
     <div class="top-settings" padding>
         <span class="balance-label" ion-text color="light">Settings</span>
     </div>
-</ion-header>
+</div>
 
 <ion-content class="bg-img-settings">
-
+<div class="settings-content">
   <form [formGroup]="userBasicInfo"  text-center>
     <ion-list class="settings-list">
-      <ion-item class="item-divider">General</ion-item>
       <ion-item>
         <ion-label>Full Name</ion-label>
         <ion-input formControlName="name" type="text" ></ion-input>
@@ -33,8 +32,10 @@
       </ion-item>
 
     </ion-list>
+
     <button class="settings-btn" ion-button color="secondary" (click)="save()">
       UPDATE
     </button>
   </form>
+</div>
 </ion-content>
