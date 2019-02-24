@@ -45,7 +45,7 @@ export class LocationTrackingService {
   startTracking() {
     let self = this;
     self.foregroundTracking();
-    if (this.platform.is('cordova')) {
+    if (this.platform.is('cordova') && false) {
       self.backgroundTracking();
     }
   }
